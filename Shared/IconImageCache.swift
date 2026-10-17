@@ -14,7 +14,7 @@ import Images
 
 @MainActor final class IconImageCache {
 
-	static var shared = IconImageCache()
+	static var shared: IconImageCache!  // set by the app root; removed in the Shared/iOS port
 
 	private var smartFeedIconImageCache = [SidebarItemIdentifier: IconImage]()
 	private var feedIconImageCache = [SidebarItemIdentifier: IconImage]()
@@ -22,7 +22,14 @@ import Images
 	private var smallIconImageCache = [SidebarItemIdentifier: IconImage]()
 	private var authorIconImageCache = [Author: IconImage]()
 
-	init() {
+	private let feedIconDownloader: FeedIconDownloader
+	private let faviconDownloader: FaviconDownloader
+	private let authorAvatarDownloader: AuthorAvatarDownloader
+
+	init(feedIconDownloader: FeedIconDownloader, faviconDownloader: FaviconDownloader, authorAvatarDownloader: AuthorAvatarDownloader) {
+		self.feedIconDownloader = feedIconDownloader
+		self.faviconDownloader = faviconDownloader
+		self.authorAvatarDownloader = authorAvatarDownloader
 		NotificationCenter.default.addObserver(self, selector: #selector(handleLowMemory(_:)), name: .lowMemory, object: nil)
 	}
 
@@ -68,23 +75,23 @@ import Images
 				for author in authors {
 					if let avatarURL = author.avatarURL, !authorsSeen.contains(avatarURL) {
 						authorsSeen.insert(avatarURL)
-						_ = AuthorAvatarDownloader.shared.image(for: author)
+						_ = authorAvatarDownloader.image(for: author)
 					}
 				}
 			}
 
 			if let feed = article.feed, let feedID = feed.sidebarItemID, !feedsSeen.contains(feedID) {
 				feedsSeen.insert(feedID)
-				_ = FeedIconDownloader.shared.icon(for: feed)
-				_ = FaviconDownloader.shared.faviconAsIcon(for: feed)
+				_ = feedIconDownloader.icon(for: feed)
+				_ = faviconDownloader.faviconAsIcon(for: feed)
 			}
 		}
 	}
 
 	func prefetchImagesForFeeds(_ feeds: [Feed]) {
 		for feed in feeds {
-			_ = FeedIconDownloader.shared.icon(for: feed)
-			_ = FaviconDownloader.shared.faviconAsIcon(for: feed)
+			_ = feedIconDownloader.icon(for: feed)
+			_ = faviconDownloader.faviconAsIcon(for: feed)
 		}
 	}
 
@@ -138,14 +145,14 @@ private extension IconImageCache {
 		// dictionaries so a newly arrived icon replaces a stale one. The dictionaries
 		// keep the last known icons across the downloaders’ low-memory and background flushes.
 		// <https://github.com/Ranchero-Software/NetNewsWire/issues/5376>
-		if let iconImage = FeedIconDownloader.shared.cachedIcon(for: feed) {
+		if let iconImage = feedIconDownloader.cachedIcon(for: feed) {
 			feedIconImageCache[feedID] = iconImage
 			return iconImage
 		}
 		if let iconImage = feedIconImageCache[feedID] {
 			return iconImage
 		}
-		if let faviconImage = FaviconDownloader.shared.cachedFaviconAsIcon(for: feed) {
+		if let faviconImage = faviconDownloader.cachedFaviconAsIcon(for: feed) {
 			faviconImageCache[feedID] = faviconImage
 			return faviconImage
 		}
@@ -177,7 +184,7 @@ private extension IconImageCache {
 		if let iconImage = authorIconImageCache[author] {
 			return iconImage
 		}
-		if let iconImage = AuthorAvatarDownloader.shared.cachedImage(for: author) {
+		if let iconImage = authorAvatarDownloader.cachedImage(for: author) {
 			authorIconImageCache[author] = iconImage
 			return iconImage
 		}

@@ -25,10 +25,10 @@ protocol SmallIconProvider {
 
 @MainActor extension Feed: SmallIconProvider {
 	var smallIcon: IconImage? {
-		if let iconImage = FaviconDownloader.shared.favicon(for: self) {
+		if let iconImage = FaviconDownloader.current.favicon(for: self) {
 			return iconImage
 		}
-		return FaviconGenerator.shared.favicon(self)
+		return FaviconGenerator.current.favicon(self)
 	}
 }
 

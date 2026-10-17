@@ -38,7 +38,6 @@ extension ImageDownloadError: LocalizedError {
 }
 
 @MainActor public final class ImageDownloader {
-	public static let shared = ImageDownloader(downloader: Downloader.current, activityLog: ActivityLog.current)
 
 	nonisolated static private let logger = Logger(subsystem: Logger.nnwSubsystem, category: "ImageDownloader")
 
@@ -50,9 +49,12 @@ extension ImageDownloadError: LocalizedError {
 	private let downloader: Downloader
 	private let activityLog: ActivityLog
 
-	public init(downloader: Downloader, activityLog: ActivityLog) {
+	private let imageMetadataDatabase: ImageMetadataDatabase
+
+	public init(downloader: Downloader, activityLog: ActivityLog, imageMetadataDatabase: ImageMetadataDatabase) {
 		self.downloader = downloader
 		self.activityLog = activityLog
+		self.imageMetadataDatabase = imageMetadataDatabase
 		let folder = AppConfig.cacheSubfolder(named: "Images")
 		self.diskCache = BinaryDiskCache(folder: folder.path)
 		self.queue = DispatchQueue(label: "ImageDownloader serial queue - \(folder.path)")
@@ -81,7 +83,7 @@ extension ImageDownloadError: LocalizedError {
 		if let data = imageCache[url] {
 			return data
 		}
-		if ImageMetadataDatabase.shared.recentlyFailed(url: url) {
+		if imageMetadataDatabase.recentlyFailed(url: url) {
 			Self.logger.debug("Skipping recently-failed URL: \(url)")
 			return nil
 		}
@@ -126,13 +128,13 @@ private extension ImageDownloader {
 				activityLog.didComplete(activityOwner, kind: activityKind, message: message, returnedFromCache: downloadResponse.returnedFromCache)
 			}
 			cacheImage(url, image)
-			ImageMetadataDatabase.shared.clearFailure(url: url)
+			imageMetadataDatabase.clearFailure(url: url)
 		} catch {
 			if let activityOwner, let activityKind {
 				activityLog.didFail(activityOwner, kind: activityKind, error: error)
 			}
 			if !error.isTransient {
-				ImageMetadataDatabase.shared.recordFailure(url: url, statusCode: error.statusCode)
+				imageMetadataDatabase.recordFailure(url: url, statusCode: error.statusCode)
 			}
 		}
 		urlsInProgress.remove(url)

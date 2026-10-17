@@ -14,8 +14,6 @@ import RSDatabaseObjC
 /// Per-URL image metadata: discovered URLs and failure tracking.
 @MainActor public final class ImageMetadataDatabase {
 
-	public static let shared = ImageMetadataDatabase()
-
 	public static let failureRetryDays = 5
 	private static let failureRetentionDays = 33
 
@@ -36,7 +34,7 @@ import RSDatabaseObjC
 	CREATE TABLE IF NOT EXISTS feedIconURL (feedURL TEXT PRIMARY KEY NOT NULL, iconURL TEXT NOT NULL, lastChecked REAL NOT NULL);
 	"""
 
-	private init() {
+	public init() {
 		let databasePath = AppConfig.dataFolder
 			.appendingPathComponent("ImageMetadata.db").path
 		self.databasePath = databasePath

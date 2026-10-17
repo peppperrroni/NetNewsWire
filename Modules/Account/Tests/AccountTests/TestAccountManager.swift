@@ -12,6 +12,7 @@ import RSCore
 import Secrets
 import ActivityLog
 import FeedFinder
+import Articles
 
 @testable import Account
 
@@ -30,6 +31,11 @@ import FeedFinder
 	private lazy var feedFinder = FeedFinder(downloader: Downloader(cache: DownloadCache()), activityLog: activityLog)
 
 	func createAccount(type: AccountType, username: String? = nil, password: String? = nil) -> Account {
+
+		// Tests have no app root; install the accessor it would set.
+		if AuthorCache.current == nil {
+			AuthorCache.current = AuthorCache()
+		}
 
 		let accountID = UUID().uuidString
 		let accountFolder = accountsFolder.appendingPathComponent("\(type.rawValue)_\(accountID)")

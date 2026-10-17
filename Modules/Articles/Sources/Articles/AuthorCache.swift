@@ -13,11 +13,12 @@ import RSCore
 /// the same `Author` value (and underlying String storage). Cleared on `.lowMemory`.
 public final class AuthorCache: Sendable {
 
-	public static let shared = AuthorCache()
+	/// Set once by the app root. Read only where nothing can be injected (see the app README).
+	nonisolated(unsafe) public static var current: AuthorCache!
 
 	private let cache = OSAllocatedUnfairLock<[String: Author]>(initialState: [:])
 
-	init() {
+	public init() {
 		if !Platform.isRunningUnitTests {
 			NotificationCenter.default.addObserver(self, selector: #selector(handleLowMemory(_:)), name: .lowMemory, object: nil)
 		}

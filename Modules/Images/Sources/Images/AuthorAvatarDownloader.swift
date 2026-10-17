@@ -16,13 +16,12 @@ extension Notification.Name {
 }
 
 @MainActor public final class AuthorAvatarDownloader {
-	public static let shared = AuthorAvatarDownloader()
-
-	private let imageDownloader = ImageDownloader.shared
+	private let imageDownloader: ImageDownloader
 	private var cache = [String: IconImage]() // avatarURL: RSImage
 	private var waitingForAvatarURLs = Set<String>()
 
-	init() {
+	public init(imageDownloader: ImageDownloader) {
+		self.imageDownloader = imageDownloader
 		NotificationCenter.default.addObserver(self, selector: #selector(imageDidBecomeAvailable(_:)), name: .imageDidBecomeAvailable, object: imageDownloader)
 		NotificationCenter.default.addObserver(self, selector: #selector(handleLowMemory(_:)), name: .lowMemory, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(handleAppDidGoToBackground(_:)), name: .appDidGoToBackground, object: nil)

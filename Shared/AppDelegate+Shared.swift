@@ -21,11 +21,11 @@ extension AppDelegate {
 		await vacuumAndLog(databasePath: AccountManager.shared.errorLogDatabase.databasePath) {
 			await AccountManager.shared.errorLogDatabase.vacuum()
 		}
-		await vacuumAndLog(databasePath: HTMLMetadataDatabase.shared.databasePath) {
-			await HTMLMetadataDatabase.shared.vacuum()
+		await vacuumAndLog(databasePath: deps.htmlMetadataDatabase.databasePath) {
+			await deps.htmlMetadataDatabase.vacuum()
 		}
-		await vacuumAndLog(databasePath: ImageMetadataDatabase.shared.databasePath) {
-			await ImageMetadataDatabase.shared.vacuum()
+		await vacuumAndLog(databasePath: deps.imageMetadataDatabase.databasePath) {
+			await deps.imageMetadataDatabase.vacuum()
 		}
 		await AccountManager.shared.vacuumAccountDatabases()
 	}

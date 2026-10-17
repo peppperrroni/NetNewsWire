@@ -11,7 +11,8 @@ import RSCore
 import Account
 
 @MainActor public final class FaviconGenerator {
-	public static let shared = FaviconGenerator()
+	/// Set once by the app root. Read only where nothing can be injected (see the app README).
+	nonisolated(unsafe) public static var current: FaviconGenerator!
 
 	/// The template image used to synthesize colored placeholders. The app must
 	/// set this at launch (see Mac/iOS AppDelegate) before any feed is shown.
@@ -19,7 +20,7 @@ import Account
 
 	private var cache = [String: IconImage]() // feedURL: IconImage
 
-	init() {
+	public init() {
 		NotificationCenter.default.addObserver(self, selector: #selector(handleLowMemory(_:)), name: .lowMemory, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(handleAppDidGoToBackground(_:)), name: .appDidGoToBackground, object: nil)
 	}

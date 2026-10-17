@@ -15,7 +15,6 @@ import ActivityLog
 
 nonisolated public final class HTMLMetadataDownloader: Sendable {
 
-	public static let shared = HTMLMetadataDownloader(downloader: Downloader.current, activityLog: ActivityLog.current)
 
 	private static let logger = Logger(subsystem: Logger.nnwSubsystem, category: "HTMLMetadataDownloader")
 
@@ -28,10 +27,12 @@ nonisolated public final class HTMLMetadataDownloader: Sendable {
 
 	private let downloader: Downloader
 	private let activityLog: ActivityLog
+	private let database: HTMLMetadataDatabase
 
-	public init(downloader: Downloader, activityLog: ActivityLog) {
+	public init(downloader: Downloader, activityLog: ActivityLog, database: HTMLMetadataDatabase) {
 		self.downloader = downloader
 		self.activityLog = activityLog
+		self.database = database
 		NotificationCenter.default.addObserver(self, selector: #selector(handleAppDidGoToBackground(_:)), name: .appDidGoToBackground, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(handleLowMemory(_:)), name: .lowMemory, object: nil)
 	}
@@ -73,13 +74,13 @@ nonisolated private extension HTMLMetadataDownloader {
 
 	func fetchAndDownloadIfNeeded(_ url: String) {
 		Task { @MainActor in
-			if let record = await HTMLMetadataDatabase.shared.cachedRecord(for: url) {
+			if let record = await self.database.cachedRecord(for: url) {
 				cacheRecord(record)
 				postNotification(record)
 				return
 			}
 
-			if await HTMLMetadataDatabase.shared.recentlyFailed(for: url) {
+			if await self.database.recentlyFailed(for: url) {
 				return
 			}
 
@@ -115,7 +116,7 @@ nonisolated private extension HTMLMetadataDownloader {
 			let activityLog = self.activityLog
 			let kind = ActivityKind.downloadHTMLMetadata(urlString: url)
 
-			let lastDownloadDate = await HTMLMetadataDatabase.shared.lastDownloadDate(for: url)
+			let lastDownloadDate = await self.database.lastDownloadDate(for: url)
 			let detail = lastDownloadDate.map { DateFormatter.logTimestamp.string(from: $0) }
 
 			activityLog.createActivity(owner: .htmlMetadataDownloader, kind: kind, detail: detail)
@@ -131,7 +132,7 @@ nonisolated private extension HTMLMetadataDownloader {
 					let record = HTMLMetadataRecord(url: url, metadata: htmlMetadata)
 
 					let statusCode = response.forcedStatusCode
-					await HTMLMetadataDatabase.shared.save(record, statusCode: statusCode)
+					await self.database.save(record, statusCode: statusCode)
 					cacheRecord(record)
 					postNotification(record)
 
@@ -141,7 +142,7 @@ nonisolated private extension HTMLMetadataDownloader {
 
 				let statusCode = downloadResponse.response?.forcedStatusCode ?? -1
 				if (400...499).contains(statusCode) {
-					await HTMLMetadataDatabase.shared.noteFailure(url: url, statusCode: statusCode)
+					await self.database.noteFailure(url: url, statusCode: statusCode)
 				}
 
 				// Download failed — try returning stale cached data.
@@ -153,7 +154,7 @@ nonisolated private extension HTMLMetadataDownloader {
 
 			} catch {
 				// Pre-response failure (DNS, TLS, network).
-				await HTMLMetadataDatabase.shared.noteTransientFailure(url: url)
+				await self.database.noteTransientFailure(url: url)
 				await returnStaleCacheIfAvailable(url)
 
 				activityLog.didFail(.htmlMetadataDownloader, kind: kind, error: error)
@@ -172,7 +173,7 @@ nonisolated private extension HTMLMetadataDownloader {
 	}
 
 	@MainActor func returnStaleCacheIfAvailable(_ url: String) async {
-		if let record = await HTMLMetadataDatabase.shared.staleCachedRecord(for: url) {
+		if let record = await self.database.staleCachedRecord(for: url) {
 			cacheRecord(record)
 			postNotification(record)
 		}

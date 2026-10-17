@@ -54,7 +54,7 @@ import Testing
 @Suite(.serialized) struct AuthorCacheSharedTests {
 
 	init() {
-		AuthorCache.shared.clear()
+		AuthorCache.current = AuthorCache()
 	}
 
 	@Test func roundTripThroughAuthorsWithJSON() throws {
@@ -65,7 +65,7 @@ import Testing
 
 		_ = Author.authorsWithJSON(data)
 		_ = Author.authorsWithJSON(data)
-		#expect(AuthorCache.shared.count() == 1)
+		#expect(AuthorCache.current.count() == 1)
 	}
 }
 

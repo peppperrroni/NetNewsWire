@@ -12,11 +12,9 @@ import RSDatabaseObjC
 
 public final actor HTMLMetadataDatabase {
 
-	@MainActor public static let shared: HTMLMetadataDatabase = {
-		let databasePath = AppConfig.dataFolder
-			.appendingPathComponent("HTMLMetadata.db").path
-		return HTMLMetadataDatabase(databasePath: databasePath)
-	}()
+	@MainActor public static var defaultDatabasePath: String {
+		AppConfig.dataFolder.appendingPathComponent("HTMLMetadata.db").path
+	}
 
 	public nonisolated let databasePath: String
 
@@ -52,7 +50,7 @@ public final actor HTMLMetadataDatabase {
 	private static let persistentFailureRetryDays = 11
 	private static let transientFailureRetryHours = 5
 
-	private init(databasePath: String) {
+	public init(databasePath: String) {
 		self.databasePath = databasePath
 		let database = FMDatabase.openAndSetUpDatabase(path: databasePath)
 		database.runCreateStatements(Self.tableCreationStatements)

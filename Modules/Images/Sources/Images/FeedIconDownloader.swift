@@ -20,15 +20,18 @@ extension Notification.Name {
 
 @MainActor public final class FeedIconDownloader {
 
-	public static let shared = FeedIconDownloader()
-
-	private let imageDownloader = ImageDownloader.shared
+	private let imageDownloader: ImageDownloader
+	private let imageMetadataDatabase: ImageMetadataDatabase
+	private let htmlMetadataDownloader: HTMLMetadataDownloader
 	private var homePagesWithNoIconURL = Set<String>()
 	private var cache = [Feed: IconImage]()
 	private var waitingForFeedURLs = [String: Set<Feed>]()
 	private var feedsWaitingForHTMLMetadata = Set<Feed>()
 
-	init() {
+	public init(imageDownloader: ImageDownloader, imageMetadataDatabase: ImageMetadataDatabase, htmlMetadataDownloader: HTMLMetadataDownloader) {
+		self.imageDownloader = imageDownloader
+		self.imageMetadataDatabase = imageMetadataDatabase
+		self.htmlMetadataDownloader = htmlMetadataDownloader
 		NotificationCenter.default.addObserver(self, selector: #selector(imageDidBecomeAvailable(_:)), name: .imageDidBecomeAvailable, object: imageDownloader)
 		NotificationCenter.default.addObserver(self, selector: #selector(handleFeedSettingDidChange(_:)), name: .feedSettingDidChange, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(handleHTMLMetadataAvailable(_:)), name: .htmlMetadataAvailable, object: nil)
@@ -102,7 +105,7 @@ extension Notification.Name {
 		// <https://github.com/Ranchero-Software/NetNewsWire/issues/5376>
 		let feedDeclaresIconURL = feed.iconURL != nil && !Self.shouldIgnoreFeedIconURL(feed)
 
-		if !feedDeclaresIconURL, let previouslyFoundIconURL = ImageMetadataDatabase.shared.iconURL(forFeedURL: feed.url) {
+		if !feedDeclaresIconURL, let previouslyFoundIconURL = imageMetadataDatabase.iconURL(forFeedURL: feed.url) {
 			icon(forURL: previouslyFoundIconURL, feed: feed) { image, _ in
 				if self.cache[feed] != nil {
 					return // already cached
@@ -204,7 +207,7 @@ private extension FeedIconDownloader {
 			return
 		}
 
-		guard let metadata = HTMLMetadataDownloader.shared.cachedMetadata(for: homePageURL) else {
+		guard let metadata = htmlMetadataDownloader.cachedMetadata(for: homePageURL) else {
 			feedsWaitingForHTMLMetadata.insert(feed)
 			resultBlock(nil, nil)
 			return
@@ -239,7 +242,7 @@ private extension FeedIconDownloader {
 		}
 
 		let urlIsUnfetchable = !url.hasPrefix("http://") && !url.hasPrefix("https://")
-		if urlIsUnfetchable || ImageMetadataDatabase.shared.recentlyFailed(url: url) {
+		if urlIsUnfetchable || imageMetadataDatabase.recentlyFailed(url: url) {
 			imageResultBlock(nil, true)
 			return
 		}
@@ -257,6 +260,6 @@ private extension FeedIconDownloader {
 	}
 
 	func cacheIconURLForFeedURL(iconURL: String, feedURL: String) {
-		ImageMetadataDatabase.shared.saveFeedIconURL(feedURL: feedURL, iconURL: iconURL)
+		imageMetadataDatabase.saveFeedIconURL(feedURL: feedURL, iconURL: iconURL)
 	}
 }
