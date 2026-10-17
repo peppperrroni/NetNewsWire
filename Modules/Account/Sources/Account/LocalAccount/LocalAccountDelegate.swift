@@ -14,6 +14,7 @@ import ArticlesDatabase
 import FeedFinder
 import RSWeb
 import Secrets
+import ActivityLog
 
 @MainActor final class LocalAccountDelegate: AccountDelegate {
 	weak var account: Account?
@@ -32,9 +33,18 @@ import Secrets
 	let server: String? = nil
 	var credentials: Credentials?
 	var accountSettings: AccountSettings?
+	private let activityLog: ActivityLog
+	private let batchUpdate: BatchUpdate
+	private let feedFinder: FeedFinder
+
+	init(activityLog: ActivityLog, batchUpdate: BatchUpdate, feedFinder: FeedFinder) {
+		self.feedFinder = feedFinder
+		self.activityLog = activityLog
+		self.batchUpdate = batchUpdate
+	}
 
 	private lazy var refresher: LocalAccountRefresher = {
-		let refresher = LocalAccountRefresher()
+		let refresher = LocalAccountRefresher(activityLog: activityLog)
 		refresher.delegate = self
 		NotificationCenter.default.addObserver(self, selector: #selector(progressInfoDidChange(_:)), name: .progressInfoDidChange, object: refresher)
 		return refresher
@@ -81,7 +91,7 @@ import Secrets
 				return
 			}
 
-			BatchUpdate.shared.perform {
+			batchUpdate.perform {
 				account.loadOPMLItems(children, isManualImport: true)
 			}
 		}
@@ -189,12 +199,12 @@ private extension LocalAccountDelegate {
 		// We need to use a batch update here because we need to assign add the feed to the
 		// container before the name has been downloaded.  This will put it in the sidebar
 		// with an Untitled name if we don't delay it being added to the sidebar.
-		BatchUpdate.shared.start()
+		batchUpdate.start()
 		defer {
-			BatchUpdate.shared.end()
+			batchUpdate.end()
 		}
 
-		let feedSpecifiers = try await FeedFinder.find(url: url)
+		let feedSpecifiers = try await feedFinder.find(url: url)
 
 		guard let bestFeedSpecifier = FeedSpecifier.bestFeed(in: feedSpecifiers),
 			  let url = URL(string: bestFeedSpecifier.urlString) else {
@@ -205,7 +215,7 @@ private extension LocalAccountDelegate {
 			throw AccountError.createErrorAlreadySubscribed
 		}
 
-		let (parsedFeed, response) = try await InitialFeedDownloader.download(url)
+		let (parsedFeed, response) = try await InitialFeedDownloader.download(url, feedFinder: feedFinder)
 		guard let parsedFeed else {
 			throw AccountError.createErrorNotFound
 		}

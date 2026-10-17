@@ -346,7 +346,10 @@ struct SidebarItemNode: Hashable, Sendable {
 		return width
 	}
 
-	init(rootSplitViewController: RootSplitViewController) {
+	let deps: AppDependencies
+
+	init(rootSplitViewController: RootSplitViewController, deps: AppDependencies) {
+		self.deps = deps
 		self.rootSplitViewController = rootSplitViewController
 		self.rootSplitViewController.minimumPrimaryColumnWidth = SceneCoordinator.minimumSidebarWidth
 		self.rootSplitViewController.maximumPrimaryColumnWidth = SceneCoordinator.maximumSidebarWidth
@@ -1565,6 +1568,7 @@ struct SidebarItemNode: Hashable, Sendable {
 	func showSettings(scrollToArticlesSection: Bool = false) {
 		let settingsNavController = UIStoryboard.settings.instantiateInitialViewController() as! UINavigationController
 		let settingsViewController = settingsNavController.topViewController as! SettingsViewController
+		settingsViewController.deps = deps
 		settingsViewController.scrollToArticlesSection = scrollToArticlesSection
 		settingsNavController.modalPresentationStyle = .formSheet
 		settingsViewController.presentingParentController = rootSplitViewController
@@ -1572,7 +1576,7 @@ struct SidebarItemNode: Hashable, Sendable {
 	}
 
 	func showCurrentActivity() {
-		let hostingController = UIHostingController(rootView: NavigationStack { CurrentActivityView() })
+		let hostingController = UIHostingController(rootView: NavigationStack { CurrentActivityView(activityLog: deps.activityLog) })
 		if let sheet = hostingController.sheetPresentationController {
 			sheet.detents = [.medium(), .large()]
 			sheet.prefersGrabberVisible = true

@@ -146,9 +146,9 @@ final class DeleteCommand: UndoableCommand {
 				return
 			}
 
-			BatchUpdate.shared.start()
+			account.batchUpdate.start()
 			account.removeFeed(feed, from: container) { result in
-				BatchUpdate.shared.end()
+				account.batchUpdate.end()
 				completion()
 				self.checkResult(result)
 			}
@@ -159,9 +159,9 @@ final class DeleteCommand: UndoableCommand {
 				return
 			}
 
-			BatchUpdate.shared.start()
+			account.batchUpdate.start()
 			account.removeFolder(folder) { result in
-				BatchUpdate.shared.end()
+				account.batchUpdate.end()
 				completion()
 				self.checkResult(result)
 			}
@@ -182,9 +182,9 @@ final class DeleteCommand: UndoableCommand {
 			return
 		}
 
-		BatchUpdate.shared.start()
+		account.batchUpdate.start()
 		account.restoreFeed(feed, container: container) { result in
-			BatchUpdate.shared.end()
+			account.batchUpdate.end()
 			self.checkResult(result)
 		}
 	}
@@ -195,9 +195,9 @@ final class DeleteCommand: UndoableCommand {
 			return
 		}
 
-		BatchUpdate.shared.start()
+		account.batchUpdate.start()
 		account.restoreFolder(folder) { result in
-			BatchUpdate.shared.end()
+			account.batchUpdate.end()
 			self.checkResult(result)
 		}
 	}

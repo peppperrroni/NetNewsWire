@@ -32,7 +32,10 @@ final class CloudKitSendStatusOperation: MainThreadOperation, @unchecked Sendabl
 	/// Whether any statuses failed to send. Read after the operation completes.
 	private(set) var didFail = false
 
-	init(account: Account, articlesZone: CloudKitArticlesZone, database: SyncDatabase, syncArticleContentForUnreadArticles: @escaping @Sendable () -> Bool, syncErrorHandler: CloudKitSyncErrorHandler?) {
+	private let activityLog: ActivityLog
+
+	init(account: Account, articlesZone: CloudKitArticlesZone, database: SyncDatabase, syncArticleContentForUnreadArticles: @escaping @Sendable () -> Bool, syncErrorHandler: CloudKitSyncErrorHandler?, activityLog: ActivityLog) {
+		self.activityLog = activityLog
 		self.account = account
 		self.accountID = account.accountID
 		self.articlesZone = articlesZone
@@ -45,7 +48,6 @@ final class CloudKitSendStatusOperation: MainThreadOperation, @unchecked Sendabl
 	@MainActor override func run() {
 		Self.logger.debug("iCloud: Sending article statuses")
 
-		let activityLog = ActivityLog.shared
 		let taskNumber = activityLog.nextTaskNumberString()
 		let activityID = activityLog.createActivity(owner: .account(accountID: accountID, displayName: account?.nameForDisplay ?? accountID), kind: .sendArticleStatuses, detail: "Sending article statuses \(taskNumber)")
 		activityLog.didStart(id: activityID)
@@ -123,7 +125,7 @@ final class CloudKitSendStatusOperation: MainThreadOperation, @unchecked Sendabl
 		do {
 			let withContent = try await account.logActivity(
 				kind: .sendArticleStatuses,
-				detail: ActivityLog.shared.nextTaskNumberString(),
+				detail: activityLog.nextTaskNumberString(),
 				successMessage: { "\(statusUpdates.count) status\(statusUpdates.count == 1 ? "" : "es") sent\($0 > 0 ? " (\($0) with content)" : "")" },
 				{
 					try await articlesZone.modifyArticles(statusUpdates)

@@ -46,7 +46,10 @@ import Secrets
 
 	static let logger = NewsBlur.logger
 
-	init(dataFolder: String) {
+	let batchUpdate: BatchUpdate
+
+	init(dataFolder: String, batchUpdate: BatchUpdate) {
+		self.batchUpdate = batchUpdate
 		caller = NewsBlurAPICaller()
 
 		syncDatabase = SyncDatabase(databasePath: dataFolder.appending("/DB.sqlite3"))

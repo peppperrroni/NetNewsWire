@@ -20,10 +20,9 @@ public extension Notification.Name {
 /// A class for batch updating.
 @MainActor public final class BatchUpdate {
 
-	/// The shared batch update object.
-	public static let shared = BatchUpdate()
-
 	private var count = 0
+
+	public init() {}
 
 	/// Is updating in progress?
 	public var isPerforming: Bool {

@@ -119,7 +119,13 @@ import Secrets
 	// <https://github.com/Ranchero-Software/NetNewsWire/issues/3949>
 	private let rateLimiter = SyncRateLimiter(serviceName: "Feedly", treatsForbiddenAsRateLimited: true, logger: FeedlyAccountDelegate.logger)
 
-	init(dataFolder: String, api: FeedlyAPICaller.API) {
+	private let activityLog: ActivityLog
+
+	private let feedFinder: FeedFinder
+
+	init(dataFolder: String, api: FeedlyAPICaller.API, activityLog: ActivityLog, feedFinder: FeedFinder) {
+		self.feedFinder = feedFinder
+		self.activityLog = activityLog
 
 		self.caller = FeedlyAPICaller(api: api)
 
@@ -160,7 +166,7 @@ import Secrets
 		if rateLimiter.shouldSkip() {
 			if let resumeDate = rateLimiter.resumeDate {
 				let resumeTime = DateFormatter.localizedString(from: resumeDate, dateStyle: .none, timeStyle: .short)
-				ActivityLog.shared.logCompletedActivity(owner: account.activityOwner, kind: .refreshAll, message: "Skipped — rate limited by Feedly until \(resumeTime)")
+				activityLog.logCompletedActivity(owner: account.activityOwner, kind: .refreshAll, message: "Skipped — rate limited by Feedly until \(resumeTime)")
 			}
 			return
 		}
@@ -923,7 +929,7 @@ private extension FeedlyAccountDelegate {
 		guard let url = URL(string: urlString) else {
 			throw AccountError.createErrorNotFound
 		}
-		let feedSpecifiers = try await FeedFinder.find(url: url)
+		let feedSpecifiers = try await feedFinder.find(url: url)
 		let filteredFeedSpecifiers = feedSpecifiers.filter { !$0.urlString.contains("json") }
 		guard let bestFeedSpecifier = FeedSpecifier.bestFeed(in: filteredFeedSpecifiers), bestFeedSpecifier.urlString != urlString else {
 			throw AccountError.createErrorNotFound

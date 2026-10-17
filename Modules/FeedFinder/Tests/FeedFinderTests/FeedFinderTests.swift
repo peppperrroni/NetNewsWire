@@ -9,11 +9,13 @@
 import XCTest
 @testable import FeedFinder
 import RSParser
+import RSWeb
+import ActivityLog
 
 final class FeedFinderTests: XCTestCase {
 
-	func testExample() throws {
-		let feedFinder = FeedFinder()
+	@MainActor func testExample() throws {
+		let feedFinder = FeedFinder(downloader: Downloader(cache: DownloadCache()), activityLog: ActivityLog())
 		XCTAssertNotNil(feedFinder)
 	}
 

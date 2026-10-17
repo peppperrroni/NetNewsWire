@@ -92,7 +92,14 @@ final class ReaderAPIAccountDelegate: AccountDelegate {
 		}
 	}
 
-	init(dataFolder: String, variant: ReaderAPIVariant) {
+	private let activityLog: ActivityLog
+	private let batchUpdate: BatchUpdate
+	private let feedFinder: FeedFinder
+
+	init(dataFolder: String, variant: ReaderAPIVariant, activityLog: ActivityLog, batchUpdate: BatchUpdate, feedFinder: FeedFinder) {
+		self.feedFinder = feedFinder
+		self.activityLog = activityLog
+		self.batchUpdate = batchUpdate
 		let databasePath = (dataFolder as NSString).appendingPathComponent("Sync.sqlite3")
 		syncDatabase = SyncDatabase(databasePath: databasePath)
 
@@ -114,7 +121,7 @@ final class ReaderAPIAccountDelegate: AccountDelegate {
 		if rateLimiter.shouldSkip() {
 			if let resumeDate = rateLimiter.resumeDate {
 				let resumeTime = DateFormatter.localizedString(from: resumeDate, dateStyle: .none, timeStyle: .short)
-				ActivityLog.shared.logCompletedActivity(owner: account.activityOwner, kind: .refreshAll, message: "Skipped — rate limited by \(account.type.displayName) until \(resumeTime)")
+				activityLog.logCompletedActivity(owner: account.activityOwner, kind: .refreshAll, message: "Skipped — rate limited by \(account.type.displayName) until \(resumeTime)")
 			}
 			return
 		}
@@ -465,7 +472,7 @@ final class ReaderAPIAccountDelegate: AccountDelegate {
 
 		do {
 			return try await account.logActivity(kind: .subscribeFeed, detail: url.absoluteString) {
-				let feedSpecifiers = try await FeedFinder.find(url: url)
+				let feedSpecifiers = try await feedFinder.find(url: url)
 				refreshProgress.completeTask()
 
 				let filteredFeedSpecifiers = feedSpecifiers.filter { !$0.urlString.contains("json") }
@@ -756,7 +763,7 @@ private extension ReaderAPIAccountDelegate {
 				let (subscriptions, subscriptionsResponse) = try await caller.retrieveSubscriptions()
 				refreshProgress.completeTask()
 
-				BatchUpdate.shared.perform {
+				batchUpdate.perform {
 					self.syncFolders(account, tags)
 					self.syncFeeds(account, subscriptions)
 					self.syncFeedFolderRelationship(account, subscriptions)
@@ -779,9 +786,10 @@ private extension ReaderAPIAccountDelegate {
 	/// page as a numbered sub-activity of `kind` reporting the page's article-ID count.
 	func articleIDPageHandler(for account: Account, kind: ActivityKind) -> @MainActor (Int) -> Void {
 		let owner = account.activityOwner
+		let activityLog = activityLog
 		return { count in
-			let detail = ActivityLog.shared.nextTaskNumberString()
-			ActivityLog.shared.logCompletedActivity(owner: owner, kind: kind, detail: detail, message: "\(count) article IDs")
+			let detail = activityLog.nextTaskNumberString()
+			activityLog.logCompletedActivity(owner: owner, kind: kind, detail: detail, message: "\(count) article IDs")
 		}
 	}
 

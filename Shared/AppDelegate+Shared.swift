@@ -31,7 +31,7 @@ extension AppDelegate {
 	}
 
 	private func vacuumAndLog(databasePath: String, _ work: () async -> Void) async {
-		await ActivityLog.shared.logActivity(owner: .app, kind: .vacuumDatabase, detail: AppConfig.relativeDataPath(databasePath)) {
+		await deps.activityLog.logActivity(owner: .app, kind: .vacuumDatabase, detail: AppConfig.relativeDataPath(databasePath)) {
 			await work()
 		}
 	}

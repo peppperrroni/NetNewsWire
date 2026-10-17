@@ -31,7 +31,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 			rootViewController.preferredDisplayMode = .twoBesideSecondary
 		}
 
-		coordinator = SceneCoordinator(rootSplitViewController: rootViewController)
+		coordinator = SceneCoordinator(rootSplitViewController: rootViewController, deps: appDelegate.deps)
 		rootViewController.coordinator = coordinator
 		rootViewController.delegate = coordinator
 

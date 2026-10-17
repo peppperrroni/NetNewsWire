@@ -11,7 +11,7 @@ import Zip
 import RSWeb
 
 public final class ArticleThemeDownloader: Sendable {
-	public static let shared = ArticleThemeDownloader()
+	public static let shared = ArticleThemeDownloader(downloader: Downloader.current)
 
 	public enum ArticleThemeDownloaderError: LocalizedError {
 		case downloadFailed
@@ -35,7 +35,11 @@ public final class ArticleThemeDownloader: Sendable {
 
 	private static let maximumThemeSize = 10_000_000
 
-	private init() {}
+	private let downloader: Downloader
+
+	init(downloader: Downloader) {
+		self.downloader = downloader
+	}
 
 	@MainActor public func downloadTheme(from url: URL) {
 		guard url.isHTTPOrHTTPSURL() else {
@@ -47,7 +51,7 @@ public final class ArticleThemeDownloader: Sendable {
 
 		Task { @MainActor in
 			do {
-				let downloadResponse = try await Downloader.shared.download(url, userAgentStyle: .browser)
+				let downloadResponse = try await downloader.download(url, userAgentStyle: .browser)
 				guard let data = downloadResponse.data, !data.isEmpty,
 					  let response = downloadResponse.response, response.statusIsOK else {
 					throw ArticleThemeDownloaderError.downloadFailed

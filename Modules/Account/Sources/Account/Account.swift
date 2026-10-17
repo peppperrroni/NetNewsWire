@@ -21,6 +21,7 @@ import Secrets
 import ErrorLog
 import ActivityLog
 import os
+import FeedFinder
 
 // Main thread only.
 
@@ -293,26 +294,31 @@ public enum FetchType {
 		}
 	}
 
-	init(dataFolder: String, type: AccountType, accountID: String) {
+	public let activityLog: ActivityLog
+	public let batchUpdate: BatchUpdate
+
+	init(dataFolder: String, type: AccountType, accountID: String, activityLog: ActivityLog, batchUpdate: BatchUpdate, networkMonitor: NetworkMonitor, feedFinder: FeedFinder) {
+		self.activityLog = activityLog
+		self.batchUpdate = batchUpdate
 		switch type {
 		case .onMyMac:
-			self.delegate = LocalAccountDelegate()
+			self.delegate = LocalAccountDelegate(activityLog: activityLog, batchUpdate: batchUpdate, feedFinder: feedFinder)
 		case .cloudKit:
-			self.delegate = CloudKitAccountDelegate(dataFolder: dataFolder)
+			self.delegate = CloudKitAccountDelegate(dataFolder: dataFolder, activityLog: activityLog, networkMonitor: networkMonitor, feedFinder: feedFinder)
 		case .feedbin:
-			self.delegate = FeedbinAccountDelegate(dataFolder: dataFolder)
+			self.delegate = FeedbinAccountDelegate(dataFolder: dataFolder, activityLog: activityLog, batchUpdate: batchUpdate)
 		case .feedly:
-			self.delegate = FeedlyAccountDelegate(dataFolder: dataFolder, api: FeedlyAccountDelegate.environment)
+			self.delegate = FeedlyAccountDelegate(dataFolder: dataFolder, api: FeedlyAccountDelegate.environment, activityLog: activityLog, feedFinder: feedFinder)
 		case .newsBlur:
-			self.delegate = NewsBlurAccountDelegate(dataFolder: dataFolder)
+			self.delegate = NewsBlurAccountDelegate(dataFolder: dataFolder, batchUpdate: batchUpdate)
 		case .freshRSS:
-			self.delegate = ReaderAPIAccountDelegate(dataFolder: dataFolder, variant: .freshRSS)
+			self.delegate = ReaderAPIAccountDelegate(dataFolder: dataFolder, variant: .freshRSS, activityLog: activityLog, batchUpdate: batchUpdate, feedFinder: feedFinder)
 		case .inoreader:
-			self.delegate = ReaderAPIAccountDelegate(dataFolder: dataFolder, variant: .inoreader)
+			self.delegate = ReaderAPIAccountDelegate(dataFolder: dataFolder, variant: .inoreader, activityLog: activityLog, batchUpdate: batchUpdate, feedFinder: feedFinder)
 		case .bazQux:
-			self.delegate = ReaderAPIAccountDelegate(dataFolder: dataFolder, variant: .bazQux)
+			self.delegate = ReaderAPIAccountDelegate(dataFolder: dataFolder, variant: .bazQux, activityLog: activityLog, batchUpdate: batchUpdate, feedFinder: feedFinder)
 		case .theOldReader:
-			self.delegate = ReaderAPIAccountDelegate(dataFolder: dataFolder, variant: .theOldReader)
+			self.delegate = ReaderAPIAccountDelegate(dataFolder: dataFolder, variant: .theOldReader, activityLog: activityLog, batchUpdate: batchUpdate, feedFinder: feedFinder)
 		}
 
 		self.accountID = accountID
@@ -402,8 +408,8 @@ public enum FetchType {
 		}
 	}
 
-	public static func validateCredentials(type: AccountType, credentials: Credentials, endpoint: URL? = nil) async throws -> Credentials? {
-		try await ActivityLog.shared.logActivity(owner: .app, kind: .validateCredentials, detail: type.displayName, successMessage: { $0 == nil ? "Invalid credentials" : "Credentials valid" }, {
+	public static func validateCredentials(type: AccountType, credentials: Credentials, endpoint: URL? = nil, activityLog: ActivityLog) async throws -> Credentials? {
+		try await activityLog.logActivity(owner: .app, kind: .validateCredentials, detail: type.displayName, successMessage: { $0 == nil ? "Invalid credentials" : "Credentials valid" }, {
 			switch type {
 			case .feedbin:
 				return try await FeedbinAccountDelegate.validateCredentials(credentials: credentials, endpoint: endpoint)
@@ -480,7 +486,7 @@ public enum FetchType {
 		durationIsSignificant: ((T) -> Bool)? = nil,
 		_ work: () async throws -> T
 	) async rethrows -> T {
-		try await ActivityLog.shared.logActivity(owner: activityOwner, kind: kind, detail: detail, successMessage: successMessage, durationIsSignificant: durationIsSignificant, work)
+		try await activityLog.logActivity(owner: activityOwner, kind: kind, detail: detail, successMessage: successMessage, durationIsSignificant: durationIsSignificant, work)
 	}
 
 	/// Synchronous overload of `logActivity` for non-async work.
@@ -492,13 +498,13 @@ public enum FetchType {
 		durationIsSignificant: ((T) -> Bool)? = nil,
 		_ work: () throws -> T
 	) rethrows -> T {
-		try ActivityLog.shared.logActivity(owner: activityOwner, kind: kind, detail: detail, successMessage: successMessage, durationIsSignificant: durationIsSignificant, work)
+		try activityLog.logActivity(owner: activityOwner, kind: kind, detail: detail, successMessage: successMessage, durationIsSignificant: durationIsSignificant, work)
 	}
 
 	/// Fetches one page or chunk of a paginated refresh as its own numbered, timed
 	/// sub-activity of `kind`, reporting the page's item count.
 	func logRefreshPage<T>(kind: ActivityKind, message: @escaping (T) -> String, _ fetch: () async throws -> T) async throws -> T {
-		try await logActivity(kind: kind, detail: ActivityLog.shared.nextTaskNumberString(), successMessage: message, fetch)
+		try await logActivity(kind: kind, detail: activityLog.nextTaskNumberString(), successMessage: message, fetch)
 	}
 
 	// MARK: - Syncing Article Status

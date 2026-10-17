@@ -40,7 +40,12 @@ extension Notification.Name {
 	private var lastDownloadAttemptDate: Date
 	private var diskStatus = DiskStatus.unknown
 
-	public init(faviconURL: String, homePageURL: String?, diskCache: BinaryDiskCache, queue: DispatchQueue) {
+	private let downloader: Downloader
+	private let activityLog: ActivityLog
+
+	public init(faviconURL: String, homePageURL: String?, diskCache: BinaryDiskCache, queue: DispatchQueue, downloader: Downloader, activityLog: ActivityLog) {
+		self.downloader = downloader
+		self.activityLog = activityLog
 		self.faviconURL = faviconURL
 		self.homePageURL = homePageURL
 		self.diskCache = diskCache
@@ -140,14 +145,13 @@ private extension SingleFaviconDownloader {
 			throw ImageDownloadError(statusCode: nil, decodingFailed: false, isTransient: false)
 		}
 
-		let activityLog = ActivityLog.shared
 		let kind = ActivityKind.downloadFavicon(faviconURL: faviconURL)
 		activityLog.createActivity(owner: .faviconDownloader, kind: kind, detail: homePageURL)
 		activityLog.didStart(.faviconDownloader, kind: kind)
 
 		let downloadResponse: DownloadResponse
 		do {
-			downloadResponse = try await Downloader.shared.download(url, userAgentStyle: .browser)
+			downloadResponse = try await downloader.download(url, userAgentStyle: .browser)
 		} catch {
 			Self.logger.error("Error downloading image at \(url.absoluteString): \(error.localizedDescription)")
 			activityLog.didFail(.faviconDownloader, kind: kind, error: error)

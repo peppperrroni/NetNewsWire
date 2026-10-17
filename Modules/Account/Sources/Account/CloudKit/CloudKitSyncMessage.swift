@@ -12,18 +12,18 @@ import ActivityLog
 ///
 /// This is for work already done by the time it’s logged
 /// — `durationIsSignificant` is false.
-@MainActor func logCloudKitSubActivity(owner: ActivityOwner, kind: ActivityKind, message: String) {
-	let detail = ActivityLog.shared.nextTaskNumberString()
-	ActivityLog.shared.logCompletedActivity(owner: owner, kind: kind, detail: detail, message: message)
+@MainActor func logCloudKitSubActivity(_ activityLog: ActivityLog, owner: ActivityOwner, kind: ActivityKind, message: String) {
+	let detail = activityLog.nextTaskNumberString()
+	activityLog.logCompletedActivity(owner: owner, kind: kind, detail: detail, message: message)
 }
 
 /// Wraps one page or batch of a looping CloudKit operation in its own activity,
 /// timing `work` so the entry shows a real duration. Use this when the caller owns
 /// the fetch boundary — start is logged before the work begins. Use the non-timed
 /// overload above for work already finished by the time it’s logged.
-@MainActor func logCloudKitSubActivity<T>(owner: ActivityOwner, kind: ActivityKind, message: @escaping (T) -> String, _ work: () async throws -> T) async rethrows -> T {
-	let detail = ActivityLog.shared.nextTaskNumberString()
-	return try await ActivityLog.shared.logActivity(owner: owner, kind: kind, detail: detail, successMessage: { message($0) }, work)
+@MainActor func logCloudKitSubActivity<T>(_ activityLog: ActivityLog, owner: ActivityOwner, kind: ActivityKind, message: @escaping (T) -> String, _ work: () async throws -> T) async rethrows -> T {
+	let detail = activityLog.nextTaskNumberString()
+	return try await activityLog.logActivity(owner: owner, kind: kind, detail: detail, successMessage: { message($0) }, work)
 }
 
 /// Returns a human-readable summary of changed/deleted record counts

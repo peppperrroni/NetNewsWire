@@ -70,7 +70,7 @@ final class AccountInspectorViewController: UITableViewController {
 		guard let account, CredentialsAccountView.accountTypes.contains(account.type) else {
 			return
 		}
-		let hostingController = UIHostingController(rootView: CredentialsAccountView(accountType: account.type, account: account, didAddAccount: nil))
+		let hostingController = UIHostingController(rootView: CredentialsAccountView(accountType: account.type, account: account, activityLog: account.activityLog, didAddAccount: nil))
 		hostingController.modalPresentationStyle = .currentContext
 		present(hostingController, animated: true)
 	}

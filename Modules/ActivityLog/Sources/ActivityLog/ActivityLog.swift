@@ -19,7 +19,8 @@ public extension Notification.Name {
 /// or with the id returned from `createActivity`.
 @MainActor public final class ActivityLog {
 
-	public static let shared = ActivityLog()
+	/// Set once by the app root. Read only where nothing can be injected (see the app README).
+	nonisolated(unsafe) public static var current: ActivityLog!
 
 	/// Activities created but not yet started.
 	public private(set) var pendingActivities = [Activity]()

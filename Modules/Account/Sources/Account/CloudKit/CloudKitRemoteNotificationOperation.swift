@@ -20,7 +20,10 @@ import ActivityLog
 	nonisolated(unsafe) private var userInfo: [AnyHashable: Any]
 	private static let logger = cloudKitLogger
 
-	init(accountZone: CloudKitAccountZone, articlesZone: CloudKitArticlesZone, accountID: String, accountDisplayName: String, userInfo: [AnyHashable: Any]) {
+	private let activityLog: ActivityLog
+
+	init(accountZone: CloudKitAccountZone, articlesZone: CloudKitArticlesZone, accountID: String, accountDisplayName: String, userInfo: [AnyHashable: Any], activityLog: ActivityLog) {
+		self.activityLog = activityLog
 		self.accountZone = accountZone
 		self.articlesZone = articlesZone
 		self.accountID = accountID
@@ -36,7 +39,6 @@ import ActivityLog
 		}
 
 		Task { @MainActor in
-			let activityLog = ActivityLog.shared
 			let owner = ActivityOwner.account(accountID: accountID, displayName: accountDisplayName)
 			let taskNumber = activityLog.nextTaskNumberString()
 

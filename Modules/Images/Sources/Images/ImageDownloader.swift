@@ -38,7 +38,7 @@ extension ImageDownloadError: LocalizedError {
 }
 
 @MainActor public final class ImageDownloader {
-	public static let shared = ImageDownloader()
+	public static let shared = ImageDownloader(downloader: Downloader.current, activityLog: ActivityLog.current)
 
 	nonisolated static private let logger = Logger(subsystem: Logger.nnwSubsystem, category: "ImageDownloader")
 
@@ -47,7 +47,12 @@ extension ImageDownloadError: LocalizedError {
 	private var imageCache = [String: Data]() // url: image
 	private var urlsInProgress = Set<String>()
 
-	init() {
+	private let downloader: Downloader
+	private let activityLog: ActivityLog
+
+	public init(downloader: Downloader, activityLog: ActivityLog) {
+		self.downloader = downloader
+		self.activityLog = activityLog
 		let folder = AppConfig.cacheSubfolder(named: "Images")
 		self.diskCache = BinaryDiskCache(folder: folder.path)
 		self.queue = DispatchQueue(label: "ImageDownloader serial queue - \(folder.path)")
@@ -109,7 +114,6 @@ private extension ImageDownloader {
 			return
 		}
 
-		let activityLog = ActivityLog.shared
 		if let activityOwner, let activityKind {
 			activityLog.createActivity(owner: activityOwner, kind: activityKind, detail: activityDetail)
 			activityLog.didStart(activityOwner, kind: activityKind)
@@ -164,7 +168,7 @@ private extension ImageDownloader {
 
 		let downloadResponse: DownloadResponse
 		do {
-			downloadResponse = try await Downloader.shared.download(imageURL, userAgentStyle: .browser)
+			downloadResponse = try await downloader.download(imageURL, userAgentStyle: .browser)
 		} catch {
 			Self.logger.error("Error downloading image at \(url) \(error.localizedDescription)")
 			throw ImageDownloadError(statusCode: nil, decodingFailed: false, isTransient: true)

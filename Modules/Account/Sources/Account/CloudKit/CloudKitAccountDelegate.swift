@@ -92,19 +92,26 @@ enum CloudKitAccountDelegateError: LocalizedError, Sendable {
 		}
 	}
 
-	init(dataFolder: String) {
+	private let activityLog: ActivityLog
+	private let networkMonitor: NetworkMonitor
+	private let feedFinder: FeedFinder
+
+	init(dataFolder: String, activityLog: ActivityLog, networkMonitor: NetworkMonitor, feedFinder: FeedFinder) {
+		self.feedFinder = feedFinder
 		Self.logger.debug("CloudKitAccountDelegate: \(#function, privacy: .public)")
+		self.activityLog = activityLog
+		self.networkMonitor = networkMonitor
 		let syncArticleContentForUnreadArticles: @Sendable () -> Bool = {
 			UserDefaults.standard.bool(forKey: AccountManager.syncArticleContentForUnreadArticlesKey)
 		}
 		self.syncArticleContentForUnreadArticles = syncArticleContentForUnreadArticles
 		self.accountZone = CloudKitAccountZone(container: container)
-		self.articlesZone = CloudKitArticlesZone(container: container, syncArticleContentForUnreadArticles: syncArticleContentForUnreadArticles)
+		self.articlesZone = CloudKitArticlesZone(container: container, activityLog: activityLog, syncArticleContentForUnreadArticles: syncArticleContentForUnreadArticles)
 
 		let databaseFilePath = (dataFolder as NSString).appendingPathComponent("Sync.sqlite3")
 		self.syncDatabase = SyncDatabase(databasePath: databaseFilePath)
 
-		self.refresher = LocalAccountRefresher()
+		self.refresher = LocalAccountRefresher(activityLog: activityLog)
 		self.refresher.delegate = self
 
 		NotificationCenter.default.addObserver(self, selector: #selector(refreshProgressDidChange(_:)), name: .progressInfoDidChange, object: refresher)
@@ -131,10 +138,10 @@ enum CloudKitAccountDelegateError: LocalizedError, Sendable {
 		}
 		lastNoChangeSyncDate = nil
 		Self.logger.debug("CloudKitAccountDelegate: \(#function, privacy: .public)")
-		ActivityLog.shared.logCompletedActivity(owner: account.activityOwner, kind: .receiveCloudKitNotification)
+		activityLog.logCompletedActivity(owner: account.activityOwner, kind: .receiveCloudKitNotification)
 
 		await withCheckedContinuation { continuation in
-			let op = CloudKitRemoteNotificationOperation(accountZone: accountZone, articlesZone: articlesZone, accountID: account.accountID, accountDisplayName: account.nameForDisplay, userInfo: userInfo)
+			let op = CloudKitRemoteNotificationOperation(accountZone: accountZone, articlesZone: articlesZone, accountID: account.accountID, accountDisplayName: account.nameForDisplay, userInfo: userInfo, activityLog: activityLog)
 			op.completionBlock = { _ in
 				Self.logger.debug("CloudKitAccountDelegate: \(#function, privacy: .public) did complete")
 				continuation.resume()
@@ -153,7 +160,7 @@ enum CloudKitAccountDelegateError: LocalizedError, Sendable {
 
 		syncProgress.reset()
 
-		guard NetworkMonitor.shared.isConnected else {
+		guard networkMonitor.isConnected else {
 			return
 		}
 
@@ -236,7 +243,7 @@ enum CloudKitAccountDelegateError: LocalizedError, Sendable {
 		}
 		Self.logger.debug("CloudKitAccountDelegate: \(#function, privacy: .public)")
 		return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-			let op = CloudKitReceiveStatusOperation(articlesZone: articlesZone, accountID: account.accountID, accountDisplayName: account.nameForDisplay)
+			let op = CloudKitReceiveStatusOperation(articlesZone: articlesZone, accountID: account.accountID, accountDisplayName: account.nameForDisplay, activityLog: activityLog)
 			op.completionBlock = { mainThreadOperation in
 				Self.logger.debug("CloudKitAccountDelegate: \(#function, privacy: .public) did complete")
 				if mainThreadOperation.isCanceled {
@@ -671,10 +678,11 @@ enum CloudKitAccountDelegateError: LocalizedError, Sendable {
 			default:
 				what = "changes"
 			}
+			let activityLog = activityLog
 			return { _, changed, deleted, _ in
-				let detail = "Fetching \(what) \(ActivityLog.shared.nextTaskNumberString())"
+				let detail = "Fetching \(what) \(activityLog.nextTaskNumberString())"
 				let message = cloudKitSyncMessage(changed: changed, deleted: deleted)
-				ActivityLog.shared.logCompletedActivity(owner: .account(accountID: accountID, displayName: accountDisplayName), kind: kind, detail: detail, message: message)
+				activityLog.logCompletedActivity(owner: .account(accountID: accountID, displayName: accountDisplayName), kind: kind, detail: detail, message: message)
 			}
 		}
 		accountZone.fetchChangesPageHandler = makePageHandler(kind: .refreshFeedList)
@@ -856,7 +864,6 @@ private extension CloudKitAccountDelegate {
 
 		syncProgress.addTasks(3)
 
-		let activityLog = ActivityLog.shared
 		let owner = account.activityOwner
 
 		// Overall .refreshAll activity for this account, wrapping every stage
@@ -943,7 +950,7 @@ private extension CloudKitAccountDelegate {
 		syncProgress.addTasks(5)
 
 		do {
-			let feedSpecifiers = try await FeedFinder.find(url: url)
+			let feedSpecifiers = try await feedFinder.find(url: url)
 			syncProgress.completeTask()
 
 			guard let bestFeedSpecifier = FeedSpecifier.bestFeed(in: feedSpecifiers),
@@ -1007,7 +1014,7 @@ private extension CloudKitAccountDelegate {
 
 	func downloadAndParseFeed(feedURL: URL, feed: Feed) async throws -> ParsedFeed {
 		Self.logger.debug("CloudKitAccountDelegate: \(#function, privacy: .public) feedURL: \(feedURL)")
-		let (parsedFeed, response) = try await InitialFeedDownloader.download(feedURL)
+		let (parsedFeed, response) = try await InitialFeedDownloader.download(feedURL, feedFinder: feedFinder)
 		syncProgress.completeTask()
 		feed.lastCheckDate = Date()
 
@@ -1141,7 +1148,8 @@ private extension CloudKitAccountDelegate {
 												 articlesZone: articlesZone,
 												 database: syncDatabase,
 												 syncArticleContentForUnreadArticles: syncArticleContentForUnreadArticles,
-												 syncErrorHandler: syncErrorHandler)
+												 syncErrorHandler: syncErrorHandler,
+												 activityLog: activityLog)
 			op.completionBlock = { mainThreadOperation in
 				Self.logger.debug("CloudKitAccountDelegate: \(#function, privacy: .public) did complete")
 				if mainThreadOperation.isCanceled {

@@ -763,8 +763,9 @@ private extension WebViewController {
 		guard let imageURL = URL(string: clickMessage.imageURL) else { return }
 
 		imageDownloadTask?.cancel()
+		let downloader = coordinator.deps.downloader
 		imageDownloadTask = Task { [weak self] in
-			guard let downloadResponse = try? await Downloader.shared.download(imageURL, userAgentStyle: .browser) else {
+			guard let downloadResponse = try? await downloader.download(imageURL, userAgentStyle: .browser) else {
 				return
 			}
 			// A late completion must not present the viewer over a different article

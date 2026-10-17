@@ -12,6 +12,8 @@ import RSCore
 
 struct ActivityLogView: View {
 
+	let activityLog: ActivityLog
+
 	private static let helpURL = URL(string: "https://netnewswire.com/help/activity-log.html")!
 
 	@State private var isEmpty = true
@@ -83,7 +85,7 @@ private extension ActivityLogView {
 	/// the activities. Uses NSMutableAttributedString — appending hundreds of times to a
 	/// value-type AttributedString is slow enough to stall the screen as it appears.
 	func reload() {
-		let entries = ActivityLog.shared.completedActivities
+		let entries = activityLog.completedActivities
 		let attributed = NSMutableAttributedString()
 		var plain = ""
 

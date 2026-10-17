@@ -17,6 +17,9 @@ import ActivityLog
 
 final class SettingsViewController: UITableViewController {
 
+	/// Set by the presenting coordinator right after instantiation.
+	var deps: AppDependencies!
+
 	private enum Section: Int {
 		case notifications = 0
 		case accounts = 1
@@ -237,7 +240,7 @@ final class SettingsViewController: UITableViewController {
 		case .accounts:
 			let sortedAccounts = AccountManager.shared.sortedAccounts
 			if indexPath.row == sortedAccounts.count {
-				let addAccountView = AddAccountView(presentationAnchor: view.window) { [weak self] in
+				let addAccountView = AddAccountView(presentationAnchor: view.window, activityLog: deps.activityLog, operationQueue: deps.mainThreadOperationQueue) { [weak self] in
 					self?.navigationController?.popViewController(animated: false)
 				}
 				self.navigationController?.pushViewController(UIHostingController(rootView: addAccountView), animated: true)
@@ -292,7 +295,7 @@ final class SettingsViewController: UITableViewController {
 				case .cloudKitZoneStats:
 					return UIHostingController(rootView: CloudKitStatsView())
 				case .activityLog:
-					return UIHostingController(rootView: ActivityLogView())
+					return UIHostingController(rootView: ActivityLogView(activityLog: self.deps.activityLog))
 				case .dinosaurs:
 					return UIHostingController(rootView: DinosaursView(dismissAndPresent: { [weak self] dinosaur in
 						guard let self else {

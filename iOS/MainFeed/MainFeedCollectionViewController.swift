@@ -127,7 +127,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 	}
 
 	func updateCurrentActivityButtonState() {
-		let hasCurrentActivity = !ActivityLog.shared.runningActivities.isEmpty || !ActivityLog.shared.pendingActivities.isEmpty
+		let hasCurrentActivity = !coordinator.deps.activityLog.runningActivities.isEmpty || !coordinator.deps.activityLog.pendingActivities.isEmpty
 		currentActivityButton?.tintColor = hasCurrentActivity ? Assets.Colors.primaryAccent : .label
 	}
 

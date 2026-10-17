@@ -113,9 +113,9 @@ struct AddFeedView: View {
 		isAdding = true
 		let feedName = name.isEmpty ? nil : name
 
-		BatchUpdate.shared.start()
+		account.batchUpdate.start()
 		account.createFeed(url: url.absoluteString, name: feedName, container: container, validateFeed: true) { result in
-			BatchUpdate.shared.end()
+			account.batchUpdate.end()
 			isAdding = false
 
 			switch result {

@@ -9,6 +9,7 @@ import SwiftUI
 import RSCore
 import Account
 import Secrets
+import ActivityLog
 
 /// Sheet for adding a username-and-password account (Feedbin, NewsBlur, and the Reader API services) or updating its credentials.
 struct CredentialsAccountView: View {
@@ -16,6 +17,7 @@ struct CredentialsAccountView: View {
 	let accountType: AccountType
 	/// Non-nil when updating the credentials of an existing account.
 	let account: Account?
+	let activityLog: ActivityLog
 	let didAddAccount: (() -> Void)?
 
 	@Environment(\.dismiss) private var dismiss
@@ -32,8 +34,9 @@ struct CredentialsAccountView: View {
 
 	private static let passwordPlaceholder = NSLocalizedString("Password", comment: "Password field placeholder")
 
-	init(accountType: AccountType, account: Account?, didAddAccount: (() -> Void)?) {
+	init(accountType: AccountType, account: Account?, activityLog: ActivityLog, didAddAccount: (() -> Void)?) {
 		self.accountType = accountType
+		self.activityLog = activityLog
 		self.account = account
 		self.didAddAccount = didAddAccount
 
@@ -154,7 +157,7 @@ struct CredentialsAccountView: View {
 
 		let validatedCredentials: Credentials?
 		do {
-			validatedCredentials = try await Account.validateCredentials(type: accountType, credentials: basicCredentials, endpoint: endpoint)
+			validatedCredentials = try await Account.validateCredentials(type: accountType, credentials: basicCredentials, endpoint: endpoint, activityLog: activityLog)
 		} catch {
 			errorMessage = error.localizedDescription
 			return

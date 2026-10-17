@@ -13,10 +13,14 @@ struct CurrentActivityView: View {
 
 	private static let helpURL = URL(string: "https://netnewswire.com/help/current-activity.html")!
 
-	@State private var model = CurrentActivityViewModel()
+	@State private var model: CurrentActivityViewModel
 	@State private var activities = [Activity]()
 	@State private var showHelp = false
 	@Environment(\.dismiss) private var dismiss
+
+	init(activityLog: ActivityLog) {
+		self._model = State(initialValue: CurrentActivityViewModel(activityLog: activityLog))
+	}
 
 	var body: some View {
 		List {

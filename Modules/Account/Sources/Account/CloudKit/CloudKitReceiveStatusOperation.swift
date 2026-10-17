@@ -18,7 +18,10 @@ final class CloudKitReceiveStatusOperation: MainThreadOperation, @unchecked Send
 	private let accountDisplayName: String
 	private static let logger = cloudKitLogger
 
-	init(articlesZone: CloudKitArticlesZone, accountID: String, accountDisplayName: String) {
+	private let activityLog: ActivityLog
+
+	init(articlesZone: CloudKitArticlesZone, accountID: String, accountDisplayName: String, activityLog: ActivityLog) {
+		self.activityLog = activityLog
 		self.articlesZone = articlesZone
 		self.accountID = accountID
 		self.accountDisplayName = accountDisplayName
@@ -36,7 +39,6 @@ final class CloudKitReceiveStatusOperation: MainThreadOperation, @unchecked Send
 				self.didComplete()
 			}
 
-			let activityLog = ActivityLog.shared
 			let taskNumber = activityLog.nextTaskNumberString()
 			let activityID = activityLog.createActivity(owner: .account(accountID: accountID, displayName: accountDisplayName), kind: .refreshArticleStatuses, detail: "Receiving article statuses \(taskNumber)")
 			activityLog.didStart(id: activityID)

@@ -10,8 +10,6 @@ import Network
 import os
 
 nonisolated public final class NetworkMonitor: Sendable {
-	public static let shared = NetworkMonitor()
-
 	private let monitor: NWPathMonitor
 	private let queue = DispatchQueue(label: "RSWeb NetworkMonitor")
 
@@ -46,7 +44,7 @@ nonisolated public final class NetworkMonitor: Sendable {
 
 	@MainActor private var monitorIsActive = false
 
-	private init() {
+	public init() {
 		monitor = NWPathMonitor()
 
 		monitor.pathUpdateHandler = { [weak self] path in

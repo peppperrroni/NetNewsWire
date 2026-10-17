@@ -9,12 +9,15 @@ import SwiftUI
 import AuthenticationServices
 import RSCore
 import Account
+import ActivityLog
 
 /// The list of account types the user picks from. Pushed onto the Settings navigation stack.
 struct AddAccountView: View {
 
 	/// Window the Feedly OAuth sheet attaches to. Feedly can’t be added without one.
 	let presentationAnchor: ASPresentationAnchor?
+	let activityLog: ActivityLog
+	let operationQueue: MainThreadOperationQueue
 	/// Called after an account is added so the host can pop this screen.
 	let didAddAccount: () -> Void
 
@@ -101,7 +104,7 @@ struct AddAccountView: View {
 			case .cloudKit:
 				CloudKitAccountView(didAddAccount: didAddAccount)
 			default:
-				CredentialsAccountView(accountType: sheet.accountType, account: nil, didAddAccount: didAddAccount)
+				CredentialsAccountView(accountType: sheet.accountType, account: nil, activityLog: activityLog, didAddAccount: didAddAccount)
 			}
 		}
 		.errorAlert(message: $errorMessage)
@@ -158,10 +161,10 @@ struct AddAccountView: View {
 			errorMessage = error.localizedDescription
 		}
 
-		let operation = OAuthAccountAuthorizationOperation(accountType: accountType)
+		let operation = OAuthAccountAuthorizationOperation(accountType: accountType, activityLog: activityLog)
 		operation.delegate = oauthHandler
 		operation.presentationAnchor = presentationAnchor
-		MainThreadOperationQueue.shared.add(operation)
+		operationQueue.add(operation)
 	}
 }
 

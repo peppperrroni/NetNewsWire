@@ -15,6 +15,7 @@ import RSCore
 import RSWeb
 import HTMLMetadata
 import UniformTypeIdentifiers
+import ActivityLog
 
 extension Notification.Name {
 
@@ -22,7 +23,7 @@ extension Notification.Name {
 }
 
 @MainActor public final class FaviconDownloader {
-	public static let shared = FaviconDownloader()
+	public static let shared = FaviconDownloader(downloader: Downloader.current, activityLog: ActivityLog.current)
 
 	nonisolated static private let logger = Logger(subsystem: Logger.nnwSubsystem, category: "FaviconDownloader")
 
@@ -39,7 +40,12 @@ extension Notification.Name {
 		public static let faviconURL = "faviconURL"
 	}
 
-	init() {
+	private let downloader: Downloader
+	private let activityLog: ActivityLog
+
+	public init(downloader: Downloader, activityLog: ActivityLog) {
+		self.downloader = downloader
+		self.activityLog = activityLog
 		let folderURL = AppConfig.cacheSubfolder(named: "Favicons")
 		let folder = folderURL.path
 		self.folder = folder
@@ -281,7 +287,7 @@ private extension FaviconDownloader {
 			return downloader
 		}
 
-		let downloader = SingleFaviconDownloader(faviconURL: faviconURL, homePageURL: homePageURL, diskCache: diskCache, queue: queue)
+		let downloader = SingleFaviconDownloader(faviconURL: faviconURL, homePageURL: homePageURL, diskCache: diskCache, queue: queue, downloader: downloader, activityLog: activityLog)
 		singleFaviconDownloaderCache[faviconURL] = downloader
 		return downloader
 	}

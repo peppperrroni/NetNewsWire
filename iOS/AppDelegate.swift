@@ -47,11 +47,14 @@ import Images
 	var isSyncArticleStatusRunning = false
 	var isWaitingForSyncTasks = false
 
+	let deps: AppDependencies
+
 	override init() {
+		deps = AppDependencies()
 		super.init()
 		appDelegate = self
 
-		AccountManager.shared.start()
+		deps.accountManager.start()
 
 		NotificationCenter.default.addObserver(self, selector: #selector(unreadCountDidChange(_:)), name: .UnreadCountDidChange, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(accountRefreshDidFinish(_:)), name: .AccountRefreshDidFinish, object: nil)
@@ -97,7 +100,7 @@ import Images
 		UserNotificationManager.shared.start()
 
 		ArticleThemesManager.shared.start()
-		NetworkMonitor.shared.start()
+		deps.networkMonitor.start()
 
 #if !SKIP_APP_GROUP_ACCESS
 		ExtensionContainersFile.shared.start()

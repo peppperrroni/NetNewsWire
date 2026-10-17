@@ -15,7 +15,7 @@ import ActivityLog
 
 nonisolated public final class HTMLMetadataDownloader: Sendable {
 
-	public static let shared = HTMLMetadataDownloader()
+	public static let shared = HTMLMetadataDownloader(downloader: Downloader.current, activityLog: ActivityLog.current)
 
 	private static let logger = Logger(subsystem: Logger.nnwSubsystem, category: "HTMLMetadataDownloader")
 
@@ -26,7 +26,12 @@ nonisolated public final class HTMLMetadataDownloader: Sendable {
 	/// In-memory mirror so `cachedMetadata(for:)` can answer synchronously.
 	private let cache = OSAllocatedUnfairLock(initialState: [String: HTMLMetadataRecord]())
 
-	init() {
+	private let downloader: Downloader
+	private let activityLog: ActivityLog
+
+	public init(downloader: Downloader, activityLog: ActivityLog) {
+		self.downloader = downloader
+		self.activityLog = activityLog
 		NotificationCenter.default.addObserver(self, selector: #selector(handleAppDidGoToBackground(_:)), name: .appDidGoToBackground, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(handleLowMemory(_:)), name: .lowMemory, object: nil)
 	}
@@ -107,7 +112,7 @@ nonisolated private extension HTMLMetadataDownloader {
 		}
 
 		Task { @MainActor in
-			let activityLog = ActivityLog.shared
+			let activityLog = self.activityLog
 			let kind = ActivityKind.downloadHTMLMetadata(urlString: url)
 
 			let lastDownloadDate = await HTMLMetadataDatabase.shared.lastDownloadDate(for: url)
@@ -117,7 +122,7 @@ nonisolated private extension HTMLMetadataDownloader {
 			activityLog.didStart(.htmlMetadataDownloader, kind: kind)
 
 			do {
-				let downloadResponse = try await Downloader.shared.download(actualURL, userAgentStyle: .browser)
+				let downloadResponse = try await self.downloader.download(actualURL, userAgentStyle: .browser)
 
 				if let data = downloadResponse.data, !data.isEmpty, let response = downloadResponse.response, response.statusIsOK {
 					let urlToUse = response.url ?? actualURL

@@ -56,7 +56,12 @@ public enum FeedbinAccountDelegateError: String, Error, Sendable {
 	private var articlesRefreshedCount = 0
 	private static let logger = Feedbin.logger
 
-	init(dataFolder: String) {
+	private let activityLog: ActivityLog
+	private let batchUpdate: BatchUpdate
+
+	init(dataFolder: String, activityLog: ActivityLog, batchUpdate: BatchUpdate) {
+		self.activityLog = activityLog
+		self.batchUpdate = batchUpdate
 		let databaseFilePath = (dataFolder as NSString).appendingPathComponent("Sync.sqlite3")
 		syncDatabase = SyncDatabase(databasePath: databaseFilePath)
 		caller = FeedbinAPICaller()
@@ -567,7 +572,7 @@ private extension FeedbinAccountDelegate {
 				self.forceExpireFolderFeedRelationship(account, tags)
 
 				let (taggings, taggingsResponse) = try await self.caller.retrieveTaggings()
-				BatchUpdate.shared.perform {
+				batchUpdate.perform {
 					self.syncFolders(account, tags)
 					self.syncFeeds(account, subscriptions)
 					self.syncFeedFolderRelationship(account, taggings)
@@ -966,7 +971,7 @@ private extension FeedbinAccountDelegate {
 	/// reporting the page's article count — the per-page detail under the parent
 	/// `.refreshArticles` activity.
 	private func refreshArticlesPage<T>(for account: Account, articleCount: @escaping (T) -> Int, _ fetch: () async throws -> T) async throws -> T {
-		try await account.logActivity(kind: .refreshArticles, detail: ActivityLog.shared.nextTaskNumberString(), successMessage: { "\(articleCount($0)) articles" }, fetch)
+		try await account.logActivity(kind: .refreshArticles, detail: activityLog.nextTaskNumberString(), successMessage: { "\(articleCount($0)) articles" }, fetch)
 	}
 
 	func processEntries(account: Account, entries: [FeedbinEntry]?) async {

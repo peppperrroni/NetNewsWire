@@ -14,10 +14,11 @@ import Articles
 import ArticlesDatabase
 import ErrorLog
 import ActivityLog
+import FeedFinder
 
 @MainActor public final class AccountManager: UnreadCountProvider {
 
-	public static var shared = AccountManager()
+	public static var shared: AccountManager!
 
 	public static let netNewsWireNewsURL = "https://netnewswire.blog/feed.xml"
     private static let jsonNetNewsWireNewsURL = "https://netnewswire.blog/feed.json"
@@ -134,7 +135,16 @@ import ActivityLog
 
 	private var isActive = false
 
-	public init() {
+	private let activityLog: ActivityLog
+	private let batchUpdate: BatchUpdate
+	private let networkMonitor: NetworkMonitor
+	private let feedFinder: FeedFinder
+
+	public init(activityLog: ActivityLog, batchUpdate: BatchUpdate, networkMonitor: NetworkMonitor, feedFinder: FeedFinder) {
+		self.feedFinder = feedFinder
+		self.activityLog = activityLog
+		self.batchUpdate = batchUpdate
+		self.networkMonitor = networkMonitor
 		self.accountsFolder = AppConfig.dataSubfolder(named: "Accounts").path
 
 		// The local "On My Mac" account must always exist, even if it's empty.
@@ -149,7 +159,7 @@ import ActivityLog
 		let errorLogDatabasePath = AppConfig.dataFolder.appendingPathComponent("Errors.db").path
 		self.errorLogDatabase = ErrorLogDatabase(databasePath: errorLogDatabasePath)
 
-		defaultAccount = Account(dataFolder: localAccountFolder, type: .onMyMac, accountID: defaultAccountIdentifier)
+		defaultAccount = Account(dataFolder: localAccountFolder, type: .onMyMac, accountID: defaultAccountIdentifier, activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
         accountsDictionary[defaultAccount.accountID] = defaultAccount
 
 		readAccountsFromDisk()
@@ -199,7 +209,7 @@ import ActivityLog
 			abort()
 		}
 
-		let account = Account(dataFolder: accountFolder, type: type, accountID: accountID)
+		let account = Account(dataFolder: accountFolder, type: type, accountID: accountID, activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
 		accountsDictionary[accountID] = account
 
 		var userInfo = [String: Any]()
@@ -318,7 +328,7 @@ import ActivityLog
 	/// due to no network connection.
 	@discardableResult
 	public func refreshAll(errorHandler: ErrorHandlerCallback? = nil) async -> Bool {
-		guard NetworkMonitor.shared.isConnected else {
+		guard networkMonitor.isConnected else {
 			Self.logger.info("AccountManager: skipping refreshAll — not connected to internet.")
 			return false
 		}
@@ -622,7 +632,7 @@ private extension AccountManager {
 	}
 
 	func loadAccount(_ accountSpecifier: AccountSpecifier) -> Account? {
-		Account(dataFolder: accountSpecifier.folderPath, type: accountSpecifier.type, accountID: accountSpecifier.identifier)
+		Account(dataFolder: accountSpecifier.folderPath, type: accountSpecifier.type, accountID: accountSpecifier.identifier, activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
 	}
 
 	func loadAccount(_ filename: String) -> Account? {

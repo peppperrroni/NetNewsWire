@@ -22,6 +22,11 @@ import os
 
 @MainActor final class LocalAccountRefresher: ProgressInfoReporter {
 	var delegate: LocalAccountRefresherDelegate?
+	private let activityLog: ActivityLog
+
+	init(activityLog: ActivityLog) {
+		self.activityLog = activityLog
+	}
 
 	var progressInfo = ProgressInfo() {
 		didSet {
@@ -113,7 +118,6 @@ import os
 		// to be completed later by the DownloadSessionDelegate callbacks.
 		// Log skipped feeds as already completed with their reason.
 		if let owner = activityOwner {
-			let activityLog = ActivityLog.shared
 			if publishesRefreshActivity {
 				refreshActivityID = activityLog.createActivity(owner: owner, kind: .refreshAll)
 				activityLog.didStart(id: refreshActivityID!)
@@ -219,7 +223,7 @@ import os
 		guard let feed = urlToFeedDictionary[url.absoluteString], let owner = activityOwner else {
 			return
 		}
-		ActivityLog.shared.didStart(owner, kind: .refreshFeedContent(feedURL: feed.url))
+		activityLog.didStart(owner, kind: .refreshFeedContent(feedURL: feed.url))
 	}
 
 	func downloadSession(_ downloadSession: DownloadSession, didFollowRedirectFor url: URL, from fromURL: URL, to toURL: URL, statusCode: Int) {
@@ -227,7 +231,7 @@ import os
 			return
 		}
 		let detail = urlToFeedDictionary[url.absoluteString]?.nameForDisplay
-		ActivityLog.shared.logCompletedActivity(owner: owner, kind: .followFeedRedirect, detail: detail, message: "\(statusCode) \(HTTPURLResponse.localizedString(forStatusCode: statusCode)): \(fromURL.absoluteString) → \(toURL.absoluteString)")
+		activityLog.logCompletedActivity(owner: owner, kind: .followFeedRedirect, detail: detail, message: "\(statusCode) \(HTTPURLResponse.localizedString(forStatusCode: statusCode)): \(fromURL.absoluteString) → \(toURL.absoluteString)")
 	}
 
 	func downloadSession(_ downloadSession: DownloadSession, didSkip url: URL, reason: String) {
@@ -235,8 +239,8 @@ import os
 			return
 		}
 		let kind = ActivityKind.refreshFeedContent(feedURL: url.absoluteString)
-		ActivityLog.shared.startIfNeeded(owner, kind: kind)
-		ActivityLog.shared.didComplete(owner, kind: kind, message: reason, durationIsSignificant: false)
+		activityLog.startIfNeeded(owner, kind: kind)
+		activityLog.didComplete(owner, kind: kind, message: reason, durationIsSignificant: false)
 	}
 
 	func downloadSession(_ downloadSession: DownloadSession, downloadDidComplete url: URL, response: URLResponse?, data: Data, error: NSError?) {
@@ -285,7 +289,7 @@ import os
 		guard statusIsOK else {
 			// 304 Not Modified
 			if let activityOwner {
-				ActivityLog.shared.didComplete(activityOwner, kind: activityKind, message: "304 Not Modified", durationIsSignificant: false)
+				activityLog.didComplete(activityOwner, kind: activityKind, message: "304 Not Modified", durationIsSignificant: false)
 			}
 			return
 		}
@@ -299,7 +303,7 @@ import os
 		let dataSizeMessage = ActivityLog.dataSizeMessage(data)
 		if dataHash == feed.contentHash {
 			if let activityOwner {
-				ActivityLog.shared.didComplete(activityOwner, kind: activityKind, message: "\(dataSizeMessage), content unchanged")
+				activityLog.didComplete(activityOwner, kind: activityKind, message: "\(dataSizeMessage), content unchanged")
 			}
 			return
 		}
@@ -318,7 +322,7 @@ import os
 			do {
 				guard let result = try await FeedParser.parse(parserData) else {
 					if let activityOwner {
-						ActivityLog.shared.didComplete(activityOwner, kind: activityKind, message: dataSizeMessage)
+						activityLog.didComplete(activityOwner, kind: activityKind, message: dataSizeMessage)
 					}
 					return
 				}
@@ -326,7 +330,7 @@ import os
 			} catch {
 				Self.logger.error("LocalAccountRefresher: feed parse error for \(url.absoluteString): \(error.localizedDescription)")
 				if let activityOwner {
-					ActivityLog.shared.didFail(activityOwner, kind: activityKind, error: error)
+					activityLog.didFail(activityOwner, kind: activityKind, error: error)
 				}
 				self.feedsErrored += 1
 				if let account = feed.account {
@@ -337,7 +341,7 @@ import os
 			}
 			guard let account = feed.account else {
 				if let activityOwner {
-					ActivityLog.shared.didComplete(activityOwner, kind: activityKind, message: dataSizeMessage)
+					activityLog.didComplete(activityOwner, kind: activityKind, message: dataSizeMessage)
 				}
 				return
 			}
@@ -352,7 +356,7 @@ import os
 			feed.contentHash = dataHash
 
 			if let activityOwner {
-				ActivityLog.shared.didComplete(activityOwner, kind: activityKind, message: dataSizeMessage)
+				activityLog.didComplete(activityOwner, kind: activityKind, message: dataSizeMessage)
 			}
 
 			self.delegate?.localAccountRefresher(self, articleChanges: articleChanges)
@@ -385,7 +389,7 @@ import os
 
 	private func reportFeedRefreshError(feed: Feed, error: Error, activityKind: ActivityKind) {
 		if let activityOwner {
-			ActivityLog.shared.didFail(activityOwner, kind: activityKind, error: error)
+			activityLog.didFail(activityOwner, kind: activityKind, error: error)
 		}
 		feedsErrored += 1
 		guard let account = feed.account else {
@@ -431,7 +435,7 @@ import os
 			return
 		}
 
-		ActivityLog.shared.didComplete(id: refreshActivityID, message: refreshStatsMessage)
+		activityLog.didComplete(id: refreshActivityID, message: refreshStatsMessage)
 		self.refreshActivityID = nil
 	}
 
@@ -439,7 +443,6 @@ import os
 	func completeRemainingActivities(accountID: String) {
 		let displayName = AccountManager.shared.existingAccount(accountID: accountID)?.nameForDisplay ?? accountID
 		let owner = ActivityOwner.account(accountID: accountID, displayName: displayName)
-		let activityLog = ActivityLog.shared
 
 		for activity in activityLog.pendingActivities(for: owner) {
 			guard case .refreshFeedContent = activity.kind else {

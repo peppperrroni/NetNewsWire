@@ -8,7 +8,10 @@
 
 import Foundation
 import RSWeb
+import RSCore
 import Secrets
+import ActivityLog
+import FeedFinder
 
 @testable import Account
 
@@ -19,6 +22,12 @@ import Secrets
 	// Not Caches: macOS puts a `group:everyone deny delete` ACE on it, so test accounts
 	// created there can't be removed afterward.
 	private let accountsFolder = FileManager.default.temporaryDirectory.appendingPathComponent("NetNewsWireTestAccounts")
+
+	// The app-scope services an Account receives from the app root.
+	private lazy var activityLog = ActivityLog()
+	private lazy var batchUpdate = BatchUpdate()
+	private lazy var networkMonitor = NetworkMonitor()
+	private lazy var feedFinder = FeedFinder(downloader: Downloader(cache: DownloadCache()), activityLog: activityLog)
 
 	func createAccount(type: AccountType, username: String? = nil, password: String? = nil) -> Account {
 
@@ -32,7 +41,7 @@ import Secrets
 			abort()
 		}
 
-		let account = Account(dataFolder: accountFolder.path, type: type, accountID: accountID)
+		let account = Account(dataFolder: accountFolder.path, type: type, accountID: accountID, activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
 
 		return account
 	}

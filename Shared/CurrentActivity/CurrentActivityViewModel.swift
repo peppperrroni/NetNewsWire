@@ -27,6 +27,11 @@ struct ActivityDisplayText {
 	private var updateTimer: Timer?
 
 	private static let updateInterval: TimeInterval = 0.5
+	private let activityLog: ActivityLog
+
+	init(activityLog: ActivityLog) {
+		self.activityLog = activityLog
+	}
 	private static let lingerDuration: TimeInterval = 2.0
 
 	func start() {
@@ -123,7 +128,7 @@ private extension CurrentActivityViewModel {
 	}
 
 	func currentActivities() -> [Activity] {
-		let manager = ActivityLog.shared
+		let manager = activityLog
 
 		var activities = [Activity]()
 		activities.append(contentsOf: manager.runningActivities)

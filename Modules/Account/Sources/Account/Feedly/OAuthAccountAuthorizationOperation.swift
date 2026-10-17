@@ -105,7 +105,10 @@ public final class OAuthAccountAuthorizationOperation: MainThreadOperation, @unc
 	private let state = UUID().uuidString
 	nonisolated private static let logger = Logger(subsystem: Logger.nnwSubsystem, category: "OAuthAccountAuthorizationOperation")
 
-	public init(accountType: AccountType) {
+	private let activityLog: ActivityLog
+
+	public init(accountType: AccountType, activityLog: ActivityLog) {
+		self.activityLog = activityLog
 		self.accountType = accountType
 		self.oauthClient = Account.oauthAuthorizationClient(for: accountType)
 		super.init(name: "OAuthAccountAuthorizationOperation")
@@ -115,8 +118,8 @@ public final class OAuthAccountAuthorizationOperation: MainThreadOperation, @unc
 		Self.logger.debug("OAuthAccountAuthorizationOperation: run")
 		assert(presentationAnchor != nil, "\(self) outlived presentation anchor.")
 
-		let id = ActivityLog.shared.createActivity(owner: .app, kind: .validateCredentials, detail: "Authorizing \(accountType.displayName)")
-		ActivityLog.shared.didStart(id: id)
+		let id = activityLog.createActivity(owner: .app, kind: .validateCredentials, detail: "Authorizing \(accountType.displayName)")
+		activityLog.didStart(id: id)
 		activityID = id
 
 		let request = Account.oauthAuthorizationCodeGrantRequest(for: accountType, state: state)
@@ -142,11 +145,11 @@ public final class OAuthAccountAuthorizationOperation: MainThreadOperation, @unc
 
 		if let activityID {
 			if let error {
-				ActivityLog.shared.didFail(id: activityID, error: error)
+				activityLog.didFail(id: activityID, error: error)
 			} else if isCanceled || userCancelledAuthentication {
-				ActivityLog.shared.didFail(id: activityID, error: CocoaError(.userCancelled))
+				activityLog.didFail(id: activityID, error: CocoaError(.userCancelled))
 			} else {
-				ActivityLog.shared.didComplete(id: activityID)
+				activityLog.didComplete(id: activityID)
 			}
 			self.activityID = nil
 		}

@@ -19,6 +19,11 @@ import ActivityLog
 	private var lastTimedRefresh: Date?
 	private let launchTime = Date()
 	private var suspendedFireDate: Date?
+	private let activityLog: ActivityLog
+
+	init(activityLog: ActivityLog) {
+		self.activityLog = activityLog
+	}
 
 	func fireOldTimer() {
 		if let timer = internalTimer {
@@ -92,7 +97,7 @@ import ActivityLog
 		}
 
 		if isSystemSleeping {
-			ActivityLog.shared.logCompletedActivity(owner: .app, kind: .refreshAll, message: "Skipped — computer is asleep")
+			activityLog.logCompletedActivity(owner: .app, kind: .refreshAll, message: "Skipped — computer is asleep")
 
 			lastTimedRefresh = Date()
 			update()

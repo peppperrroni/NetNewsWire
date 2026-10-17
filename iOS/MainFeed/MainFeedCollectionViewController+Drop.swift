@@ -121,9 +121,9 @@ extension MainFeedCollectionViewController: UICollectionViewDropDelegate {
 			return
 		}
 
-		BatchUpdate.shared.start()
+		account.batchUpdate.start()
 		account.moveFeed(feed, from: sourceContainer, to: destinationContainer) { result in
-			BatchUpdate.shared.end()
+			account.batchUpdate.end()
 			switch result {
 			case .success:
 				break
@@ -140,9 +140,9 @@ extension MainFeedCollectionViewController: UICollectionViewDropDelegate {
 
 		if let existingFeed = destinationAccount.existingFeed(withURL: feed.url) {
 
-			BatchUpdate.shared.start()
+			destinationAccount.batchUpdate.start()
 			destinationAccount.addFeed(existingFeed, to: destinationContainer) { result in
-				BatchUpdate.shared.end()
+				destinationAccount.batchUpdate.end()
 				switch result {
 				case .success:
 					break
@@ -153,9 +153,9 @@ extension MainFeedCollectionViewController: UICollectionViewDropDelegate {
 
 		} else {
 
-			BatchUpdate.shared.start()
+			destinationAccount.batchUpdate.start()
 			destinationAccount.createFeed(url: feed.url, name: feed.editedName, container: destinationContainer, validateFeed: false) { result in
-				BatchUpdate.shared.end()
+				destinationAccount.batchUpdate.end()
 				switch result {
 				case .success:
 					break

@@ -16,14 +16,16 @@ public typealias DownloadCallback = @MainActor (DownloadResponse, Error?) -> Swi
 /// or a web page. For a download-feeds session, see DownloadSession.
 /// Caches response for a short time for GET requests. May return cached response.
 @MainActor public final class Downloader {
-	public static let shared = Downloader()
+	/// Set once by the app root. Read only where nothing can be injected (see the app README).
+	nonisolated(unsafe) public static var current: Downloader!
 	private let urlSession: URLSession
 	private var callbacks = [URL: [(callback: DownloadCallback, fromCache: Bool)]]()
-	private let cache = DownloadCache.shared
+	private let cache: DownloadCache
 
 	nonisolated private static let logger = Logger(subsystem: Logger.nnwSubsystem, category: "Downloader")
 
-	private init() {
+	public init(cache: DownloadCache) {
+		self.cache = cache
 		let sessionConfiguration = URLSessionConfiguration.ephemeral
 		sessionConfiguration.requestCachePolicy = .reloadIgnoringLocalCacheData
 		sessionConfiguration.httpShouldSetCookies = false

@@ -24,7 +24,15 @@ public enum FeedFinderError: LocalizedError {
 	}
 }
 
-public final class FeedFinder {
+public final class FeedFinder: Sendable {
+	private let downloader: Downloader
+	private let activityLog: ActivityLog
+
+	public init(downloader: Downloader, activityLog: ActivityLog) {
+		self.downloader = downloader
+		self.activityLog = activityLog
+	}
+
 	private static let logger = Logger(subsystem: Logger.nnwSubsystem, category: "FeedFinder")
 
 	/// Which discovery path produced the result. Used to write a more useful
@@ -37,7 +45,7 @@ public final class FeedFinder {
 		case candidates
 	}
 
-	@concurrent public static func find(url: URL) async throws -> Set<FeedSpecifier> {
+	@concurrent public func find(url: URL) async throws -> Set<FeedSpecifier> {
 		let activityID = await activityStart(url: url)
 		do {
 			let (result, strategy) = try await performFind(url: url)
@@ -49,14 +57,14 @@ public final class FeedFinder {
 		}
 	}
 
-	@concurrent private static func performFind(url: URL) async throws -> (Set<FeedSpecifier>, FindStrategy) {
+	@concurrent private func performFind(url: URL) async throws -> (Set<FeedSpecifier>, FindStrategy) {
 		// Check special cases first.
 		if let feedSpecifier = FeedSpecifier.knownFeedSpecifier(url: url) {
-			logger.info("FeedFinder: found special case feed URL: \(url.absoluteString) - \(feedSpecifier.urlString)")
+			Self.logger.info("FeedFinder: found special case feed URL: \(url.absoluteString) - \(feedSpecifier.urlString)")
 			return (Set([feedSpecifier]), .specialCase)
 		}
 
-		let downloadResponse = try await downloadAndLog(url)
+		let downloadResponse = try await self.downloadAndLog(url)
 		let data = downloadResponse.data
 		let response = downloadResponse.response
 
@@ -91,16 +99,16 @@ public final class FeedFinder {
 			throw FeedFinderError.feedNotFound
 		}
 
-		return try await FeedFinder.findFeedsInHTMLPage(htmlData: data, urlString: urlToUse.absoluteString)
+		return try await findFeedsInHTMLPage(htmlData: data, urlString: urlToUse.absoluteString)
 	}
 
-	/// Wraps `Downloader.shared.download(url)` with a per-URL activity entry so the
+	/// Wraps `downloader.download(url)` with a per-URL activity entry so the
 	/// fetch shows up in the Feed Finder activity stream. Public so feed-finding-adjacent
 	/// fetches can join the same stream.
-	public static func downloadAndLog(_ url: URL) async throws -> DownloadResponse {
+	public func downloadAndLog(_ url: URL) async throws -> DownloadResponse {
 		let id = await activityFetchStart(url: url)
 		do {
-			let downloadResponse = try await Downloader.shared.download(url)
+			let downloadResponse = try await downloader.download(url)
 			await activityFetchComplete(id: id, data: downloadResponse.data, response: downloadResponse.response, returnedFromCache: downloadResponse.returnedFromCache)
 			return downloadResponse
 		} catch {
@@ -109,34 +117,34 @@ public final class FeedFinder {
 		}
 	}
 
-	@MainActor private static func activityStart(url: URL) -> Int {
-		let id = ActivityLog.shared.createActivity(owner: .feedFinder, kind: .findFeed(urlString: url.absoluteString))
-		ActivityLog.shared.didStart(id: id)
+	@MainActor private func activityStart(url: URL) -> Int {
+		let id = activityLog.createActivity(owner: .feedFinder, kind: .findFeed(urlString: url.absoluteString))
+		activityLog.didStart(id: id)
 		return id
 	}
 
-	@MainActor private static func activityComplete(id: Int, result: Set<FeedSpecifier>, strategy: FindStrategy) {
-		let message = parentCompletionMessage(result: result, strategy: strategy)
-		ActivityLog.shared.didComplete(id: id, message: message)
+	@MainActor private func activityComplete(id: Int, result: Set<FeedSpecifier>, strategy: FindStrategy) {
+		let message = Self.parentCompletionMessage(result: result, strategy: strategy)
+		activityLog.didComplete(id: id, message: message)
 	}
 
-	@MainActor private static func activityFail(id: Int, error: any Error) {
-		ActivityLog.shared.didFail(id: id, error: error)
+	@MainActor private func activityFail(id: Int, error: any Error) {
+		activityLog.didFail(id: id, error: error)
 	}
 
-	@MainActor private static func activityFetchStart(url: URL) -> Int {
-		let id = ActivityLog.shared.createActivity(owner: .feedFinder, kind: .fetchFeedCandidate(urlString: url.absoluteString))
-		ActivityLog.shared.didStart(id: id)
+	@MainActor private func activityFetchStart(url: URL) -> Int {
+		let id = activityLog.createActivity(owner: .feedFinder, kind: .fetchFeedCandidate(urlString: url.absoluteString))
+		activityLog.didStart(id: id)
 		return id
 	}
 
-	@MainActor private static func activityFetchComplete(id: Int, data: Data?, response: URLResponse?, returnedFromCache: Bool) {
-		let message = fetchCompletionMessage(data: data, response: response)
-		ActivityLog.shared.didComplete(id: id, message: message, durationIsSignificant: !returnedFromCache, returnedFromCache: returnedFromCache)
+	@MainActor private func activityFetchComplete(id: Int, data: Data?, response: URLResponse?, returnedFromCache: Bool) {
+		let message = Self.fetchCompletionMessage(data: data, response: response)
+		activityLog.didComplete(id: id, message: message, durationIsSignificant: !returnedFromCache, returnedFromCache: returnedFromCache)
 	}
 
-	@MainActor private static func activityFetchFail(id: Int, error: any Error) {
-		ActivityLog.shared.didFail(id: id, error: error)
+	@MainActor private func activityFetchFail(id: Int, error: any Error) {
+		activityLog.didFail(id: id, error: error)
 	}
 }
 
@@ -153,13 +161,13 @@ private extension FeedFinder {
 		}
 	}
 
-	static func findFeedsInHTMLPage(htmlData: Data, urlString: String) async throws -> (Set<FeedSpecifier>, FindStrategy) {
+	func findFeedsInHTMLPage(htmlData: Data, urlString: String) async throws -> (Set<FeedSpecifier>, FindStrategy) {
 		// Feeds in the <head> section we automatically assume are feeds.
 		// If there are none from the <head> section,
 		// then possible feeds in <body> section are downloaded individually
 		// and added once we determine they are feeds.
 
-		let possibleFeedSpecifiers = possibleFeedsInHTMLPage(htmlData: htmlData, urlString: urlString)
+		let possibleFeedSpecifiers = Self.possibleFeedsInHTMLPage(htmlData: htmlData, urlString: urlString)
 		var feedSpecifiers = [String: FeedSpecifier]()
 		var feedSpecifiersToDownload = Set<FeedSpecifier>()
 
@@ -167,7 +175,7 @@ private extension FeedFinder {
 
 		for oneFeedSpecifier in possibleFeedSpecifiers {
 			if oneFeedSpecifier.source == .HTMLHead {
-				addFeedSpecifier(oneFeedSpecifier, feedSpecifiers: &feedSpecifiers)
+				Self.addFeedSpecifier(oneFeedSpecifier, feedSpecifiers: &feedSpecifiers)
 				didFindFeedInHTMLHead = true
 			} else {
 				if feedSpecifiers[oneFeedSpecifier.urlString] == nil {
@@ -211,7 +219,7 @@ private extension FeedFinder {
 		return data.isProbablyHTML
 	}
 
-	static func downloadFeedSpecifiers(_ downloadFeedSpecifiers: Set<FeedSpecifier>, feedSpecifiers: [String: FeedSpecifier]) async -> Set<FeedSpecifier> {
+	func downloadFeedSpecifiers(_ downloadFeedSpecifiers: Set<FeedSpecifier>, feedSpecifiers: [String: FeedSpecifier]) async -> Set<FeedSpecifier> {
 
 		var resultFeedSpecifiers = feedSpecifiers
 
@@ -223,9 +231,9 @@ private extension FeedFinder {
 
 				group.addTask {
 					do {
-						let downloadResponse = try await downloadAndLog(url)
+						let downloadResponse = try await self.downloadAndLog(url)
 						if let data = downloadResponse.data, let response = downloadResponse.response, response.statusIsOK {
-							if self.isFeed(data, downloadFeedSpecifier.urlString) {
+							if Self.isFeed(data, downloadFeedSpecifier.urlString) {
 								return downloadFeedSpecifier
 							}
 						}
@@ -239,7 +247,7 @@ private extension FeedFinder {
 
 			for await feedSpecifier in group {
 				if let feedSpecifier {
-					addFeedSpecifier(feedSpecifier, feedSpecifiers: &resultFeedSpecifiers)
+					Self.addFeedSpecifier(feedSpecifier, feedSpecifiers: &resultFeedSpecifiers)
 				}
 			}
 		}

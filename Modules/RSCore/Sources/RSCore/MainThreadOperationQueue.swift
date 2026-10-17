@@ -17,9 +17,6 @@ import Foundation
 /// The operation queue can be suspended and resumed.
 /// It is *not* suspended on creation — it is active.
 @MainActor public final class MainThreadOperationQueue: ProgressInfoReporter {
-	/// Use the shared queue when you don’t need to create a separate queue.
-	public static let shared: MainThreadOperationQueue = MainThreadOperationQueue()
-
 	private var pendingOperations = [MainThreadOperation]()
 	private var currentOperation: MainThreadOperation?
 	private var completedOrCanceledOperationIDs = Set<Int>()

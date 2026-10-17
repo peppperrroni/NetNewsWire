@@ -109,8 +109,10 @@ final class CloudKitArticlesZone: CloudKitZone {
 	}
 
 	let syncArticleContentForUnreadArticles: @Sendable () -> Bool
+	let activityLog: ActivityLog
 
-	init(container: CKContainer, syncArticleContentForUnreadArticles: @escaping @Sendable () -> Bool) {
+	init(container: CKContainer, activityLog: ActivityLog, syncArticleContentForUnreadArticles: @escaping @Sendable () -> Bool) {
+		self.activityLog = activityLog
 		self.container = container
 		self.database = container.privateCloudDatabase
 		self.zoneID = CKRecordZone.ID(zoneName: "Articles", ownerName: CKCurrentUserDefaultName)
@@ -172,7 +174,7 @@ final class CloudKitArticlesZone: CloudKitZone {
 		let predicate = NSPredicate(format: "webFeedExternalID = %@", feedExternalID)
 		let ckQuery = CKQuery(recordType: CloudKitArticleStatus.recordType, predicate: predicate)
 		try await delete(ckQuery: ckQuery) { pageRecords in
-			logCloudKitSubActivity(owner: owner, kind: .removeFeed, message: "\(pageRecords.count) records")
+			logCloudKitSubActivity(self.activityLog, owner: owner, kind: .removeFeed, message: "\(pageRecords.count) records")
 		}
 	}
 
@@ -313,7 +315,7 @@ final class CloudKitArticlesZone: CloudKitZone {
 			reportProgress(.deletingStaleStatus)
 			Self.logger.info("CloudKitArticlesZone: cleanUpRecordsUsingCache(progress:): deleting \(staleStatusIDs.count, privacy: .public) stale status records")
 			for batch in staleStatusIDs.chunked(into: Self.cleanUpLimit) {
-				try await account.logActivity(kind: .cleanUpCloudKitRecords, detail: ActivityLog.shared.nextTaskNumberString(), successMessage: { _ in "\(batch.count) stale status records" }, {
+				try await account.logActivity(kind: .cleanUpCloudKitRecords, detail: activityLog.nextTaskNumberString(), successMessage: { _ in "\(batch.count) stale status records" }, {
 					try await delete(recordIDs: batch)
 				})
 				staleStatusDeleted += batch.count
@@ -326,7 +328,7 @@ final class CloudKitArticlesZone: CloudKitZone {
 			reportProgress(.deletingReadContent)
 			Self.logger.info("CloudKitArticlesZone: cleanUpRecordsUsingCache(progress:): deleting \(categorized.readContentIDs.count, privacy: .public) read content records")
 			for batch in categorized.readContentIDs.chunked(into: Self.cleanUpLimit) {
-				try await account.logActivity(kind: .cleanUpCloudKitRecords, detail: ActivityLog.shared.nextTaskNumberString(), successMessage: { _ in "\(batch.count) read content records" }, {
+				try await account.logActivity(kind: .cleanUpCloudKitRecords, detail: activityLog.nextTaskNumberString(), successMessage: { _ in "\(batch.count) read content records" }, {
 					try await delete(recordIDs: batch)
 				})
 				readContentDeleted += batch.count
@@ -339,7 +341,7 @@ final class CloudKitArticlesZone: CloudKitZone {
 			reportProgress(.deletingUnreadContent)
 			Self.logger.info("CloudKitArticlesZone: cleanUpRecordsUsingCache(progress:): deleting \(categorized.unreadContentIDs.count, privacy: .public) unread content records")
 			for batch in categorized.unreadContentIDs.chunked(into: Self.cleanUpLimit) {
-				try await account.logActivity(kind: .cleanUpCloudKitRecords, detail: ActivityLog.shared.nextTaskNumberString(), successMessage: { _ in "\(batch.count) unread content records" }, {
+				try await account.logActivity(kind: .cleanUpCloudKitRecords, detail: activityLog.nextTaskNumberString(), successMessage: { _ in "\(batch.count) unread content records" }, {
 					try await delete(recordIDs: batch)
 				})
 				unreadContentDeleted += batch.count
@@ -494,7 +496,7 @@ private extension CloudKitArticlesZone {
 			for record in pageRecords {
 				statusByRecordID[record.recordID] = StatusRecordInfo(record: record)
 			}
-			logCloudKitSubActivity(owner: owner, kind: .cleanUpCloudKitRecords, message: "\(pageRecords.count) status records")
+			logCloudKitSubActivity(self.activityLog, owner: owner, kind: .cleanUpCloudKitRecords, message: "\(pageRecords.count) status records")
 		}
 		Self.logger.info("CloudKitArticlesZone: fetchStatusRecordMap: fetched \(statusByRecordID.count, privacy: .public) records")
 		return statusByRecordID
@@ -518,7 +520,7 @@ private extension CloudKitArticlesZone {
 				}
 				contentRecordIDByStatusID[reference.recordID] = record.recordID
 			}
-			logCloudKitSubActivity(owner: owner, kind: .cleanUpCloudKitRecords, message: "\(pageRecords.count) article records")
+			logCloudKitSubActivity(self.activityLog, owner: owner, kind: .cleanUpCloudKitRecords, message: "\(pageRecords.count) article records")
 		}
 		Self.logger.info("CloudKitArticlesZone: fetchAllContentRecordMappings: fetched \(contentRecordIDByStatusID.count + orphanedContentRecordIDs.count, privacy: .public) records")
 		return (contentRecordIDByStatusID, orphanedContentRecordIDs)
@@ -533,7 +535,7 @@ private extension CloudKitArticlesZone {
 
 		var deleteRecordIDs = [CKRecord.ID]()
 
-		var (matchResults, cursor) = try await logCloudKitSubActivity(owner: owner, kind: .cleanUpCloudKitRecords, message: { "\($0.matchResults.count) records" }, {
+		var (matchResults, cursor) = try await logCloudKitSubActivity(self.activityLog, owner: owner, kind: .cleanUpCloudKitRecords, message: { "\($0.matchResults.count) records" }, {
 			try await database.records(
 				matching: ckQuery, inZoneWith: zoneID,
 				desiredKeys: [CloudKitArticle.Fields.articleStatus], resultsLimit: CKQueryOperation.maximumResults
@@ -542,7 +544,7 @@ private extension CloudKitArticlesZone {
 		processMatchResults(matchResults, statusByRecordID: statusByRecordID, syncUnreadContent: syncUnreadContent, limit: limit, into: &deleteRecordIDs)
 
 		while let nextCursor = cursor, deleteRecordIDs.count < limit {
-			(matchResults, cursor) = try await logCloudKitSubActivity(owner: owner, kind: .cleanUpCloudKitRecords, message: { "\($0.matchResults.count) records" }, {
+			(matchResults, cursor) = try await logCloudKitSubActivity(self.activityLog, owner: owner, kind: .cleanUpCloudKitRecords, message: { "\($0.matchResults.count) records" }, {
 				try await database.records(
 					continuingMatchFrom: nextCursor,
 					desiredKeys: [CloudKitArticle.Fields.articleStatus], resultsLimit: CKQueryOperation.maximumResults
@@ -582,7 +584,7 @@ private extension CloudKitArticlesZone {
 
 		Self.logger.info("CloudKitArticlesZone: cleanUpRecords: deleting \(deleteRecordIDs.count, privacy: .public) total records")
 		for batch in deleteRecordIDs.chunked(into: Self.cleanUpLimit) {
-			try await account.logActivity(kind: .cleanUpCloudKitRecords, detail: ActivityLog.shared.nextTaskNumberString(), successMessage: { _ in "\(batch.count) records" }, {
+			try await account.logActivity(kind: .cleanUpCloudKitRecords, detail: activityLog.nextTaskNumberString(), successMessage: { _ in "\(batch.count) records" }, {
 				try await delete(recordIDs: batch)
 			})
 		}
@@ -629,7 +631,7 @@ private extension CloudKitArticlesZone {
 			}
 			totalCount += pageRecords.count
 			pagesCompleted += 1
-			logCloudKitSubActivity(owner: owner, kind: .scanCloudKitStatusRecords, message: "\(pageRecords.count) records")
+			logCloudKitSubActivity(self.activityLog, owner: owner, kind: .scanCloudKitStatusRecords, message: "\(pageRecords.count) records")
 			await progress(StatusRecordScanResult(total: totalCount, starred: starredCount, unread: unreadCount, read: readCount, stale: staleCount, statusByRecordID: [:]))
 		}
 
@@ -678,7 +680,7 @@ private extension CloudKitArticlesZone {
 				}
 			}
 			totalCount += pageRecords.count
-			logCloudKitSubActivity(owner: owner, kind: .scanCloudKitArticleRecords, message: "\(pageRecords.count) records")
+			logCloudKitSubActivity(self.activityLog, owner: owner, kind: .scanCloudKitArticleRecords, message: "\(pageRecords.count) records")
 			await progress(ArticleRecordScanResult(total: totalCount, starred: starredCount, unread: unreadCount, read: readCount, orphaned: orphanedCount, contentRecordIDByStatusID: [:], orphanedContentRecordIDs: []))
 		}
 

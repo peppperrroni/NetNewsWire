@@ -26,7 +26,7 @@ import os
 		do {
 			try await account.logActivity(kind: .refreshFeedList, successMessage: { "\($0.feeds) feeds, \($0.folders) folders" }, { () -> (folders: Int, feeds: Int) in
 				let (feeds, folders) = try await caller.retrieveFeeds()
-				BatchUpdate.shared.perform {
+				batchUpdate.perform {
 					MainActor.assumeIsolated {
 						self.syncFolders(account, folders)
 						self.syncFeeds(account, feeds)
