@@ -15,6 +15,9 @@ enum SliderConfiguration {
 }
 
 final class TimelineCustomizerCell: UICollectionViewCell {
+
+	/// Set by the dequeuing controller before the cell is configured.
+	var appDefaults: AppDefaults!
 	@IBOutlet var slider: TickMarkSlider!
 
 	var sliderConfiguration: SliderConfiguration! {
@@ -26,7 +29,7 @@ final class TimelineCustomizerCell: UICollectionViewCell {
 				if #available(iOS 26, *) {
 					slider.trackConfiguration = .init(allowsTickValuesOnly: true, numberOfTicks: 6)
 				}
-				slider.value = Float(AppDefaults.shared.timelineNumberOfLines)
+				slider.value = Float(appDefaults.timelineNumberOfLines)
 				slider.addTickMarks()
 			case .iconSize:
 				slider.minimumValue = 1
@@ -34,7 +37,7 @@ final class TimelineCustomizerCell: UICollectionViewCell {
 				if #available(iOS 26, *) {
 					slider.trackConfiguration = .init(allowsTickValuesOnly: true, numberOfTicks: 3)
 				}
-				slider.value = Float(AppDefaults.shared.timelineIconSize.rawValue)
+				slider.value = Float(appDefaults.timelineIconSize.rawValue)
 				slider.addTickMarks()
 			case .none:
 				return
@@ -45,10 +48,10 @@ final class TimelineCustomizerCell: UICollectionViewCell {
 	@IBAction func sliderValueChanges(_ sender: Any) {
 		switch sliderConfiguration {
 		case .numberOfLines:
-			AppDefaults.shared.timelineNumberOfLines = Int(slider.value.rounded())
+			appDefaults.timelineNumberOfLines = Int(slider.value.rounded())
 		case .iconSize:
 			guard let iconSize = IconSize(rawValue: Int(slider.value.rounded())) else { return }
-			AppDefaults.shared.timelineIconSize = iconSize
+			appDefaults.timelineIconSize = iconSize
 		case .none:
 			return
 		}

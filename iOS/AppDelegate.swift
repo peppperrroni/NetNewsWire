@@ -28,7 +28,7 @@ import Images
 	var shuttingDown = false {
 		didSet {
 			if shuttingDown {
-				ArticleStatusSyncTimer.shared.stop()
+				deps.articleStatusSyncTimer.stop()
 			}
 		}
 	}
@@ -70,7 +70,7 @@ import Images
 		}
 		AppDefaults.registerDefaults()
 
-		let isFirstRun = AppDefaults.shared.isFirstRun
+		let isFirstRun = deps.appDefaults.isFirstRun
 		if isFirstRun {
 			Self.logger.info("Is first run.")
 		}
@@ -81,7 +81,7 @@ import Images
 		}
 
 		registerBackgroundTasks()
-		CacheCleaner.purgeIfNecessary()
+		CacheCleaner.purgeIfNecessary(appDefaults: deps.appDefaults)
 		initializeDownloaders()
 		initializeHomeScreenQuickActions()
 
@@ -97,18 +97,18 @@ import Images
 		UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .sound, .alert]) { _, _ in }
 
 		UNUserNotificationCenter.current().delegate = self
-		UserNotificationManager.shared.start()
+		deps.userNotificationManager.start()
 
-		ArticleThemesManager.shared.start()
+		deps.articleThemesManager.start()
 		deps.networkMonitor.start()
 
 #if !SKIP_APP_GROUP_ACCESS
-		ExtensionContainersFile.shared.start()
-		ExtensionFeedAddRequestFile.shared.start()
+		deps.extensionContainersFile.start()
+		deps.extensionFeedAddRequestFile.start()
 #endif
 
 		#if DEBUG
-		ArticleStatusSyncTimer.shared.update()
+		deps.articleStatusSyncTimer.update()
 		#endif
 
 		return true
@@ -138,7 +138,7 @@ import Images
 
 	private func updateBadge() {
 		assert(unreadCount == deps.accountManager.unreadCount)
-		let badgeCount = AppDefaults.shared.unreadCountDisplay == .count ? unreadCount : 0
+		let badgeCount = deps.appDefaults.unreadCountDisplay == .count ? unreadCount : 0
 		UNUserNotificationCenter.current().setBadgeCount(badgeCount)
 	}
 
@@ -151,7 +151,7 @@ import Images
 	}
 
 	@objc func accountRefreshDidFinish(_ note: Notification) {
-		AppDefaults.shared.lastRefresh = Date()
+		deps.appDefaults.lastRefresh = Date()
 	}
 
 	@objc func handleUnreadCountDisplaySettingDidChange(_ notification: Notification) {
@@ -181,24 +181,24 @@ import Images
 		updateBadge()
 
 #if !SKIP_APP_GROUP_ACCESS
-		ExtensionFeedAddRequestFile.shared.suspend()
+		deps.extensionFeedAddRequestFile.suspend()
 #endif
 
-		ArticleStatusSyncTimer.shared.invalidate()
+		deps.articleStatusSyncTimer.invalidate()
 		scheduleBackgroundFeedRefresh()
 		syncArticleStatus()
-		WidgetDataEncoder.shared?.encode()
+		deps.widgetDataEncoder?.encode()
 		waitForSyncTasksToFinish()
 	}
 
 	func prepareAccountsForForeground() {
 		updateBadge()
 #if !SKIP_APP_GROUP_ACCESS
-		ExtensionFeedAddRequestFile.shared.resume()
+		deps.extensionFeedAddRequestFile.resume()
 #endif
-		ArticleStatusSyncTimer.shared.update()
+		deps.articleStatusSyncTimer.update()
 
-		if let lastRefresh = AppDefaults.shared.lastRefresh {
+		if let lastRefresh = deps.appDefaults.lastRefresh {
 			if Date() > lastRefresh.addingTimeInterval(15 * 60) {
 				deps.accountManager.refreshAllWithoutWaiting(errorHandler: ErrorHandler.log)
 			} else {
@@ -324,7 +324,7 @@ private extension AppDelegate {
 				return false
 			}
 
-			if deps.accountManager.refreshInProgress || isSyncArticleStatusRunning || WidgetDataEncoder.shared?.isRunning ?? false {
+			if deps.accountManager.refreshInProgress || isSyncArticleStatusRunning || deps.widgetDataEncoder?.isRunning ?? false {
 				Self.logger.info("Waiting for sync to finish…")
 				try? await Task.sleep(for: .seconds(1))
 			} else {
@@ -377,7 +377,7 @@ private extension AppDelegate {
 
 		deps.accountManager.suspendNetworkAll()
 		deps.accountManager.saveAllIfNeeded()
-		ArticleThemeDownloader.shared.cleanUp()
+		deps.articleThemeDownloader.cleanUp()
 
 		AppNotification.postAppDidGoToBackground()
 
@@ -470,7 +470,7 @@ private extension AppDelegate {
 			}
 			let didRefresh = await deps.accountManager.refreshAll(errorHandler: ErrorHandler.log)
 			if !Task.isCancelled {
-				await WidgetDataEncoder.shared?.encodeAndWait()
+				await deps.widgetDataEncoder?.encodeAndWait()
 			}
 			self.suspendApplication()
 			completeRefreshTask(didRefresh ? .completed : .noNetwork)

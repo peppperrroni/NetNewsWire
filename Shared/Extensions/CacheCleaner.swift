@@ -16,12 +16,12 @@ struct CacheCleaner {
 
 	private static let didPurgeImageCachesForResizingKey = "didPurgeImageCachesForResizing-2026-03-30"
 
-	static func purgeIfNecessary() {
+	static func purgeIfNecessary(appDefaults: AppDefaults) {
 
 		purgeImageCachesForResizingIfNeeded()
 
-		guard let flushDate = AppDefaults.shared.lastImageCacheFlushDate else {
-			AppDefaults.shared.lastImageCacheFlushDate = Date()
+		guard let flushDate = appDefaults.lastImageCacheFlushDate else {
+			appDefaults.lastImageCacheFlushDate = Date()
 			return
 		}
 
@@ -43,7 +43,7 @@ struct CacheCleaner {
 				}
 			}
 
-			AppDefaults.shared.lastImageCacheFlushDate = Date()
+			appDefaults.lastImageCacheFlushDate = Date()
 		}
 	}
 }

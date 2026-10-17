@@ -13,7 +13,8 @@ import RSParser
 
 @MainActor final class ArticleStringFormatter {
 
-	static let shared = ArticleStringFormatter()
+	/// Set once by the app root. Read only where nothing can be injected (see the app README).
+	nonisolated(unsafe) static var current: ArticleStringFormatter!
 
 	private var feedNameCache = [String: String]()
 	private var titleCache = [TitleCacheKey: String]()

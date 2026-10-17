@@ -24,10 +24,10 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		let rootViewController = window!.rootViewController as! RootSplitViewController
 		rootViewController.presentsWithGesture = true
 		rootViewController.showsSecondaryOnlyButton = true
-		rootViewController.preferredDisplayMode = UISplitViewController.DisplayMode(rawValue: AppDefaults.shared.splitViewPreferredDisplayMode) ?? .oneBesideSecondary
+		rootViewController.preferredDisplayMode = UISplitViewController.DisplayMode(rawValue: appDelegate.deps.appDefaults.splitViewPreferredDisplayMode) ?? .oneBesideSecondary
 
 		// On first run on iPad, show all three columns so the sidebar is visible
-		if AppDefaults.shared.isFirstRun && UIDevice.current.userInterfaceIdiom == .pad {
+		if appDelegate.deps.appDefaults.isFirstRun && UIDevice.current.userInterfaceIdiom == .pad {
 			rootViewController.preferredDisplayMode = .twoBesideSecondary
 		}
 
@@ -209,7 +209,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 			if let providedThemeURL = queryItems.first(where: { $0.name == "url" })?.value,
 			   let themeURL = URL(string: providedThemeURL) {
-				ArticleThemeDownloader.shared.downloadTheme(from: themeURL)
+				appDelegate.deps.articleThemeDownloader.downloadTheme(from: themeURL)
 			}
 		}
 	}

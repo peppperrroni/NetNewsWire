@@ -15,6 +15,9 @@ import Images
 }
 
 class MainFeedCollectionViewFolderCell: UICollectionViewCell {
+
+	/// Set by the dequeuing controller before the cell is configured.
+	var appDefaults: AppDefaults!
 	@IBOutlet var folderTitle: UILabel!
 	@IBOutlet var faviconView: IconView!
 	@IBOutlet var unreadCountLabel: UILabel!
@@ -40,7 +43,7 @@ class MainFeedCollectionViewFolderCell: UICollectionViewCell {
 	}
 
 	private var unreadCountText: String? {
-		AppDefaults.shared.unreadCountDisplay.text(for: unreadCount)
+		appDefaults.unreadCountDisplay.text(for: unreadCount)
 	}
 
 	var iconImage: IconImage? {
@@ -105,7 +108,7 @@ class MainFeedCollectionViewFolderCell: UICollectionViewCell {
 	override var accessibilityLabel: String? {
 		get {
 			let name = folderTitle.text ?? ""
-			guard let unreadText = AppDefaults.shared.unreadCountDisplay.accessibilityText(for: unreadCount) else {
+			guard let unreadText = appDefaults.unreadCountDisplay.accessibilityText(for: unreadCount) else {
 				return "\(name) \(expandedStateMessage)"
 			}
 			return "\(name) \(unreadText) \(expandedStateMessage)"

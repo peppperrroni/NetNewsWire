@@ -13,6 +13,9 @@ import RSTree
 import Images
 
 final class MainFeedCollectionViewCell: UICollectionViewCell {
+
+	/// Set by the dequeuing controller before the cell is configured.
+	var appDefaults: AppDefaults!
 	@IBOutlet var feedTitle: UILabel!
 	@IBOutlet var faviconView: IconView!
 	@IBOutlet var unreadCountLabel: UILabel!
@@ -33,7 +36,7 @@ final class MainFeedCollectionViewCell: UICollectionViewCell {
 		}
 		set {
 			_unreadCount = newValue
-			unreadCountLabel.isHidden = AppDefaults.shared.unreadCountDisplay.text(for: newValue) == nil
+			unreadCountLabel.isHidden = appDefaults.unreadCountDisplay.text(for: newValue) == nil
 			unreadCountLabel.setUnreadCount(newValue)
 			setNeedsUpdateConfiguration()
 		}
@@ -57,7 +60,7 @@ final class MainFeedCollectionViewCell: UICollectionViewCell {
 	override var accessibilityLabel: String? {
 		get {
 			let name = feedTitle.text ?? ""
-			guard let unreadText = AppDefaults.shared.unreadCountDisplay.accessibilityText(for: unreadCount) else {
+			guard let unreadText = appDefaults.unreadCountDisplay.accessibilityText(for: unreadCount) else {
 				return name
 			}
 			return "\(name) \(unreadText)"

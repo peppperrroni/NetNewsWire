@@ -74,11 +74,11 @@ private extension ArticleSorter {
 
 	/// The text the timeline shows as the title: the title, or the start of the body for an untitled article.
 	static func sortableTitle(for article: Article) -> String {
-		let title = ArticleStringFormatter.shared.truncatedTitle(article)
+		let title = ArticleStringFormatter.current.truncatedTitle(article)
 		if !title.isEmpty {
 			return title
 		}
-		return ArticleStringFormatter.shared.truncatedSummary(article)
+		return ArticleStringFormatter.current.truncatedSummary(article)
 	}
 
 	/// Descending puts articles with the flag set on top.

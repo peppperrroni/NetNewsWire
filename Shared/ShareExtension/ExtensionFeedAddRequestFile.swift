@@ -12,7 +12,6 @@ import os
 import Account
 
 final class ExtensionFeedAddRequestFile: NSObject, NSFilePresenter, Sendable {
-	static let shared = ExtensionFeedAddRequestFile()
 
 	static private let logger = Logger(subsystem: Logger.nnwSubsystem, category: "ExtensionFeedAddRequestFile")
 
@@ -37,6 +36,12 @@ final class ExtensionFeedAddRequestFile: NSObject, NSFilePresenter, Sendable {
 	}
 
 	private let didStart = OSAllocatedUnfairLock(initialState: false)
+	private let accountManager: AccountManager
+
+	init(accountManager: AccountManager) {
+		self.accountManager = accountManager
+		super.init()
+	}
 
 	func start() {
 		let alreadyStarted = didStart.withLock { didStart -> Bool in
@@ -171,7 +176,7 @@ final class ExtensionFeedAddRequestFile: NSObject, NSFilePresenter, Sendable {
 			break
 		}
 
-		guard let accountID = destinationAccountID, let account = AccountManager.current.existingAccount(accountID: accountID) else {
+		guard let accountID = destinationAccountID, let account = accountManager.existingAccount(accountID: accountID) else {
 			return
 		}
 

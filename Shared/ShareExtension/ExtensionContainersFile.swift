@@ -13,9 +13,14 @@ import RSParser
 import Account
 
 @MainActor final class ExtensionContainersFile {
-	static let shared = ExtensionContainersFile()
 
 	static private let logger = Logger(subsystem: Logger.nnwSubsystem, category: "ExtensionContainersFile")
+
+	private let accountManager: AccountManager
+
+	init(accountManager: AccountManager) {
+		self.accountManager = accountManager
+	}
 
 	private static var filePath: String = {
 		let appGroup = Bundle.main.object(forInfoDictionaryKey: "AppGroup") as! String
@@ -98,7 +103,7 @@ import Account
 
 		fileCoordinator.coordinate(writingItemAt: fileURL, options: [], error: errorPointer, byAccessor: { writeURL in
 			do {
-				let extensionAccounts = AccountManager.current.sortedActiveAccounts.map { ExtensionAccount(account: $0) }
+				let extensionAccounts = accountManager.sortedActiveAccounts.map { ExtensionAccount(account: $0) }
 				let extensionContainers = ExtensionContainers(accounts: extensionAccounts)
 				let data = try encoder.encode(extensionContainers)
 				try data.write(to: writeURL)

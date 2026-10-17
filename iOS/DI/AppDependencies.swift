@@ -34,7 +34,18 @@ import Images
 	let authorAvatarDownloader: AuthorAvatarDownloader
 	let faviconGenerator: FaviconGenerator
 	let accountManager: AccountManager
+	let appDefaults: AppDefaults
+	let articleStringFormatter: ArticleStringFormatter
+	let smartFeedsController: SmartFeedsController
 	let iconImageCache: IconImageCache
+	let articleThemesManager: ArticleThemesManager
+	let articleThemeDownloader: ArticleThemeDownloader
+	let articleStatusSyncTimer: ArticleStatusSyncTimer
+	let extensionFeedAddRequestFile: ExtensionFeedAddRequestFile
+	let extensionContainersFile: ExtensionContainersFile
+	let widgetDataEncoder: WidgetDataEncoder?
+	let userNotificationManager: UserNotificationManager
+	let webViewFullscreenKeeper: WebViewFullscreenKeeper
 
 	/// One session per account, keyed by account ID.
 	var sessions: [String: SessionDependencies] {
@@ -61,14 +72,16 @@ import Images
 		feedIconDownloader = FeedIconDownloader(imageDownloader: imageDownloader, imageMetadataDatabase: imageMetadataDatabase, htmlMetadataDownloader: htmlMetadataDownloader)
 		authorAvatarDownloader = AuthorAvatarDownloader(imageDownloader: imageDownloader)
 		faviconGenerator = FaviconGenerator()
+		appDefaults = AppDefaults()
+		articleStringFormatter = ArticleStringFormatter()
 
 		// Root accessors for code with no injection point (listed in the app README).
 		// Set before AccountManager reads accounts, since loading articles can reach them.
-		Downloader.current = downloader
-		ActivityLog.current = activityLog
 		AuthorCache.current = authorCache
 		FaviconDownloader.current = faviconDownloader
 		FaviconGenerator.current = faviconGenerator
+		AppDefaults.current = appDefaults
+		ArticleStringFormatter.current = articleStringFormatter
 
 		// AccountManager.init calls the factory for every account it reads from disk,
 		// so the factory captures only what exists at that point.
@@ -94,8 +107,17 @@ import Images
 			}
 		}
 
-		iconImageCache = IconImageCache(feedIconDownloader: feedIconDownloader, faviconDownloader: faviconDownloader, authorAvatarDownloader: authorAvatarDownloader, accountManager: accountManager)
-		IconImageCache.shared = iconImageCache  // removed in the Shared/iOS port
+		smartFeedsController = SmartFeedsController(accountManager: accountManager)
+		iconImageCache = IconImageCache(feedIconDownloader: feedIconDownloader, faviconDownloader: faviconDownloader, authorAvatarDownloader: authorAvatarDownloader, accountManager: accountManager, smartFeedsController: smartFeedsController)
+		IconImageCache.current = iconImageCache
+		articleThemesManager = ArticleThemesManager(appDefaults: appDefaults)
+		articleThemeDownloader = ArticleThemeDownloader(downloader: downloader)
+		articleStatusSyncTimer = ArticleStatusSyncTimer(accountManager: accountManager)
+		extensionFeedAddRequestFile = ExtensionFeedAddRequestFile(accountManager: accountManager)
+		extensionContainersFile = ExtensionContainersFile(accountManager: accountManager)
+		widgetDataEncoder = WidgetDataEncoder(appDefaults: appDefaults, articleStringFormatter: articleStringFormatter, smartFeedsController: smartFeedsController, accountManager: accountManager)
+		userNotificationManager = UserNotificationManager(articleStringFormatter: articleStringFormatter)
+		webViewFullscreenKeeper = WebViewFullscreenKeeper()
 	}
 }
 

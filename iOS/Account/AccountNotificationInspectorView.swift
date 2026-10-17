@@ -18,6 +18,7 @@ struct AccountNotificationInspectorView: View {
 	@State private var authorisationStatus: UNAuthorizationStatus = .notDetermined
 
 	var account: Account!
+	let iconImageCache: IconImageCache
 
 	var body: some View {
 		NavigationStack {
@@ -49,7 +50,7 @@ struct AccountNotificationInspectorView: View {
 				}), id: \.feedID) { feed in
 					Toggle(isOn: Binding(get: { feed.newArticleNotificationsEnabled }, set: { feed.newArticleNotificationsEnabled = $0 })) {
 						HStack {
-							if let img = IconImageCache.shared.imageFor(feed.sidebarItemID!) {
+							if let img = iconImageCache.imageFor(feed.sidebarItemID!) {
 								IconImageView(icon: img)
 									.id(uuid)
 							} else if let img = feed.smallIcon {

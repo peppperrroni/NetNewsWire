@@ -24,7 +24,10 @@ struct DinosaursView: View {
 	// MARK: Constants
 	let dismissAndPresent: (_ dinosaur: DinosaurRow) -> Void
 
-	init(accountManager: AccountManager, dismissAndPresent: @escaping (_ dinosaur: DinosaurRow) -> Void) {
+	private let iconImageCache: IconImageCache
+
+	init(accountManager: AccountManager, iconImageCache: IconImageCache, dismissAndPresent: @escaping (_ dinosaur: DinosaurRow) -> Void) {
+		self.iconImageCache = iconImageCache
 		self._model = State(initialValue: DinosaursViewModel(accountManager: accountManager))
 		self.dismissAndPresent = dismissAndPresent
 	}
@@ -33,7 +36,7 @@ struct DinosaursView: View {
 		List {
 			Section {
 				ForEach(model.rows) { dinosaur in
-					DinosaurRowView(dinosaur: dinosaur)
+					DinosaurRowView(dinosaur: dinosaur, iconImageCache: iconImageCache)
 						.swipeActions(edge: .trailing, allowsFullSwipe: false) {
 							Button {
 								dinosaurPendingDeletion = dinosaur

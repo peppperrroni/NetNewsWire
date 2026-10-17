@@ -226,7 +226,7 @@ private extension ArticleRenderer {
 		d["body"] = body
 
 		#if os(macOS)
-		d["text_size_class"] = AppDefaults.shared.articleTextSize.cssClass
+		d["text_size_class"] = AppDefaults.current.articleTextSize.cssClass
 		#endif
 
 		var components = URLComponents()

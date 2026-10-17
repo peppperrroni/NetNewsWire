@@ -50,7 +50,12 @@ import Images
 	}
 	#endif
 
-	init() {
+	private let articleStringFormatter: ArticleStringFormatter
+	private let iconImageCache: IconImageCache
+
+	init(articleStringFormatter: ArticleStringFormatter, iconImageCache: IconImageCache) {
+		self.articleStringFormatter = articleStringFormatter
+		self.iconImageCache = iconImageCache
 		NotificationCenter.default.addObserver(self, selector: #selector(feedIconDidBecomeAvailable(_:)), name: .feedIconDidBecomeAvailable, object: nil)
 	}
 
@@ -220,7 +225,7 @@ import Images
 
 	func makeReadArticleActivity(sidebarItem: SidebarItem?, article: Article) -> NSUserActivity {
 		let activity = NSUserActivity(activityType: ActivityType.readArticle.rawValue)
-		activity.title = ArticleStringFormatter.shared.truncatedTitle(article)
+		activity.title = articleStringFormatter.truncatedTitle(article)
 
 		if let sidebarItem {
 			let articleFetcherIdentifierUserInfo = sidebarItem.sidebarItemID?.userInfo ?? [AnyHashable: Any]()
@@ -251,7 +256,7 @@ import Images
 	func updateReadArticleSearchAttributes(with article: Article) {
 
 		let attributeSet = CSSearchableItemAttributeSet(itemContentType: UTType.compositeContent.identifier)
-		attributeSet.title = ArticleStringFormatter.shared.truncatedTitle(article)
+		attributeSet.title = articleStringFormatter.truncatedTitle(article)
 		attributeSet.contentDescription = article.summary
 		attributeSet.keywords = makeKeywords(article)
 		attributeSet.relatedUniqueIdentifier = ActivityManager.identifier(for: article)
@@ -268,7 +273,7 @@ import Images
 
 	func makeKeywords(_ article: Article) -> [String] {
 		let feedNameKeywords = makeKeywords(article.feed?.nameForDisplay)
-		let articleTitleKeywords = makeKeywords(ArticleStringFormatter.shared.truncatedTitle(article))
+		let articleTitleKeywords = makeKeywords(articleStringFormatter.truncatedTitle(article))
 		return feedNameKeywords + articleTitleKeywords
 	}
 
@@ -283,7 +288,7 @@ import Images
 		attributeSet.keywords = makeKeywords(feed.nameForDisplay)
 		attributeSet.relatedUniqueIdentifier = ActivityManager.identifier(for: feed)
 
-		if let iconImage = IconImageCache.shared.imageForFeed(feed) {
+		if let iconImage = iconImageCache.imageForFeed(feed) {
 			attributeSet.thumbnailData = iconImage.image.dataRepresentation()
 		}
 

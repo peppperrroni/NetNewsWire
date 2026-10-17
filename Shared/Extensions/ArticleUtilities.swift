@@ -96,7 +96,7 @@ extension Article {
 	}
 
 	func iconImage() -> IconImage? {
-		return IconImageCache.shared.imageForArticle(self)
+		return IconImageCache.current.imageForArticle(self)
 	}
 
 	func iconImageUrl(feed: Feed) -> URL? {

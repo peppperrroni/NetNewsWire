@@ -28,7 +28,7 @@ extension UIBarButtonItem: MarkAsReadAlertControllerSourceType {}
 			return
 		}
 
-		if AppDefaults.shared.confirmMarkAllAsRead {
+		if coordinator.deps.appDefaults.confirmMarkAllAsRead {
 			let alertController = MarkAsReadAlertController.alert(coordinator: coordinator, confirmTitle: confirmTitle, cancelCompletion: cancelCompletion, sourceType: sourceType) { _ in
 				completion()
 			}

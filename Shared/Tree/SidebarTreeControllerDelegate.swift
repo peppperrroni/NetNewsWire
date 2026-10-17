@@ -15,9 +15,11 @@ import Account
 	private var filterExceptions = Set<SidebarItemIdentifier>()
 	var isReadFiltered = false
 	private let accountManager: AccountManager
+	private let smartFeedsController: SmartFeedsController
 
-	init(accountManager: AccountManager) {
+	init(accountManager: AccountManager, smartFeedsController: SmartFeedsController) {
 		self.accountManager = accountManager
+		self.smartFeedsController = smartFeedsController
 	}
 
 	func addFilterException(_ feedID: SidebarItemIdentifier) {
@@ -48,7 +50,7 @@ private extension SidebarTreeControllerDelegate {
 	func childNodesForRootNode(_ rootNode: Node) -> [Node]? {
 		var topLevelNodes = [Node]()
 
-		let smartFeedsNode = rootNode.existingOrNewChildNode(with: SmartFeedsController.shared)
+		let smartFeedsNode = rootNode.existingOrNewChildNode(with: smartFeedsController)
 		smartFeedsNode.canHaveChildNodes = true
 		smartFeedsNode.isGroupItem = true
 		topLevelNodes.append(smartFeedsNode)
@@ -59,7 +61,7 @@ private extension SidebarTreeControllerDelegate {
 	}
 
 	func childNodesForSmartFeeds(_ parentNode: Node) -> [Node] {
-		return SmartFeedsController.shared.smartFeeds.compactMap { (feed) -> Node? in
+		return smartFeedsController.smartFeeds.compactMap { (feed) -> Node? in
 			// All Smart Feeds should remain visible despite the Hide Read Feeds setting
 			return parentNode.existingOrNewChildNode(with: feed as AnyObject)
 		}

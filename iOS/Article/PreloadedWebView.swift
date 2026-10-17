@@ -15,7 +15,10 @@ final class PreloadedWebView: WKWebView {
 	private var readyCompletion: (() -> Void)?
 	private var fullscreenStateObservation: NSKeyValueObservation?
 
-	init(articleIconSchemeHandler: ArticleIconSchemeHandler) {
+	private let fullscreenKeeper: WebViewFullscreenKeeper
+
+	init(articleIconSchemeHandler: ArticleIconSchemeHandler, fullscreenKeeper: WebViewFullscreenKeeper) {
+		self.fullscreenKeeper = fullscreenKeeper
 		let configuration = WebViewConfiguration.configuration(with: articleIconSchemeHandler)
 		super.init(frame: .zero, configuration: configuration)
 		fullscreenStateObservation = observe(\.fullscreenState, options: []) { [weak self] _, _ in
@@ -23,14 +26,14 @@ final class PreloadedWebView: WKWebView {
 				guard let self else {
 					return
 				}
-				WebViewFullscreenKeeper.shared.updateRetention(for: self)
+				fullscreenKeeper.updateRetention(for: self)
 			}
 		}
 	}
 
+	@available(*, unavailable)
 	required init?(coder: NSCoder) {
-		super.init(coder: coder)
-
+		fatalError("PreloadedWebView is created in code with its WebViewFullscreenKeeper")
 	}
 
 	func preload() {

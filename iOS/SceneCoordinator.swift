@@ -60,7 +60,7 @@ struct SidebarItemNode: Hashable, Sendable {
 
 	lazy var webViewProvider = WebViewProvider(coordinator: self)
 
-	private var activityManager = ActivityManager()
+	private var activityManager: ActivityManager
 
 	private var rootSplitViewController: RootSplitViewController!
 
@@ -98,7 +98,7 @@ struct SidebarItemNode: Hashable, Sendable {
 	/// `Bool` to track whether a refresh is scheduled.
 	private var isNavigationBarSubtitleRefreshScheduled: Bool = false
 
-	private(set) var sortDirection = AppDefaults.shared.timelineSortDirection {
+	private(set) var sortDirection: ComparisonResult {
 		didSet {
 			if sortDirection != oldValue {
 				sortParametersDidChange()
@@ -106,7 +106,7 @@ struct SidebarItemNode: Hashable, Sendable {
 		}
 	}
 
-	private(set) var groupByFeed = AppDefaults.shared.timelineGroupByFeed {
+	private(set) var groupByFeed: Bool {
 		didSet {
 			if groupByFeed != oldValue {
 				sortParametersDidChange()
@@ -160,7 +160,7 @@ struct SidebarItemNode: Hashable, Sendable {
 		guard let timelineFeed = timelineFeed else {
 			return nil
 		}
-		return IconImageCache.shared.imageForFeed(timelineFeed)
+		return deps.iconImageCache.imageForFeed(timelineFeed)
 	}
 
 	private var exceptionArticleFetcher: ArticleFetcher?
@@ -266,9 +266,9 @@ struct SidebarItemNode: Hashable, Sendable {
 	var currentArticle: Article? {
 		didSet {
 			if let article = currentArticle {
-				AppDefaults.shared.selectedArticle = ArticleSpecifier(article: article)
+				deps.appDefaults.selectedArticle = ArticleSpecifier(article: article)
 			} else {
-				AppDefaults.shared.selectedArticle = nil
+				deps.appDefaults.selectedArticle = nil
 			}
 		}
 	}
@@ -317,7 +317,7 @@ struct SidebarItemNode: Hashable, Sendable {
 	}
 
 	private var isTimelineUnreadCountSubtitleShown: Bool {
-		timelineFeed != nil && timelineUnreadCount > 0 && AppDefaults.shared.unreadCountDisplay == .count
+		timelineFeed != nil && timelineUnreadCount > 0 && deps.appDefaults.unreadCountDisplay == .count
 	}
 
 	private static let minimumTimelineWidth: CGFloat = 280
@@ -350,21 +350,24 @@ struct SidebarItemNode: Hashable, Sendable {
 
 	init(rootSplitViewController: RootSplitViewController, deps: AppDependencies) {
 		self.deps = deps
-		self.hidingReadArticlesState = HidingReadArticlesState(accountManager: deps.accountManager)
-		self.treeControllerDelegate = SidebarTreeControllerDelegate(accountManager: deps.accountManager)
+		self.sortDirection = deps.appDefaults.timelineSortDirection
+		self.groupByFeed = deps.appDefaults.timelineGroupByFeed
+		self.hidingReadArticlesState = HidingReadArticlesState(accountManager: deps.accountManager, appDefaults: deps.appDefaults, smartFeedsController: deps.smartFeedsController)
+		self.treeControllerDelegate = SidebarTreeControllerDelegate(accountManager: deps.accountManager, smartFeedsController: deps.smartFeedsController)
+		self.activityManager = ActivityManager(articleStringFormatter: deps.articleStringFormatter, iconImageCache: deps.iconImageCache)
 		self.rootSplitViewController = rootSplitViewController
 		self.rootSplitViewController.minimumPrimaryColumnWidth = SceneCoordinator.minimumSidebarWidth
 		self.rootSplitViewController.maximumPrimaryColumnWidth = SceneCoordinator.maximumSidebarWidth
 		self.rootSplitViewController.minimumSupplementaryColumnWidth = SceneCoordinator.minimumTimelineWidth
 		self.rootSplitViewController.maximumSupplementaryColumnWidth = SceneCoordinator.maximumTimelineWidth
 		let restoredTimelineWidth: CGFloat
-		if let savedTimelineWidth = AppDefaults.shared.timelineWidth {
+		if let savedTimelineWidth = deps.appDefaults.timelineWidth {
 			restoredTimelineWidth = CGFloat(savedTimelineWidth)
 		} else {
 			restoredTimelineWidth = 320
 		}
 		self.rootSplitViewController.preferredSupplementaryColumnWidth = Self.clampTimelineWidth(restoredTimelineWidth)
-		if let savedSidebarWidth = AppDefaults.shared.sidebarWidth {
+		if let savedSidebarWidth = deps.appDefaults.sidebarWidth {
 			self.rootSplitViewController.preferredPrimaryColumnWidth = Self.clampSidebarWidth(CGFloat(savedSidebarWidth))
 		}
 		self.rootSplitViewController.preferredSplitBehavior = .tile
@@ -415,7 +418,7 @@ struct SidebarItemNode: Hashable, Sendable {
 	}
 
 	func restoreWindowState(activity: NSUserActivity?, restoreSelection: Bool) {
-		let stateInfo = StateRestorationInfo(legacyState: activity)
+		let stateInfo = StateRestorationInfo(legacyState: activity, appDefaults: deps.appDefaults)
 		restoreWindowState(stateInfo, restoreSelection: restoreSelection)
 	}
 
@@ -424,7 +427,7 @@ struct SidebarItemNode: Hashable, Sendable {
 
 		isRestoringState = true
 
-		if AppDefaults.shared.isFirstRun {
+		if deps.appDefaults.isFirstRun {
 			// Expand top-level items on first run.
 			for sectionNode in treeController.rootNode.childNodes {
 				markExpanded(sectionNode)
@@ -531,9 +534,9 @@ struct SidebarItemNode: Hashable, Sendable {
 	}
 
 	func selectFirstUnreadInAllUnread() {
-		markExpanded(SmartFeedsController.shared)
-		self.ensureFeedIsAvailableToSelect(SmartFeedsController.shared.unreadFeed) {
-			self.selectFeed(SmartFeedsController.shared.unreadFeed) {
+		markExpanded(deps.smartFeedsController)
+		self.ensureFeedIsAvailableToSelect(deps.smartFeedsController.unreadFeed) {
+			self.selectFeed(self.deps.smartFeedsController.unreadFeed) {
 				self.selectFirstUnreadArticleInTimeline()
 			}
 		}
@@ -666,8 +669,8 @@ struct SidebarItemNode: Hashable, Sendable {
 	}
 
 	func userDefaultsDidChange() {
-		sortDirection = AppDefaults.shared.timelineSortDirection
-		groupByFeed = AppDefaults.shared.timelineGroupByFeed
+		sortDirection = deps.appDefaults.timelineSortDirection
+		groupByFeed = deps.appDefaults.timelineGroupByFeed
 	}
 
 	@objc func accountDidDownloadArticles(_ note: Notification) {
@@ -844,7 +847,7 @@ struct SidebarItemNode: Hashable, Sendable {
 		guard width > 0 else {
 			return
 		}
-		AppDefaults.shared.timelineWidth = Int(SceneCoordinator.clampTimelineWidth(width))
+		deps.appDefaults.timelineWidth = Int(SceneCoordinator.clampTimelineWidth(width))
 	}
 
 	func sidebarDidLayout() {
@@ -863,7 +866,7 @@ struct SidebarItemNode: Hashable, Sendable {
 		guard width > 0 else {
 			return
 		}
-		AppDefaults.shared.sidebarWidth = Int(SceneCoordinator.clampSidebarWidth(width))
+		deps.appDefaults.sidebarWidth = Int(SceneCoordinator.clampSidebarWidth(width))
 	}
 
 	func suspend() {
@@ -873,7 +876,7 @@ struct SidebarItemNode: Hashable, Sendable {
 	}
 
 	func saveExpandedContainers() {
-		AppDefaults.shared.expandedContainers = expandedContainers
+		deps.appDefaults.expandedContainers = expandedContainers
 	}
 
 	func cleanUp(conditional: Bool) {
@@ -881,7 +884,7 @@ struct SidebarItemNode: Hashable, Sendable {
 		if isReadFeedsFiltered {
 			rebuildBackingStores()
 		}
-		if AppDefaults.shared.refreshClearsReadArticles || !conditional {
+		if deps.appDefaults.refreshClearsReadArticles || !conditional {
 			removeArticlesHiddenByReadFilter()
 		}
 	}
@@ -934,7 +937,7 @@ struct SidebarItemNode: Hashable, Sendable {
 
 		let newValue = !isReadFeedsFiltered
 		treeControllerDelegate.isReadFiltered = newValue
-		AppDefaults.shared.hideReadFeeds = newValue
+		deps.appDefaults.hideReadFeeds = newValue
 		rebuildBackingStores()
 		mainFeedCollectionViewController?.updateUI()
 	}
@@ -1136,7 +1139,7 @@ struct SidebarItemNode: Hashable, Sendable {
 				if self.isReadFeedsFiltered {
 					self.rebuildBackingStores()
 				}
-				AppDefaults.shared.selectedSidebarItem = sidebarItem.sidebarItemID
+				self.deps.appDefaults.selectedSidebarItem = sidebarItem.sidebarItemID
 				completion?()
 			}
 
@@ -1148,7 +1151,7 @@ struct SidebarItemNode: Hashable, Sendable {
 				}
 				self.activityManager.invalidateSelecting()
 				self.rootSplitViewController.showColumn(.primary)
-				AppDefaults.shared.selectedSidebarItem = nil
+				self.deps.appDefaults.selectedSidebarItem = nil
 				completion?()
 			}
 
@@ -1169,23 +1172,23 @@ struct SidebarItemNode: Hashable, Sendable {
 	}
 
 	func selectTodayFeed(completion: (() -> Void)? = nil) {
-		markExpanded(SmartFeedsController.shared)
-		self.ensureFeedIsAvailableToSelect(SmartFeedsController.shared.todayFeed) {
-			self.selectFeed(SmartFeedsController.shared.todayFeed, animations: [.navigation, .scroll], completion: completion)
+		markExpanded(deps.smartFeedsController)
+		self.ensureFeedIsAvailableToSelect(deps.smartFeedsController.todayFeed) {
+			self.selectFeed(self.deps.smartFeedsController.todayFeed, animations: [.navigation, .scroll], completion: completion)
 		}
 	}
 
 	func selectAllUnreadFeed(completion: (() -> Void)? = nil) {
-		markExpanded(SmartFeedsController.shared)
-		self.ensureFeedIsAvailableToSelect(SmartFeedsController.shared.unreadFeed) {
-			self.selectFeed(SmartFeedsController.shared.unreadFeed, animations: [.navigation, .scroll], completion: completion)
+		markExpanded(deps.smartFeedsController)
+		self.ensureFeedIsAvailableToSelect(deps.smartFeedsController.unreadFeed) {
+			self.selectFeed(self.deps.smartFeedsController.unreadFeed, animations: [.navigation, .scroll], completion: completion)
 		}
 	}
 
 	func selectStarredFeed(completion: (() -> Void)? = nil) {
-		markExpanded(SmartFeedsController.shared)
-		self.ensureFeedIsAvailableToSelect(SmartFeedsController.shared.starredFeed) {
-			self.selectFeed(SmartFeedsController.shared.starredFeed, animations: [.navigation, .scroll], completion: completion)
+		markExpanded(deps.smartFeedsController)
+		self.ensureFeedIsAvailableToSelect(deps.smartFeedsController.starredFeed) {
+			self.selectFeed(self.deps.smartFeedsController.starredFeed, animations: [.navigation, .scroll], completion: completion)
 		}
 	}
 
@@ -1600,7 +1603,7 @@ struct SidebarItemNode: Hashable, Sendable {
 	}
 
 	func showNotificationInspector(for account: Account) {
-		let hostingController = UIHostingController(rootView: AccountNotificationInspectorView(account: account))
+		let hostingController = UIHostingController(rootView: AccountNotificationInspectorView(account: account, iconImageCache: deps.iconImageCache))
 		hostingController.modalPresentationStyle = .formSheet
 		rootSplitViewController.present(hostingController, animated: true)
 	}
@@ -1618,6 +1621,7 @@ struct SidebarItemNode: Hashable, Sendable {
 		let feedInspectorController = feedInspectorNavController.topViewController as! FeedInspectorViewController
 		feedInspectorNavController.modalPresentationStyle = .formSheet
 		feedInspectorNavController.preferredContentSize = FeedInspectorViewController.preferredContentSizeForFormSheetDisplay
+		feedInspectorController.deps = deps
 		feedInspectorController.feed = feed
 		rootSplitViewController.present(feedInspectorNavController, animated: true)
 	}
@@ -1627,7 +1631,7 @@ struct SidebarItemNode: Hashable, Sendable {
 		// The sheet appears over the current screen, so the feed and article selection stay as they are.
 		// <https://github.com/Ranchero-Software/NetNewsWire/issues/4352>
 
-		let addFeedView = AddFeedView(accountManager: deps.accountManager, initialFeed: initialFeed, initialFeedName: initialFeedName)
+		let addFeedView = AddFeedView(accountManager: deps.accountManager, appDefaults: deps.appDefaults, initialFeed: initialFeed, initialFeedName: initialFeedName)
 		let hostingController = UIHostingController(rootView: addFeedView)
 		hostingController.modalPresentationStyle = .formSheet
 		hostingController.preferredContentSize = UIViewController.formSheetSize
@@ -1643,7 +1647,7 @@ struct SidebarItemNode: Hashable, Sendable {
 	}
 
 	func showAddFolder() {
-		let hostingController = UIHostingController(rootView: AddFolderView(accountManager: deps.accountManager))
+		let hostingController = UIHostingController(rootView: AddFolderView(accountManager: deps.accountManager, appDefaults: deps.appDefaults))
 		hostingController.modalPresentationStyle = .formSheet
 		hostingController.preferredContentSize = UIViewController.formSheetSize
 		mainFeedCollectionViewController.present(hostingController, animated: true)
@@ -1747,7 +1751,7 @@ struct SidebarItemNode: Hashable, Sendable {
 
 	func importTheme(filename: String) {
 		do {
-			try ArticleThemeImporter.importTheme(controller: rootSplitViewController, url: URL(fileURLWithPath: filename))
+			try ArticleThemeImporter.importTheme(controller: rootSplitViewController, url: URL(fileURLWithPath: filename), themesManager: deps.articleThemesManager)
 		} catch {
 			NotificationCenter.default.post(name: .didFailToImportThemeWithError, object: nil, userInfo: ["error": error])
 		}
@@ -1805,7 +1809,7 @@ extension SceneCoordinator: UISplitViewControllerDelegate {
 	}
 
 	func splitViewController(_ svc: UISplitViewController, willChangeTo displayMode: UISplitViewController.DisplayMode) {
-		AppDefaults.shared.splitViewPreferredDisplayMode = displayMode.rawValue
+		deps.appDefaults.splitViewPreferredDisplayMode = displayMode.rawValue
 		mainTimelineViewController?.updateToolbarProgressView(for: displayMode)
 	}
 
@@ -2471,7 +2475,7 @@ private extension SceneCoordinator {
 		}
 
 		updateShowNamesAndIcons()
-		IconImageCache.shared.prefetchImagesForArticles(articles)
+		deps.iconImageCache.prefetchImagesForArticles(articles)
 		updateUnreadCount()
 		mainTimelineViewController?.reloadArticles(animated: animated)
 	}
@@ -2619,9 +2623,9 @@ private extension SceneCoordinator {
 		switch sidebarItemID {
 
 		case .smartFeed:
-			guard let smartFeed = SmartFeedsController.shared.find(by: sidebarItemID) else { return }
+			guard let smartFeed = deps.smartFeedsController.find(by: sidebarItemID) else { return }
 
-			markExpanded(SmartFeedsController.shared)
+			markExpanded(deps.smartFeedsController)
 			rebuildBackingStores(initialLoad: true, completion: {
 				self.treeControllerDelegate.resetFilterExceptions()
 				if let indexPath = self.indexPathFor(smartFeed) {

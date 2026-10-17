@@ -21,8 +21,10 @@ import ActivityLog
 	private var suspendedFireDate: Date?
 	private let activityLog: ActivityLog
 	private let accountManager: AccountManager
+	private let appDefaults: AppDefaults
 
-	init(activityLog: ActivityLog, accountManager: AccountManager) {
+	init(activityLog: ActivityLog, accountManager: AccountManager, appDefaults: AppDefaults) {
+		self.appDefaults = appDefaults
 		self.activityLog = activityLog
 		self.accountManager = accountManager
 	}
@@ -30,7 +32,7 @@ import ActivityLog
 	func fireOldTimer() {
 		if let timer = internalTimer {
 			if timer.fireDate < Date() {
-				if AppDefaults.shared.refreshInterval != .manually {
+				if appDefaults.refreshInterval != .manually {
 					timedRefresh(nil)
 				}
 			}
@@ -70,7 +72,7 @@ import ActivityLog
 			return
 		}
 
-		let refreshInterval = AppDefaults.shared.refreshInterval
+		let refreshInterval = appDefaults.refreshInterval
 		if refreshInterval == .manually {
 			invalidate()
 			return

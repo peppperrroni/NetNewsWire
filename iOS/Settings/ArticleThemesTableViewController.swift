@@ -16,6 +16,9 @@ extension UTType {
 
 final class ArticleThemesTableViewController: UITableViewController {
 
+	/// Set by the presenting controller right after instantiation.
+	var deps: AppDependencies!
+
 	override func viewDidLoad() {
 		let importBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(importTheme(_:)))
 		importBarButtonItem.title = NSLocalizedString("Import Theme", comment: "Import Theme")
@@ -44,7 +47,7 @@ final class ArticleThemesTableViewController: UITableViewController {
 	}
 
 	override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return ArticleThemesManager.shared.themeNames.count + 1
+		return deps.articleThemesManager.themeNames.count + 1
 	}
 
 	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -54,11 +57,11 @@ final class ArticleThemesTableViewController: UITableViewController {
 		if indexPath.row == 0 {
 			themeName = ArticleTheme.defaultTheme.name
 		} else {
-			themeName = ArticleThemesManager.shared.themeNames[indexPath.row - 1]
+			themeName = deps.articleThemesManager.themeNames[indexPath.row - 1]
 		}
 
 		cell.textLabel?.text = themeName
-		if themeName == ArticleThemesManager.shared.currentTheme.name {
+		if themeName == deps.articleThemesManager.currentTheme.name {
 			cell.accessoryType = .checkmark
 		} else {
 			cell.accessoryType = .none
@@ -69,14 +72,14 @@ final class ArticleThemesTableViewController: UITableViewController {
 
 	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		guard let cell = tableView.cellForRow(at: indexPath), let themeName = cell.textLabel?.text else { return }
-		ArticleThemesManager.shared.currentThemeName = themeName
+		deps.articleThemesManager.currentThemeName = themeName
 		navigationController?.popViewController(animated: true)
 	}
 
 	override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
 		guard let cell = tableView.cellForRow(at: indexPath),
 			  let themeName = cell.textLabel?.text,
-			  let theme = ArticleThemesManager.shared.articleThemeWithThemeName(themeName),
+			  let theme = deps.articleThemesManager.articleThemeWithThemeName(themeName),
 			  !theme.isAppTheme	else { return nil }
 
 		let deleteTitle = NSLocalizedString("Delete", comment: "Delete button")
@@ -96,7 +99,7 @@ final class ArticleThemesTableViewController: UITableViewController {
 
 			let deleteTitle = NSLocalizedString("Delete", comment: "Delete button")
 			let deleteAction = UIAlertAction(title: deleteTitle, style: .destructive) { _ in
-				ArticleThemesManager.shared.deleteTheme(themeName: themeName)
+				self?.deps.articleThemesManager.deleteTheme(themeName: themeName)
 				completion(true)
 			}
 			alertController.addAction(deleteAction)
@@ -125,7 +128,7 @@ extension ArticleThemesTableViewController: UIDocumentPickerDelegate {
 			}
 
 			do {
-				try ArticleThemeImporter.importTheme(controller: self, url: url)
+				try ArticleThemeImporter.importTheme(controller: self, url: url, themesManager: deps.articleThemesManager)
 			} catch {
 				NotificationCenter.default.post(name: .didFailToImportThemeWithError, object: nil, userInfo: ["error": error])
 			}

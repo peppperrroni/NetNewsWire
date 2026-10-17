@@ -16,8 +16,6 @@ import os
 /// <https://github.com/Ranchero-Software/NetNewsWire/issues/5382>
 @MainActor final class WebViewFullscreenKeeper {
 
-	static let shared = WebViewFullscreenKeeper()
-
 	private var retainedWebViews = [ObjectIdentifier: WKWebView]()
 
 	private static let logger = Logger(subsystem: Logger.nnwSubsystem, category: "WebViewFullscreenKeeper")

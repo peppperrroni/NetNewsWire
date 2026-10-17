@@ -113,45 +113,45 @@ final class SettingsViewController: UITableViewController {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 
-		if AppDefaults.shared.timelineSortDirection == .orderedAscending {
+		if deps.appDefaults.timelineSortDirection == .orderedAscending {
 			timelineSortOrderSwitch.isOn = true
 		} else {
 			timelineSortOrderSwitch.isOn = false
 		}
 
-		if AppDefaults.shared.timelineGroupByFeed {
+		if deps.appDefaults.timelineGroupByFeed {
 			groupByFeedSwitch.isOn = true
 		} else {
 			groupByFeedSwitch.isOn = false
 		}
 
-		if AppDefaults.shared.refreshClearsReadArticles {
+		if deps.appDefaults.refreshClearsReadArticles {
 			refreshClearsReadArticlesSwitch.isOn = true
 		} else {
 			refreshClearsReadArticlesSwitch.isOn = false
 		}
 
-		articleThemeDetailLabel.text = ArticleThemesManager.shared.currentTheme.name
+		articleThemeDetailLabel.text = deps.articleThemesManager.currentTheme.name
 
-		if AppDefaults.shared.confirmMarkAllAsRead {
+		if deps.appDefaults.confirmMarkAllAsRead {
 			confirmMarkAllAsReadSwitch.isOn = true
 		} else {
 			confirmMarkAllAsReadSwitch.isOn = false
 		}
 
-		if AppDefaults.shared.articleFullscreenAvailable {
+		if deps.appDefaults.articleFullscreenAvailable {
 			showFullscreenArticlesSwitch.isOn = true
 		} else {
 			showFullscreenArticlesSwitch.isOn = false
 		}
 
-		if AppDefaults.shared.isArticleContentJavascriptEnabled {
+		if deps.appDefaults.isArticleContentJavascriptEnabled {
 			enableJavaScriptSwitch.isOn = true
 		} else {
 			enableJavaScriptSwitch.isOn = false
 		}
 
-		openLinksInNetNewsWire.isOn = !AppDefaults.shared.useSystemBrowser
+		openLinksInNetNewsWire.isOn = !deps.appDefaults.useSystemBrowser
 
 		let buildLabel = NonIntrinsicLabel(frame: CGRect(x: 32.0, y: 0.0, width: 0.0, height: 0.0))
 		buildLabel.font = UIFont.systemFont(ofSize: 11.0)
@@ -240,7 +240,7 @@ final class SettingsViewController: UITableViewController {
 		case .accounts:
 			let sortedAccounts = deps.accountManager.sortedAccounts
 			if indexPath.row == sortedAccounts.count {
-				let addAccountView = AddAccountView(presentationAnchor: view.window, activityLog: deps.activityLog, operationQueue: deps.mainThreadOperationQueue, accountManager: deps.accountManager) { [weak self] in
+				let addAccountView = AddAccountView(presentationAnchor: view.window, activityLog: deps.activityLog, operationQueue: deps.mainThreadOperationQueue, accountManager: deps.accountManager, appDefaults: deps.appDefaults) { [weak self] in
 					self?.navigationController?.popViewController(animated: false)
 				}
 				self.navigationController?.pushViewController(UIHostingController(rootView: addAccountView), animated: true)
@@ -274,6 +274,7 @@ final class SettingsViewController: UITableViewController {
 			switch TimelineRow(rawValue: indexPath.row) {
 			case .timelineLayout:
 				let timeline = UIStoryboard.settings.instantiateController(ofType: TimelineCustomizerCollectionViewController.self)
+				timeline.deps = deps
 				self.navigationController?.pushViewController(timeline, animated: true)
 			default:
 				break
@@ -282,6 +283,7 @@ final class SettingsViewController: UITableViewController {
 			switch ArticlesRow(rawValue: indexPath.row) {
 			case .theme:
 				let articleThemes = UIStoryboard.settings.instantiateController(ofType: ArticleThemesTableViewController.self)
+				articleThemes.deps = deps
 				self.navigationController?.pushViewController(articleThemes, animated: true)
 			default:
 				break
@@ -298,7 +300,7 @@ final class SettingsViewController: UITableViewController {
 				case .activityLog:
 					return UIHostingController(rootView: ActivityLogView(activityLog: self.deps.activityLog, accountManager: self.deps.accountManager))
 				case .dinosaurs:
-					return UIHostingController(rootView: DinosaursView(accountManager: self.deps.accountManager, dismissAndPresent: { [weak self] dinosaur in
+					return UIHostingController(rootView: DinosaursView(accountManager: self.deps.accountManager, iconImageCache: self.deps.iconImageCache, dismissAndPresent: { [weak self] dinosaur in
 						guard let self else {
 							return
 						}
@@ -368,54 +370,54 @@ final class SettingsViewController: UITableViewController {
 
 	@IBAction func switchTimelineOrder(_ sender: Any) {
 		if timelineSortOrderSwitch.isOn {
-			AppDefaults.shared.timelineSortDirection = .orderedAscending
+			deps.appDefaults.timelineSortDirection = .orderedAscending
 		} else {
-			AppDefaults.shared.timelineSortDirection = .orderedDescending
+			deps.appDefaults.timelineSortDirection = .orderedDescending
 		}
 	}
 
 	@IBAction func switchGroupByFeed(_ sender: Any) {
 		if groupByFeedSwitch.isOn {
-			AppDefaults.shared.timelineGroupByFeed = true
+			deps.appDefaults.timelineGroupByFeed = true
 		} else {
-			AppDefaults.shared.timelineGroupByFeed = false
+			deps.appDefaults.timelineGroupByFeed = false
 		}
 	}
 
 	@IBAction func switchClearsReadArticles(_ sender: Any) {
 		if refreshClearsReadArticlesSwitch.isOn {
-			AppDefaults.shared.refreshClearsReadArticles = true
+			deps.appDefaults.refreshClearsReadArticles = true
 		} else {
-			AppDefaults.shared.refreshClearsReadArticles = false
+			deps.appDefaults.refreshClearsReadArticles = false
 		}
 	}
 
 	@IBAction func switchConfirmMarkAllAsRead(_ sender: Any) {
 		if confirmMarkAllAsReadSwitch.isOn {
-			AppDefaults.shared.confirmMarkAllAsRead = true
+			deps.appDefaults.confirmMarkAllAsRead = true
 		} else {
-			AppDefaults.shared.confirmMarkAllAsRead = false
+			deps.appDefaults.confirmMarkAllAsRead = false
 		}
 	}
 
 	@IBAction func switchFullscreenArticles(_ sender: Any) {
 		if showFullscreenArticlesSwitch.isOn {
-			AppDefaults.shared.articleFullscreenAvailable = true
+			deps.appDefaults.articleFullscreenAvailable = true
 		} else {
-			AppDefaults.shared.articleFullscreenAvailable = false
+			deps.appDefaults.articleFullscreenAvailable = false
 		}
 	}
 
 	@IBAction func switchBrowserPreference(_ sender: Any) {
 		if openLinksInNetNewsWire.isOn {
-			AppDefaults.shared.useSystemBrowser = false
+			deps.appDefaults.useSystemBrowser = false
 		} else {
-			AppDefaults.shared.useSystemBrowser = true
+			deps.appDefaults.useSystemBrowser = true
 		}
 	}
 
 	@IBAction func switchJavaScriptPreference(_ sender: Any) {
-		AppDefaults.shared.isArticleContentJavascriptEnabled = enableJavaScriptSwitch.isOn
+		deps.appDefaults.isArticleContentJavascriptEnabled = enableJavaScriptSwitch.isOn
  	}
 
 	// MARK: - Notifications
@@ -508,10 +510,10 @@ private extension SettingsViewController {
 	}
 
 	func updateUnreadCountDisplayPopUpButton() {
-		let currentUnreadCountDisplay = AppDefaults.shared.unreadCountDisplay
+		let currentUnreadCountDisplay = deps.appDefaults.unreadCountDisplay
 		let actions = UnreadCountDisplay.allCases.map { unreadCountDisplay in
 			UIAction(title: String(describing: unreadCountDisplay), state: unreadCountDisplay == currentUnreadCountDisplay ? .on : .off) { _ in
-				AppDefaults.shared.unreadCountDisplay = unreadCountDisplay
+				self.deps.appDefaults.unreadCountDisplay = unreadCountDisplay
 			}
 		}
 		unreadCountDisplayPopUpButton.menu = UIMenu(children: actions)
@@ -521,7 +523,7 @@ private extension SettingsViewController {
 	func addFeed() {
 		self.dismiss(animated: true)
 
-		let addFeedView = AddFeedView(accountManager: deps.accountManager, initialFeed: AccountManager.netNewsWireNewsURL, initialFeedName: NSLocalizedString("NetNewsWire News", comment: "NetNewsWire News"))
+		let addFeedView = AddFeedView(accountManager: deps.accountManager, appDefaults: deps.appDefaults, initialFeed: AccountManager.netNewsWireNewsURL, initialFeedName: NSLocalizedString("NetNewsWire News", comment: "NetNewsWire News"))
 		let hostingController = UIHostingController(rootView: addFeedView)
 		hostingController.modalPresentationStyle = .formSheet
 		hostingController.preferredContentSize = UIViewController.formSheetSize

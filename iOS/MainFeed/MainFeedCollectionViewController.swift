@@ -348,6 +348,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 					withReuseIdentifier: folderIdentifier,
 					for: indexPath
 				) as! MainFeedCollectionViewFolderCell
+				cell.appDefaults = self.coordinator.deps.appDefaults
 				self.configure(cell, sidebarItemNode: sidebarItemNode)
 				cell.delegate = self
 				return cell
@@ -356,6 +357,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 					withReuseIdentifier: reuseIdentifier,
 					for: indexPath
 				) as! MainFeedCollectionViewCell
+				cell.appDefaults = self.coordinator.deps.appDefaults
 				self.configure(cell, sidebarItemNode: sidebarItemNode)
 				return cell
 			}
@@ -374,6 +376,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 				withReuseIdentifier: containerReuseIdentifier,
 				for: indexPath
 			) as! MainFeedCollectionHeaderReusableView
+			headerView.appDefaults = self.coordinator.deps.appDefaults
 
 			headerView.delegate = self
 
@@ -382,9 +385,9 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 			// Smart feeds section
 			if sectionID.isEmpty {
 				headerView.sectionHeaderType = .smartFeeds
-				headerView.headerTitle.text = SmartFeedsController.shared.nameForDisplay
+				headerView.headerTitle.text = coordinator.deps.smartFeedsController.nameForDisplay
 				headerView.unreadCount = 0
-				headerView.setDisclosure(isExpanded: self.coordinator.isExpanded(SmartFeedsController.shared), animated: false)
+				headerView.setDisclosure(isExpanded: self.coordinator.isExpanded(coordinator.deps.smartFeedsController), animated: false)
 				return headerView
 			}
 
@@ -405,7 +408,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 
 	func applySnapshot(_ snapshot: NSDiffableDataSourceSnapshot<String, SidebarItemNode>, animatingDifferences: Bool, completion: (() -> Void)? = nil) {
 		let feeds = snapshot.itemIdentifiers.compactMap { $0.node.representedObject as? Feed }
-		IconImageCache.shared.prefetchImagesForFeeds(feeds)
+		coordinator.deps.iconImageCache.prefetchImagesForFeeds(feeds)
 
 		enqueueSidebarUpdate(.full(snapshot, animated: animatingDifferences), completion: completion)
 	}
@@ -728,14 +731,14 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 		guard let sidebarItemID = sidebarItem.sidebarItemID else {
 			return
 		}
-		cell.iconImage = IconImageCache.shared.imageFor(sidebarItemID)
+		cell.iconImage = coordinator.deps.iconImageCache.imageFor(sidebarItemID)
 	}
 
 	func configureIcon(_ cell: MainFeedCollectionViewFolderCell, sidebarItem: SidebarItem) {
 		guard let sidebarItemID = sidebarItem.sidebarItemID else {
 			return
 		}
-		cell.iconImage = IconImageCache.shared.imageFor(sidebarItemID)
+		cell.iconImage = coordinator.deps.iconImageCache.imageFor(sidebarItemID)
 	}
 
 	func configureIcon(_ cell: MainFeedCollectionViewCell, _ indexPath: IndexPath) {
@@ -744,7 +747,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 			  let sidebarItemID = sidebarItem.sidebarItemID else {
 			return
 		}
-		cell.iconImage = IconImageCache.shared.imageFor(sidebarItemID)
+		cell.iconImage = coordinator.deps.iconImageCache.imageFor(sidebarItemID)
 	}
 
 	func configureIcon(_ cell: MainFeedCollectionViewFolderCell, _ indexPath: IndexPath) {
@@ -753,7 +756,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 			  let sidebarItemID = sidebarItem.sidebarItemID else {
 			return
 		}
-		cell.iconImage = IconImageCache.shared.imageFor(sidebarItemID)
+		cell.iconImage = coordinator.deps.iconImageCache.imageFor(sidebarItemID)
 	}
 
 	func configureCellsForRepresentedObject(_ representedObject: AnyObject) {
@@ -885,7 +888,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 	// MARK: - Notifications
 
 	@objc func preferredContentSizeCategoryDidChange() {
-		IconImageCache.shared.emptyCache()
+		coordinator.deps.iconImageCache.emptyCache()
 		reloadAllVisibleCells()
 	}
 
@@ -1032,7 +1035,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 		let containerID: ContainerIdentifier
 		switch sectionHeaderType {
 		case .smartFeeds:
-			guard let id = SmartFeedsController.shared.containerID else {
+			guard let id = coordinator.deps.smartFeedsController.containerID else {
 				return
 			}
 			containerID = id

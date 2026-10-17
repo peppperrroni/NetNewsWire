@@ -12,11 +12,12 @@ struct DinosaurRowView: View {
 
 	// MARK: Variables
 	var dinosaur: DinosaurRow
+	let iconImageCache: IconImageCache
 
 	var body: some View {
 		VStack(alignment: .leading) {
 			HStack(alignment: .top) {
-				if let img = IconImageCache.shared.imageFor(dinosaur.feed.sidebarItemID!) {
+				if let img = iconImageCache.imageFor(dinosaur.feed.sidebarItemID!) {
 					IconImageView(icon: img)
 				} else if let img = dinosaur.feed.smallIcon {
 					IconImageView(icon: img)

@@ -18,15 +18,18 @@ import WebKit
 	private let operationQueue = MainThreadOperationQueue()
 	private var queue = NSMutableArray()
 
+	private let fullscreenKeeper: WebViewFullscreenKeeper
+
 	init(coordinator: SceneCoordinator) {
 		articleIconSchemeHandler = ArticleIconSchemeHandler(coordinator: coordinator)
+		fullscreenKeeper = coordinator.deps.webViewFullscreenKeeper
 		super.init()
 		replenishQueueIfNeeded()
 		NotificationCenter.default.addObserver(self, selector: #selector(handleWillEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
 	}
 
 	func replenishQueueIfNeeded() {
-		operationQueue.add(WebViewProviderReplenishQueueOperation(queue: queue, articleIconSchemeHandler: articleIconSchemeHandler))
+		operationQueue.add(WebViewProviderReplenishQueueOperation(queue: queue, articleIconSchemeHandler: articleIconSchemeHandler, fullscreenKeeper: fullscreenKeeper))
 	}
 
 	// Pooled web views can lose their content process while the app is in the
@@ -42,8 +45,8 @@ import WebKit
 	}
 
 	func dequeueWebView(completion: @escaping (PreloadedWebView) -> Void) {
-		operationQueue.add(WebViewProviderDequeueOperation(queue: queue, articleIconSchemeHandler: articleIconSchemeHandler, completion: completion))
-		operationQueue.add(WebViewProviderReplenishQueueOperation(queue: queue, articleIconSchemeHandler: articleIconSchemeHandler))
+		operationQueue.add(WebViewProviderDequeueOperation(queue: queue, articleIconSchemeHandler: articleIconSchemeHandler, fullscreenKeeper: fullscreenKeeper, completion: completion))
+		operationQueue.add(WebViewProviderReplenishQueueOperation(queue: queue, articleIconSchemeHandler: articleIconSchemeHandler, fullscreenKeeper: fullscreenKeeper))
 	}
 }
 
@@ -53,7 +56,10 @@ final class WebViewProviderReplenishQueueOperation: MainThreadOperation, @unchec
 	private var queue: NSMutableArray
 	private var articleIconSchemeHandler: ArticleIconSchemeHandler
 
-	init(queue: NSMutableArray, articleIconSchemeHandler: ArticleIconSchemeHandler) {
+	private let fullscreenKeeper: WebViewFullscreenKeeper
+
+	init(queue: NSMutableArray, articleIconSchemeHandler: ArticleIconSchemeHandler, fullscreenKeeper: WebViewFullscreenKeeper) {
+		self.fullscreenKeeper = fullscreenKeeper
 		self.queue = queue
 		self.articleIconSchemeHandler = articleIconSchemeHandler
 		super.init(name: "WebViewProviderReplenishQueueOperation")
@@ -61,7 +67,7 @@ final class WebViewProviderReplenishQueueOperation: MainThreadOperation, @unchec
 
 	override func run() {
 		while queue.count < minimumQueueDepth {
-			let webView = PreloadedWebView(articleIconSchemeHandler: articleIconSchemeHandler)
+			let webView = PreloadedWebView(articleIconSchemeHandler: articleIconSchemeHandler, fullscreenKeeper: fullscreenKeeper)
 			webView.preload()
 			queue.insert(webView, at: 0)
 		}
@@ -74,7 +80,10 @@ final class WebViewProviderDequeueOperation: MainThreadOperation, @unchecked Sen
 	private var articleIconSchemeHandler: ArticleIconSchemeHandler
 	private var completion: (PreloadedWebView) -> Void
 
-	init(queue: NSMutableArray, articleIconSchemeHandler: ArticleIconSchemeHandler, completion: @escaping (PreloadedWebView) -> Void) {
+	private let fullscreenKeeper: WebViewFullscreenKeeper
+
+	init(queue: NSMutableArray, articleIconSchemeHandler: ArticleIconSchemeHandler, fullscreenKeeper: WebViewFullscreenKeeper, completion: @escaping (PreloadedWebView) -> Void) {
+		self.fullscreenKeeper = fullscreenKeeper
 		self.queue = queue
 		self.articleIconSchemeHandler = articleIconSchemeHandler
 		self.completion = completion
@@ -91,7 +100,7 @@ final class WebViewProviderDequeueOperation: MainThreadOperation, @unchecked Sen
 
 		assertionFailure("Creating PreloadedWebView in \(#function); queue has run dry.")
 
-		let webView = PreloadedWebView(articleIconSchemeHandler: articleIconSchemeHandler)
+		let webView = PreloadedWebView(articleIconSchemeHandler: articleIconSchemeHandler, fullscreenKeeper: fullscreenKeeper)
 		webView.preload()
 		self.completion(webView)
 		didComplete()

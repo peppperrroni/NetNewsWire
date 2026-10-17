@@ -11,7 +11,7 @@ import RSWeb
 
 @MainActor struct ArticleThemeImporter {
 
-	static func importTheme(controller: UIViewController, url: URL) throws {
+	static func importTheme(controller: UIViewController, url: URL, themesManager: ArticleThemesManager) throws {
 		let theme = try ArticleTheme(url: url, isAppTheme: false)
 
 		let localizedTitleText = NSLocalizedString("Install theme “%@” by %@?", comment: "Theme message text")
@@ -29,7 +29,7 @@ import RSWeb
 			let visitSiteTitle = NSLocalizedString("Show Website", comment: "Show Website")
 			let visitSiteAction = UIAlertAction(title: visitSiteTitle, style: .default) { _ in
 				UIApplication.shared.open(websiteURL)
-				try? Self.importTheme(controller: controller, url: url)
+				try? Self.importTheme(controller: controller, url: url, themesManager: themesManager)
 			}
 			alertController.addAction(visitSiteAction)
 		}
@@ -42,7 +42,7 @@ import RSWeb
 			}
 
 			do {
-				try ArticleThemesManager.shared.importTheme(filename: url.path)
+				try themesManager.importTheme(filename: url.path)
 				confirmImportSuccess(controller: controller, themeName: theme.name)
 			} catch {
 				controller.presentError(error)
@@ -52,7 +52,7 @@ import RSWeb
 		let installThemeTitle = NSLocalizedString("Install Theme", comment: "Install Theme")
 		let installThemeAction = UIAlertAction(title: installThemeTitle, style: .default) { _ in
 
-			if ArticleThemesManager.shared.themeExists(filename: url.path) {
+			if themesManager.themeExists(filename: url.path) {
 				let title = NSLocalizedString("Duplicate Theme", comment: "Duplicate Theme")
 				let localizedMessageText = NSLocalizedString("The theme “%@” already exists. Overwrite it?", comment: "Overwrite theme")
 				let message = NSString.localizedStringWithFormat(localizedMessageText as NSString, theme.name) as String

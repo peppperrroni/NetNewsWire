@@ -10,7 +10,6 @@ import Foundation
 import Account
 
 @MainActor final class ArticleStatusSyncTimer {
-	static let shared = ArticleStatusSyncTimer()
 
 	private static let normalIntervalSeconds: TimeInterval = 120        // 2 minutes
 	private static let idleBackoffIntervalSeconds: TimeInterval = 1800  // 30 minutes
@@ -23,7 +22,10 @@ import Account
 	/// True when the most recent timed run was a no-op; the next fire is pushed out.
 	private var lastRunWasIdle = false
 
-	init() {
+	private let accountManager: AccountManager
+
+	init(accountManager: AccountManager) {
+		self.accountManager = accountManager
 		NotificationCenter.default.addObserver(self, selector: #selector(handleAccountDidQueueArticleStatuses(_:)), name: .AccountDidQueueArticleStatuses, object: nil)
 	}
 
@@ -87,7 +89,7 @@ import Account
 		update()
 
 		Task {
-			let didWork = await AccountManager.current.syncArticleStatusAll()
+			let didWork = await accountManager.syncArticleStatusAll()
 			self.lastRunWasIdle = !didWork
 			// Re-schedule now that we know whether to back off.
 			self.update()

@@ -34,20 +34,20 @@ import Images
 
 		self.accountID = article.accountID
 		self.articleID = article.articleID
-		self.title = ArticleStringFormatter.shared.truncatedTitle(article)
-		self.attributedTitle = ArticleStringFormatter.shared.attributedTruncatedTitle(article)
+		self.title = ArticleStringFormatter.current.truncatedTitle(article)
+		self.attributedTitle = ArticleStringFormatter.current.attributedTruncatedTitle(article)
 
-		let truncatedSummary = ArticleStringFormatter.shared.truncatedSummary(article)
+		let truncatedSummary = ArticleStringFormatter.current.truncatedSummary(article)
 		if self.title.isEmpty && truncatedSummary.isEmpty {
 			self.summary = Self.noText
 		} else {
 			self.summary = truncatedSummary
 		}
 
-		self.dateString = ArticleStringFormatter.shared.dateString(article.logicalDatePublished)
+		self.dateString = ArticleStringFormatter.current.dateString(article.logicalDatePublished)
 
 		if let feedName = feedName {
-			self.feedName = ArticleStringFormatter.shared.truncatedFeedName(feedName)
+			self.feedName = ArticleStringFormatter.current.truncatedFeedName(feedName)
 		} else {
 			self.feedName = ""
 		}

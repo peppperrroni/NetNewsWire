@@ -37,11 +37,12 @@ extension Notification.Name {
 }
 
 final class AppDefaults: Sendable {
-	static let shared = AppDefaults()
+	/// Set once by the app root. Read only where nothing can be injected (see the app README).
+	nonisolated(unsafe) static var current: AppDefaults!
 	static let defaultThemeName = "Default"
 	fileprivate static let logger = Logger(subsystem: Logger.nnwSubsystem, category: "AppDefaults")
 
-	private init() {}
+	init() {}
 
 	nonisolated(unsafe) static let store: UserDefaults = {
 		let appIdentifierPrefix = Bundle.main.object(forInfoDictionaryKey: "AppIdentifierPrefix") as! String
@@ -529,30 +530,30 @@ struct StateRestorationInfo {
 		AppDefaults.logger.debug("AppDefaults: StateRestorationInfo:\nexpandedContainers: \(expandedContainers)\nselectedSidebarItem: \(selectedSidebarItem?.userInfo ?? [String: String]())\nsmartFeedsHidingReadArticles: \(smartFeedsHidingReadArticles)\nfeedsHidingReadArticles: \(feedsHidingReadArticles)\nfoldersShowingReadArticles: \(foldersShowingReadArticles)\nselectedArticle: \(selectedArticle?.dictionary ?? [String: String]())\narticleWindowScrollY: \(articleWindowScrollY)\nisShowingExtractedArticle: \(isShowingExtractedArticle ? "true" : "false")")
 	}
 
-	init() {
-		self.init(hideReadFeeds: AppDefaults.shared.hideReadFeeds,
-				  expandedContainers: AppDefaults.shared.expandedContainers,
-				  selectedSidebarItem: AppDefaults.shared.selectedSidebarItem,
-				  smartFeedsHidingReadArticles: AppDefaults.shared.smartFeedsHidingReadArticles,
-				  feedsHidingReadArticles: AppDefaults.shared.feedsHidingReadArticles,
-				  foldersShowingReadArticles: AppDefaults.shared.foldersShowingReadArticles,
-				  selectedArticle: AppDefaults.shared.selectedArticle,
-				  articleWindowScrollY: AppDefaults.shared.articleWindowScrollY,
-				  isShowingExtractedArticle: AppDefaults.shared.isShowingExtractedArticle)
+	init(appDefaults: AppDefaults) {
+		self.init(hideReadFeeds: appDefaults.hideReadFeeds,
+				  expandedContainers: appDefaults.expandedContainers,
+				  selectedSidebarItem: appDefaults.selectedSidebarItem,
+				  smartFeedsHidingReadArticles: appDefaults.smartFeedsHidingReadArticles,
+				  feedsHidingReadArticles: appDefaults.feedsHidingReadArticles,
+				  foldersShowingReadArticles: appDefaults.foldersShowingReadArticles,
+				  selectedArticle: appDefaults.selectedArticle,
+				  articleWindowScrollY: appDefaults.articleWindowScrollY,
+				  isShowingExtractedArticle: appDefaults.isShowingExtractedArticle)
 	}
 
 	// TODO: Delete for NetNewsWire 7.1.
-	init(legacyState: NSUserActivity?) {
-		if AppDefaults.shared.didMigrateLegacyStateRestorationInfo {
-			self.init()
+	init(legacyState: NSUserActivity?, appDefaults: AppDefaults) {
+		if appDefaults.didMigrateLegacyStateRestorationInfo {
+			self.init(appDefaults: appDefaults)
 			return
 		}
 
-		AppDefaults.shared.didMigrateLegacyStateRestorationInfo = true
+		appDefaults.didMigrateLegacyStateRestorationInfo = true
 
 		// Extract legacy window state if available
 		guard let windowState = legacyState?.userInfo?[UserInfoKey.windowState] as? [AnyHashable: Any] else {
-			self.init()
+			self.init(appDefaults: appDefaults)
 			return
 		}
 
@@ -560,7 +561,7 @@ struct StateRestorationInfo {
 		if let legacyValue = windowState[UserInfoKey.readFeedsFilterState] as? Bool {
 			hideReadFeeds = legacyValue
 		} else {
-			hideReadFeeds = AppDefaults.shared.hideReadFeeds
+			hideReadFeeds = appDefaults.hideReadFeeds
 		}
 
 		let expandedContainers: Set<ContainerIdentifier>
@@ -577,7 +578,7 @@ struct StateRestorationInfo {
 			let containerIdentifiers = convertedState.compactMap { ContainerIdentifier(userInfo: $0) }
 			expandedContainers = Set(containerIdentifiers)
 		} else {
-			expandedContainers = AppDefaults.shared.expandedContainers
+			expandedContainers = appDefaults.expandedContainers
 		}
 
 		let sidebarItemsHidingReadArticles: Set<SidebarItemIdentifier>
@@ -618,7 +619,7 @@ struct StateRestorationInfo {
 		   let sidebarItemIdentifier = SidebarItemIdentifier(userInfo: legacyState) {
 			selectedSidebarItem = sidebarItemIdentifier
 		} else {
-			selectedSidebarItem = AppDefaults.shared.selectedSidebarItem
+			selectedSidebarItem = appDefaults.selectedSidebarItem
 		}
 
 		self.init(hideReadFeeds: hideReadFeeds,
@@ -626,9 +627,9 @@ struct StateRestorationInfo {
 				  selectedSidebarItem: selectedSidebarItem,
 				  smartFeedsHidingReadArticles: smartFeedsHidingReadArticles,
 				  feedsHidingReadArticles: feedsHidingReadArticles,
-				  foldersShowingReadArticles: AppDefaults.shared.foldersShowingReadArticles,
-				  selectedArticle: AppDefaults.shared.selectedArticle,
-				  articleWindowScrollY: AppDefaults.shared.articleWindowScrollY,
-				  isShowingExtractedArticle: AppDefaults.shared.isShowingExtractedArticle)
+				  foldersShowingReadArticles: appDefaults.foldersShowingReadArticles,
+				  selectedArticle: appDefaults.selectedArticle,
+				  articleWindowScrollY: appDefaults.articleWindowScrollY,
+				  isShowingExtractedArticle: appDefaults.isShowingExtractedArticle)
 	}
 }

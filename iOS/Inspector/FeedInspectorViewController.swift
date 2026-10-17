@@ -15,6 +15,9 @@ import Images
 
 final class FeedInspectorViewController: UITableViewController {
 
+	/// Set by the presenting controller right after instantiation.
+	var deps: AppDependencies!
+
 	static let preferredContentSizeForFormSheetDisplay = CGSize(width: 460.0, height: 500.0)
 
 	var feed: Feed!
@@ -27,7 +30,7 @@ final class FeedInspectorViewController: UITableViewController {
 
 	private var headerView: InspectorIconHeaderView?
 	private var iconImage: IconImage? {
-		return IconImageCache.shared.imageForFeed(feed)
+		return deps.iconImageCache.imageForFeed(feed)
 	}
 
 	private let homePageIndexPath = IndexPath(row: 0, section: 1)

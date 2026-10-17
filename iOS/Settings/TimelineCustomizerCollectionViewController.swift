@@ -38,8 +38,10 @@ class TimelineCustomizerCollectionViewController: UICollectionViewController {
 				status: ArticleStatus(articleID: "_testArticleID", read: false, starred: false, dateArrived: .now))
 	}
 
-	private var cachedTimelineLines: Int = AppDefaults.shared.timelineNumberOfLines
-	private var cachedIconSize: IconSize = AppDefaults.shared.timelineIconSize
+	/// Set by SettingsViewController right after instantiation.
+	var deps: AppDependencies!
+	private lazy var cachedTimelineLines: Int = deps.appDefaults.timelineNumberOfLines
+	private lazy var cachedIconSize: IconSize = deps.appDefaults.timelineIconSize
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,13 +51,13 @@ class TimelineCustomizerCollectionViewController: UICollectionViewController {
 			guard let self = self else { return }
 			Task { @MainActor in
 
-				if AppDefaults.shared.timelineNumberOfLines != self.cachedTimelineLines {
-					self.cachedTimelineLines = AppDefaults.shared.timelineNumberOfLines
+				if deps.appDefaults.timelineNumberOfLines != self.cachedTimelineLines {
+					self.cachedTimelineLines = deps.appDefaults.timelineNumberOfLines
 					self.userDefaultsDidChange()
 				}
 
-				if AppDefaults.shared.timelineIconSize != self.cachedIconSize {
-					self.cachedIconSize = AppDefaults.shared.timelineIconSize
+				if deps.appDefaults.timelineIconSize != self.cachedIconSize {
+					self.cachedIconSize = deps.appDefaults.timelineIconSize
 					self.userDefaultsDidChange()
 				}
 			}
@@ -97,12 +99,14 @@ class TimelineCustomizerCollectionViewController: UICollectionViewController {
 
 		if indexPath.section == 0 {
 			let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "IconSizeSelector", for: indexPath) as! TimelineCustomizerCell
+			cell.appDefaults = deps.appDefaults
 			cell.sliderConfiguration = .iconSize
 			return cell
 		}
 
 		if indexPath.section == 1 {
 			let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "NumberOfLinesSelector", for: indexPath) as! TimelineCustomizerCell
+			cell.appDefaults = deps.appDefaults
 			cell.sliderConfiguration = .numberOfLines
 			return cell
 		}
@@ -115,8 +119,8 @@ class TimelineCustomizerCollectionViewController: UICollectionViewController {
 												 byline: "J. R. R. Tolkien",
 												 iconImage: IconImage(Assets.Images.nnwFeedIcon),
 												 showIcon: false,
-												 numberOfLines: AppDefaults.shared.timelineNumberOfLines,
-												 iconSize: AppDefaults.shared.timelineIconSize)
+												 numberOfLines: deps.appDefaults.timelineNumberOfLines,
+												 iconSize: deps.appDefaults.timelineIconSize)
 			cell.isPreview = true
 			return cell
 		}
@@ -129,8 +133,8 @@ class TimelineCustomizerCollectionViewController: UICollectionViewController {
 												 byline: "J. R. R. Tolkien",
 												 iconImage: IconImage(Assets.Images.nnwFeedIcon),
 												 showIcon: true,
-												 numberOfLines: AppDefaults.shared.timelineNumberOfLines,
-												 iconSize: AppDefaults.shared.timelineIconSize)
+												 numberOfLines: deps.appDefaults.timelineNumberOfLines,
+												 iconSize: deps.appDefaults.timelineIconSize)
 			cell.isPreview = true
 			return cell
 		}

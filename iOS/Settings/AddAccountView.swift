@@ -19,6 +19,7 @@ struct AddAccountView: View {
 	let activityLog: ActivityLog
 	let operationQueue: MainThreadOperationQueue
 	let accountManager: AccountManager
+	let appDefaults: AppDefaults
 	/// Called after an account is added so the host can pop this screen.
 	let didAddAccount: () -> Void
 
@@ -133,7 +134,7 @@ struct AddAccountView: View {
 	}
 
 	private func visibleAccountTypes(in group: AccountGroup) -> [AccountType] {
-		group.accountTypes.filter { !(AppDefaults.shared.isDeveloperBuild && $0.isDeveloperRestricted) }
+		group.accountTypes.filter { !(appDefaults.isDeveloperBuild && $0.isDeveloperRestricted) }
 	}
 
 	private func isDisabled(_ accountType: AccountType) -> Bool {

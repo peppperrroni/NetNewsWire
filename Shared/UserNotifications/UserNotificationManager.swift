@@ -12,7 +12,11 @@ import Articles
 import UserNotifications
 
 @MainActor final class UserNotificationManager {
-	static let shared = UserNotificationManager()
+	private let articleStringFormatter: ArticleStringFormatter
+
+	init(articleStringFormatter: ArticleStringFormatter) {
+		self.articleStringFormatter = articleStringFormatter
+	}
 
 	static private let notificationCategory = "NEW_ARTICLE_NOTIFICATION_CATEGORY"
 
@@ -67,10 +71,10 @@ private extension UserNotificationManager {
 		let content = UNMutableNotificationContent()
 
 		content.title = feed.nameForDisplay
-		if !ArticleStringFormatter.shared.truncatedTitle(article).isEmpty {
-			content.subtitle = ArticleStringFormatter.shared.truncatedTitle(article)
+		if !articleStringFormatter.truncatedTitle(article).isEmpty {
+			content.subtitle = articleStringFormatter.truncatedTitle(article)
 		}
-		content.body = ArticleStringFormatter.shared.truncatedSummary(article)
+		content.body = articleStringFormatter.truncatedSummary(article)
 		content.threadIdentifier = feed.feedID
 		content.sound = UNNotificationSound.default
 		content.userInfo = [UserInfoKey.articlePath: article.pathUserInfo]

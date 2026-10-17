@@ -16,7 +16,6 @@ public extension Notification.Name {
 }
 
 final class ArticleThemesManager: NSObject, NSFilePresenter, Sendable {
-	static let shared = ArticleThemesManager()
 	public let folderPath: String
 
 	/// User-facing message for a failed theme import.
@@ -52,11 +51,11 @@ final class ArticleThemesManager: NSObject, NSFilePresenter, Sendable {
 
 	var currentThemeName: String {
 		get {
-			AppDefaults.shared.currentThemeName ?? AppDefaults.defaultThemeName
+			appDefaults.currentThemeName ?? AppDefaults.defaultThemeName
 		}
 		set {
 			if newValue != currentThemeName {
-				AppDefaults.shared.currentThemeName = newValue
+				appDefaults.currentThemeName = newValue
 				updateThemeNames()
 				updateCurrentTheme()
 			}
@@ -91,7 +90,10 @@ final class ArticleThemesManager: NSObject, NSFilePresenter, Sendable {
 
 	@MainActor private var didStart = false
 
-	override init() {
+	private let appDefaults: AppDefaults
+
+	init(appDefaults: AppDefaults) {
+		self.appDefaults = appDefaults
 		let folderPath = Platform.dataSubfolder(forApplication: nil, folderName: "Themes")!
 		self.folderPath = folderPath
 		self.presentedItemURL = URL(fileURLWithPath: folderPath)

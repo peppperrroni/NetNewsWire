@@ -11,7 +11,6 @@ import Zip
 import RSWeb
 
 public final class ArticleThemeDownloader: Sendable {
-	public static let shared = ArticleThemeDownloader(downloader: Downloader.current)
 
 	public enum ArticleThemeDownloaderError: LocalizedError {
 		case downloadFailed

@@ -14,7 +14,8 @@ import Images
 
 @MainActor final class IconImageCache {
 
-	static var shared: IconImageCache!  // set by the app root; removed in the Shared/iOS port
+	/// Set once by the app root. Read only where nothing can be injected (see the app README).
+	nonisolated(unsafe) static var current: IconImageCache!
 
 	private var smartFeedIconImageCache = [SidebarItemIdentifier: IconImage]()
 	private var feedIconImageCache = [SidebarItemIdentifier: IconImage]()
@@ -26,8 +27,10 @@ import Images
 	private let faviconDownloader: FaviconDownloader
 	private let authorAvatarDownloader: AuthorAvatarDownloader
 	private let accountManager: AccountManager
+	private let smartFeedsController: SmartFeedsController
 
-	init(feedIconDownloader: FeedIconDownloader, faviconDownloader: FaviconDownloader, authorAvatarDownloader: AuthorAvatarDownloader, accountManager: AccountManager) {
+	init(feedIconDownloader: FeedIconDownloader, faviconDownloader: FaviconDownloader, authorAvatarDownloader: AuthorAvatarDownloader, accountManager: AccountManager, smartFeedsController: SmartFeedsController) {
+		self.smartFeedsController = smartFeedsController
 		self.accountManager = accountManager
 		self.feedIconDownloader = feedIconDownloader
 		self.faviconDownloader = faviconDownloader
@@ -40,7 +43,7 @@ import Images
 	}
 
 	func imageFor(_ feedID: SidebarItemIdentifier) -> IconImage? {
-		if let smartFeed = SmartFeedsController.shared.find(by: feedID) {
+		if let smartFeed = smartFeedsController.find(by: feedID) {
 			return imageForFeed(smartFeed)
 		}
 		if let feed = accountManager.existingFeed(with: feedID) {

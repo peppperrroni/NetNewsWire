@@ -15,7 +15,6 @@ import Articles
 import Account
 
 @MainActor final class WidgetDataEncoder {
-	static let shared = WidgetDataEncoder()
 
 	var isRunning = false
 
@@ -25,7 +24,16 @@ import Account
 
 	private static let logger = Logger(subsystem: Logger.nnwSubsystem, category: "WidgetDataEncoder")
 
-	init?() {
+	private let appDefaults: AppDefaults
+	private let articleStringFormatter: ArticleStringFormatter
+	private let smartFeedsController: SmartFeedsController
+	private let accountManager: AccountManager
+
+	init?(appDefaults: AppDefaults, articleStringFormatter: ArticleStringFormatter, smartFeedsController: SmartFeedsController, accountManager: AccountManager) {
+		self.appDefaults = appDefaults
+		self.articleStringFormatter = articleStringFormatter
+		self.smartFeedsController = smartFeedsController
+		self.accountManager = accountManager
 		guard let appGroup = Bundle.main.object(forInfoDictionaryKey: "AppGroup") as? String else {
 			Self.logger.error("WidgetDataEncoder: unable to create appGroup")
 			return nil
@@ -140,20 +148,20 @@ import Account
 @MainActor private extension WidgetDataEncoder {
 
 	func fetchWidgetData() async -> WidgetData {
-		let fetchedUnreadArticles = await AccountManager.current.fetchArticlesAsync(.unread(fetchLimit))
+		let fetchedUnreadArticles = await accountManager.fetchArticlesAsync(.unread(fetchLimit))
 		let unreadArticles = sortedLatestArticles(fetchedUnreadArticles)
 
-		let fetchedStarredArticles = await AccountManager.current.fetchArticlesAsync(.starred(fetchLimit))
+		let fetchedStarredArticles = await accountManager.fetchArticlesAsync(.starred(fetchLimit))
 		let starredArticles = sortedLatestArticles(fetchedStarredArticles)
 
-		let fetchedTodayArticles = await AccountManager.current.fetchArticlesAsync(.today(fetchLimit))
+		let fetchedTodayArticles = await accountManager.fetchArticlesAsync(.today(fetchLimit))
 		let todayArticles = sortedLatestArticles(fetchedTodayArticles)
 
-		let totalTodayCount = await AccountManager.current.fetchCountForTodayArticlesAsync()
-		let totalTodayUnreadCount = await AccountManager.current.fetchUnreadCountForTodayAsync()
-		let totalStarredCount = await AccountManager.current.fetchCountForStarredArticlesAsync()
+		let totalTodayCount = await accountManager.fetchCountForTodayArticlesAsync()
+		let totalTodayUnreadCount = await accountManager.fetchUnreadCountForTodayAsync()
+		let totalStarredCount = await accountManager.fetchCountForStarredArticlesAsync()
 
-		let latestData = WidgetData(totalUnreadCount: SmartFeedsController.shared.unreadFeed.unreadCount,
+		let latestData = WidgetData(totalUnreadCount: smartFeedsController.unreadFeed.unreadCount,
 									totalTodayCount: totalTodayCount,
 									totalTodayUnreadCount: totalTodayUnreadCount,
 									totalStarredCount: totalStarredCount,
@@ -161,7 +169,7 @@ import Account
 									starredArticles: starredArticles,
 									todayArticles: todayArticles,
 									lastUpdateTime: Date.now,
-									unreadCountDisplay: AppDefaults.shared.unreadCountDisplay)
+									unreadCountDisplay: appDefaults.unreadCountDisplay)
 
 		return latestData
 	}
@@ -225,8 +233,8 @@ import Account
 	}
 
 	func createLatestArticle(_ article: Article) -> LatestArticle {
-		let truncatedTitle = ArticleStringFormatter.shared.truncatedTitle(article)
-		let articleTitle = truncatedTitle.isEmpty ? ArticleStringFormatter.shared.truncatedSummary(article) : truncatedTitle
+		let truncatedTitle = articleStringFormatter.truncatedTitle(article)
+		let articleTitle = truncatedTitle.isEmpty ? articleStringFormatter.truncatedSummary(article) : truncatedTitle
 
 		let feedIconPath = writeImageDataToSharedContainer(article.iconImage()?.image.dataRepresentation())
 

@@ -11,9 +11,13 @@ import Account
 
 @MainActor final class HidingReadArticlesState {
 	private let accountManager: AccountManager
+	private let appDefaults: AppDefaults
+	private let smartFeedsController: SmartFeedsController
 
-	init(accountManager: AccountManager) {
+	init(accountManager: AccountManager, appDefaults: AppDefaults, smartFeedsController: SmartFeedsController) {
 		self.accountManager = accountManager
+		self.appDefaults = appDefaults
+		self.smartFeedsController = smartFeedsController
 	}
 
 	private var smartFeedsHidingReadArticles = Set<String>()
@@ -78,7 +82,7 @@ import Account
 private extension HidingReadArticlesState {
 
 	func isUnreadSmartFeed(_ sidebarItemID: SidebarItemIdentifier) -> Bool {
-		sidebarItemID == SmartFeedsController.shared.unreadFeed.sidebarItemID
+		sidebarItemID == smartFeedsController.unreadFeed.sidebarItemID
 	}
 
 	func saveHidingReadArticles(for sidebarItemID: SidebarItemIdentifier, hiding: Bool) {
@@ -132,7 +136,7 @@ private extension HidingReadArticlesState {
 			d[accountID] = d[accountID]?.filter { account.existingFolder(withDisplayName: $0) != nil }
 		}
 
-		AppDefaults.shared.foldersShowingReadArticles = d
+		appDefaults.foldersShowingReadArticles = d
 	}
 
 	func saveFeedsHidingReadArticles() {
@@ -147,10 +151,10 @@ private extension HidingReadArticlesState {
 			d[accountID] = d[accountID]?.filter { account.existingFeed(withFeedID: $0) != nil }
 		}
 
-		AppDefaults.shared.feedsHidingReadArticles = d
+		appDefaults.feedsHidingReadArticles = d
 	}
 
 	func saveSmartFeedsHidingReadArticles() {
-		AppDefaults.shared.smartFeedsHidingReadArticles = smartFeedsHidingReadArticles
+		appDefaults.smartFeedsHidingReadArticles = smartFeedsHidingReadArticles
 	}
 }

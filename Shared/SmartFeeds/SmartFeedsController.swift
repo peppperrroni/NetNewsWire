@@ -13,7 +13,6 @@ import Account
 @MainActor final class SmartFeedsController: DisplayNameProvider, ContainerIdentifiable {
 	nonisolated let containerID: ContainerIdentifier? = ContainerIdentifier.smartFeedController
 
-	public static let shared = SmartFeedsController(accountManager: AccountManager.current)  // ported in the Shared/iOS task
 	let nameForDisplay = NSLocalizedString("Smart Feeds", comment: "Smart Feeds group title")
 
 	var smartFeeds = [SidebarItem]()

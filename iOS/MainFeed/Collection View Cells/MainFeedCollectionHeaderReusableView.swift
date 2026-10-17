@@ -19,6 +19,9 @@ enum SectionHeaderType {
 }
 
 final class MainFeedCollectionHeaderReusableView: UICollectionReusableView {
+
+	/// Set by the dequeuing controller before the cell is configured.
+	var appDefaults: AppDefaults!
 	var delegate: MainFeedCollectionHeaderReusableViewDelegate?
 	var sectionHeaderType: SectionHeaderType?
 
@@ -29,7 +32,7 @@ final class MainFeedCollectionHeaderReusableView: UICollectionReusableView {
 	override var accessibilityLabel: String? {
 		get {
 			let name = headerTitle.text ?? ""
-			guard let unreadText = AppDefaults.shared.unreadCountDisplay.accessibilityText(for: unreadCount) else {
+			guard let unreadText = appDefaults.unreadCountDisplay.accessibilityText(for: unreadCount) else {
 				return "\(name) \(expandedStateMessage) "
 			}
 			return "\(name) \(unreadText) \(expandedStateMessage) "
@@ -58,7 +61,7 @@ final class MainFeedCollectionHeaderReusableView: UICollectionReusableView {
 	}
 
 	private var unreadCountText: String? {
-		AppDefaults.shared.unreadCountDisplay.text(for: unreadCount)
+		appDefaults.unreadCountDisplay.text(for: unreadCount)
 	}
 
 	// Mutate via setDisclosure(isExpanded:animated:) — the supplementary provider

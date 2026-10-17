@@ -29,7 +29,10 @@ struct AddFeedContainerPickerView: View {
 		}
 	}
 
-	init(selectedContainer: Binding<Container?>, accountManager: AccountManager) {
+	private let appDefaults: AppDefaults
+
+	init(selectedContainer: Binding<Container?>, accountManager: AccountManager, appDefaults: AppDefaults) {
+		self.appDefaults = appDefaults
 		self._selectedContainer = selectedContainer
 
 		var rows = [Row]()
@@ -82,7 +85,7 @@ struct AddFeedContainerPickerView: View {
 
 	private func select(_ container: Container) {
 		selectedContainer = container
-		AddFeedDefaultContainer.saveDefaultContainer(container)
+		AddFeedDefaultContainer.saveDefaultContainer(container, appDefaults: appDefaults)
 		dismiss()
 	}
 }

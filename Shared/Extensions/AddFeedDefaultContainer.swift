@@ -11,10 +11,10 @@ import Account
 
 @MainActor struct AddFeedDefaultContainer {
 
-	static func defaultContainer(accountManager: AccountManager) -> Container? {
+	static func defaultContainer(accountManager: AccountManager, appDefaults: AppDefaults) -> Container? {
 
-		if let accountID = AppDefaults.shared.addFeedAccountID, let account = accountManager.activeAccounts.first(where: { $0.accountID == accountID }) {
-			if let folderName = AppDefaults.shared.addFeedFolderName, let folder = account.existingFolder(withDisplayName: folderName) {
+		if let accountID = appDefaults.addFeedAccountID, let account = accountManager.activeAccounts.first(where: { $0.accountID == accountID }) {
+			if let folderName = appDefaults.addFeedFolderName, let folder = account.existingFolder(withDisplayName: folderName) {
 				return folder
 			} else {
 				return substituteContainerIfNeeded(account: account)
@@ -27,12 +27,12 @@ import Account
 
 	}
 
-	static func saveDefaultContainer(_ container: Container) {
-		AppDefaults.shared.addFeedAccountID = container.account?.accountID
+	static func saveDefaultContainer(_ container: Container, appDefaults: AppDefaults) {
+		appDefaults.addFeedAccountID = container.account?.accountID
 		if let folder = container as? Folder {
-			AppDefaults.shared.addFeedFolderName = folder.nameForDisplay
+			appDefaults.addFeedFolderName = folder.nameForDisplay
 		} else {
-			AppDefaults.shared.addFeedFolderName = nil
+			appDefaults.addFeedFolderName = nil
 		}
 	}
 

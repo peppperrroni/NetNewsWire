@@ -23,6 +23,9 @@ final class ShareViewController: UINavigationController {
 
 final class ShareAddFeedViewController: UITableViewController, ShareFolderPickerControllerDelegate {
 
+	/// The share extension is its own process with no app root; it builds what it uses.
+	private let appDefaults = AppDefaults()
+
 	private var extensionContainers: ExtensionContainers?
 	private var flattenedContainers = [ExtensionContainer]()
 	private var selectedContainer: ExtensionContainer?
@@ -64,7 +67,7 @@ final class ShareAddFeedViewController: UITableViewController, ShareFolderPicker
 		extensionContainers = ExtensionContainersFile.read()
 		flattenedContainers = extensionContainers?.flattened ?? [ExtensionContainer]()
 		if let extensionContainers {
-			selectedContainer = ShareDefaultContainer.defaultContainer(containers: extensionContainers)
+			selectedContainer = ShareDefaultContainer.defaultContainer(containers: extensionContainers, appDefaults: appDefaults)
 		}
 
 		updateUI()
@@ -95,7 +98,7 @@ final class ShareAddFeedViewController: UITableViewController, ShareFolderPicker
 	// MARK: - ShareFolderPickerControllerDelegate
 
 	func shareFolderPickerDidSelect(_ container: ExtensionContainer) {
-		ShareDefaultContainer.saveDefaultContainer(container)
+		ShareDefaultContainer.saveDefaultContainer(container, appDefaults: appDefaults)
 		selectedContainer = container
 		updateUI()
 		navigationController?.popViewController(animated: true)
