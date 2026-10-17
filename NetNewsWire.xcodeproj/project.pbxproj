@@ -11,6 +11,7 @@
 		176814002564BB2D00D98635 /* NetNewsWire iOS Widget Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 176813F32564BB2C00D98635 /* NetNewsWire iOS Widget Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		179C39EA26F76B0500D4E741 /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 179C39E926F76B0500D4E741 /* Zip */; };
 		179D280B26F6F93D003B2E0A /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 179D280A26F6F93D003B2E0A /* Zip */; };
+		D15C00020000000000000003 /* NeedleFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = D15C00020000000000000002 /* NeedleFoundation */; };
 		27692BB9F5D9450894A7EDA4 /* ErrorLog in Frameworks */ = {isa = PBXBuildFile; productRef = C1939AC39272487C923003B8 /* ErrorLog */; };
 		4679674625E599C100844E8D /* Articles in Frameworks */ = {isa = PBXBuildFile; productRef = 4679674525E599C100844E8D /* Articles */; };
 		4679674725E599C100844E8D /* Articles in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 4679674525E599C100844E8D /* Articles */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -516,6 +517,7 @@
 				84EE3F152DB8A0A0009D3A8D /* RSTree in Frameworks */,
 				848E84D52DB749670023F3BA /* RSCore in Frameworks */,
 				179D280B26F6F93D003B2E0A /* Zip in Frameworks */,
+				D15C00020000000000000003 /* NeedleFoundation in Frameworks */,
 				8424B31B2DB73D530053AA11 /* RSParser in Frameworks */,
 				516B695F24D2F33B00B5702F /* Account in Frameworks */,
 				CEE687C900324CE2908FCF98 /* ErrorLog in Frameworks */,
@@ -748,6 +750,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 840D61A32029031E009BC708 /* Build configuration list for PBXNativeTarget "NetNewsWire-iOS" */;
 			buildPhases = (
+				D15C00020000000000000004 /* Needle Generate */,
 				840D61782029031C009BC708 /* Sources */,
 				840D61792029031C009BC708 /* Frameworks */,
 				840D617A2029031C009BC708 /* Resources */,
@@ -774,6 +777,7 @@
 				513F32762593EE6F0003048F /* Secrets */,
 				513F32792593EE6F0003048F /* SyncDatabase */,
 				179D280A26F6F93D003B2E0A /* Zip */,
+				D15C00020000000000000002 /* NeedleFoundation */,
 				843E2F192CF2B8C500ED170F /* RSWeb */,
 				D1A7E100000000000000A001 /* HTMLMetadata */,
 				D1A7E100000000000000B001 /* ActivityLog */,
@@ -938,6 +942,7 @@
 				17192AD82567B3D500AAEACA /* XCRemoteSwiftPackageReference "Sparkle" */,
 				519CA8E325841DB700EB079A /* XCRemoteSwiftPackageReference "plcrashreporter" */,
 				179D280926F6F93D003B2E0A /* XCRemoteSwiftPackageReference "Zip" */,
+				D15C00020000000000000001 /* XCRemoteSwiftPackageReference "needle" */,
 			);
 			preferredProjectObjectVersion = 46;
 			productRefGroup = 849C64611ED37A5D003D8FC0 /* Products */;
@@ -1032,6 +1037,28 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		D15C00020000000000000004 /* Needle Generate */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/iOS/DI/AppDependencies.swift",
+				"$(SRCROOT)/iOS/DI/SessionDependencies.swift",
+				"$(SRCROOT)/iOS/DI/FeatureDependencies.swift",
+			);
+			name = "Needle Generate";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/iOS/DI/NeedleGenerated.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nexport SOURCEKIT_LOGGING=0\nneedle generate \"$SRCROOT/iOS/DI/NeedleGenerated.swift\" \"$SRCROOT/iOS/DI\"\n";
+		};
 		513F328B2593F03F0003048F /* Delete Unnecessary Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -1324,6 +1351,7 @@
 			baseConfigurationReferenceAnchor = 84719F372DB9C60400EEF332 /* xcconfig */;
 			baseConfigurationReferenceRelativePath = NetNewsWire_iOSapp_target.xcconfig;
 			buildSettings = {
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 			};
 			name = Debug;
 		};
@@ -1332,6 +1360,7 @@
 			baseConfigurationReferenceAnchor = 84719F372DB9C60400EEF332 /* xcconfig */;
 			baseConfigurationReferenceRelativePath = NetNewsWire_iOSapp_target.xcconfig;
 			buildSettings = {
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 			};
 			name = Release;
 		};
@@ -1492,6 +1521,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.8.1;
+			};
+		};
+		D15C00020000000000000001 /* XCRemoteSwiftPackageReference "needle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/uber/needle";
+			requirement = {
+				kind = exactVersion;
+				version = 0.25.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -1676,6 +1713,11 @@
 		D1A7E100000000000000C007 /* Images */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Images;
+		};
+		D15C00020000000000000002 /* NeedleFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D15C00020000000000000001 /* XCRemoteSwiftPackageReference "needle" */;
+			productName = NeedleFoundation;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
