@@ -14,7 +14,7 @@ import RSCore
 import Articles
 import Account
 
-@MainActor final class WidgetDataEncoder {
+@MainActor public final class WidgetDataEncoder {
 
 	var isRunning = false
 
@@ -29,7 +29,7 @@ import Account
 	private let smartFeedsController: SmartFeedsController
 	private let accountManager: AccountManager
 
-	init?(appDefaults: AppDefaults, articleStringFormatter: ArticleStringFormatter, smartFeedsController: SmartFeedsController, accountManager: AccountManager) {
+	public init?(appDefaults: AppDefaults, articleStringFormatter: ArticleStringFormatter, smartFeedsController: SmartFeedsController, accountManager: AccountManager) {
 		self.appDefaults = appDefaults
 		self.articleStringFormatter = articleStringFormatter
 		self.smartFeedsController = smartFeedsController

@@ -11,7 +11,7 @@ import RSCore
 import os
 import Account
 
-final class ExtensionFeedAddRequestFile: NSObject, NSFilePresenter, Sendable {
+public final class ExtensionFeedAddRequestFile: NSObject, NSFilePresenter, Sendable {
 
 	static private let logger = Logger(subsystem: Logger.nnwSubsystem, category: "ExtensionFeedAddRequestFile")
 
@@ -27,18 +27,18 @@ final class ExtensionFeedAddRequestFile: NSObject, NSFilePresenter, Sendable {
 		return queue
 	}()
 
-	var presentedItemURL: URL? {
+	public var presentedItemURL: URL? {
 		URL(fileURLWithPath: ExtensionFeedAddRequestFile.filePath)
 	}
 
-	var presentedItemOperationQueue: OperationQueue {
+	public var presentedItemOperationQueue: OperationQueue {
 		operationQueue
 	}
 
 	private let didStart = OSAllocatedUnfairLock(initialState: false)
 	private let accountManager: AccountManager
 
-	init(accountManager: AccountManager) {
+	public init(accountManager: AccountManager) {
 		self.accountManager = accountManager
 		super.init()
 	}
@@ -63,7 +63,7 @@ final class ExtensionFeedAddRequestFile: NSObject, NSFilePresenter, Sendable {
 		}
 	}
 
-	func presentedItemDidChange() {
+	public func presentedItemDidChange() {
 		Task { @MainActor in
 			process()
 		}

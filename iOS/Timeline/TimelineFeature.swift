@@ -10,7 +10,7 @@ import Foundation
 import Account
 import Articles
 
-@MainActor final class TimelineFeature {
+@MainActor public final class TimelineFeature {
 
 	let sidebarItem: SidebarItem?
 	/// The account whose session this timeline belongs to; nil for smart feeds and no selection.
@@ -18,7 +18,7 @@ import Articles
 	let fetchRequestQueue: FetchRequestQueue
 	var articles = ArticleArray()
 
-	init(sidebarItem: SidebarItem?, account: Account?, fetchRequestQueue: FetchRequestQueue) {
+	public init(sidebarItem: SidebarItem?, account: Account?, fetchRequestQueue: FetchRequestQueue) {
 		self.sidebarItem = sidebarItem
 		self.account = account
 		self.fetchRequestQueue = fetchRequestQueue

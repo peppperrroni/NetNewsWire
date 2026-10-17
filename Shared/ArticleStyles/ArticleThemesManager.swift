@@ -15,7 +15,7 @@ public extension Notification.Name {
 	static let CurrentArticleThemeDidChangeNotification = Notification.Name("CurrentArticleThemeDidChangeNotification")
 }
 
-final class ArticleThemesManager: NSObject, NSFilePresenter, Sendable {
+public final class ArticleThemesManager: NSObject, NSFilePresenter, Sendable {
 	public let folderPath: String
 
 	/// User-facing message for a failed theme import.
@@ -46,8 +46,8 @@ final class ArticleThemesManager: NSObject, NSFilePresenter, Sendable {
 		}
 	}
 
-	let presentedItemOperationQueue = OperationQueue.main // NSFilePresenter
-	let presentedItemURL: URL? // NSFilePresenter
+	public let presentedItemOperationQueue = OperationQueue.main // NSFilePresenter
+	public let presentedItemURL: URL? // NSFilePresenter
 
 	var currentThemeName: String {
 		get {
@@ -92,7 +92,7 @@ final class ArticleThemesManager: NSObject, NSFilePresenter, Sendable {
 
 	private let appDefaults: AppDefaults
 
-	init(appDefaults: AppDefaults) {
+	public init(appDefaults: AppDefaults) {
 		self.appDefaults = appDefaults
 		let folderPath = Platform.dataSubfolder(forApplication: nil, folderName: "Themes")!
 		self.folderPath = folderPath
@@ -121,7 +121,7 @@ final class ArticleThemesManager: NSObject, NSFilePresenter, Sendable {
 		NSFileCoordinator.addFilePresenter(self)
 	}
 
-	func presentedSubitemDidChange(at url: URL) {
+	public func presentedSubitemDidChange(at url: URL) {
 		updateThemeNames()
 		updateCurrentTheme()
 	}

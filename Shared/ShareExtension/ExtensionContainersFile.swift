@@ -12,13 +12,13 @@ import RSCore
 import RSParser
 import Account
 
-@MainActor final class ExtensionContainersFile {
+@MainActor public final class ExtensionContainersFile {
 
 	static private let logger = Logger(subsystem: Logger.nnwSubsystem, category: "ExtensionContainersFile")
 
 	private let accountManager: AccountManager
 
-	init(accountManager: AccountManager) {
+	public init(accountManager: AccountManager) {
 		self.accountManager = accountManager
 	}
 

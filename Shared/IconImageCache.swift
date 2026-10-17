@@ -12,7 +12,7 @@ import Articles
 import RSCore
 import Images
 
-@MainActor final class IconImageCache {
+@MainActor public final class IconImageCache {
 
 	/// Set once by the app root. Read only where nothing can be injected (see the app README).
 	nonisolated(unsafe) static var current: IconImageCache!
@@ -29,7 +29,7 @@ import Images
 	private let accountManager: AccountManager
 	private let smartFeedsController: SmartFeedsController
 
-	init(feedIconDownloader: FeedIconDownloader, faviconDownloader: FaviconDownloader, authorAvatarDownloader: AuthorAvatarDownloader, accountManager: AccountManager, smartFeedsController: SmartFeedsController) {
+	public init(feedIconDownloader: FeedIconDownloader, faviconDownloader: FaviconDownloader, authorAvatarDownloader: AuthorAvatarDownloader, accountManager: AccountManager, smartFeedsController: SmartFeedsController) {
 		self.smartFeedsController = smartFeedsController
 		self.accountManager = accountManager
 		self.feedIconDownloader = feedIconDownloader
