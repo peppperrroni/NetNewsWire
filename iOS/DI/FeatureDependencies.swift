@@ -2,18 +2,38 @@
 //  FeatureDependencies.swift
 //  NetNewsWire-iOS
 //
-//  The feature-scope root: one timeline for a feed or folder of one account, built from
-//  that account's session. Smart-feed timelines are built by hand (outside the scope).
+//  The feature scope: a SafeDI sub-tree per timeline, created by the session's Instantiator with
+//  the selected item forwarded. Smart-feed timelines are built by hand (outside the scope).
 //
 
 import Foundation
+import SafeDI
 import Account
 
-@MainActor final class FeatureDependencies {
+@Instantiable
+@MainActor public final class FeatureDependencies: Instantiable {
 
-	let timeline: TimelineFeature
+	@Forwarded public let item: SidebarItem
+	@Instantiated public let fetchRequestQueue: FetchRequestQueue
+	@Instantiated public let timeline: TimelineFeature
 
-	init(session: SessionDependencies, item: SidebarItem) {
-		timeline = TimelineFeature(sidebarItem: item, account: session.account, fetchRequestQueue: FetchRequestQueue())
+	public init(item: SidebarItem, fetchRequestQueue: FetchRequestQueue, timeline: TimelineFeature) {
+		self.item = item
+		self.fetchRequestQueue = fetchRequestQueue
+		self.timeline = timeline
+	}
+}
+
+@Instantiable
+extension FetchRequestQueue: Instantiable {
+	public static func instantiate() -> FetchRequestQueue {
+		FetchRequestQueue()
+	}
+}
+
+@Instantiable
+extension TimelineFeature: Instantiable {
+	public static func instantiate(item: SidebarItem, account: Account, fetchRequestQueue: FetchRequestQueue) -> TimelineFeature {
+		TimelineFeature(sidebarItem: item, account: account, fetchRequestQueue: fetchRequestQueue)
 	}
 }

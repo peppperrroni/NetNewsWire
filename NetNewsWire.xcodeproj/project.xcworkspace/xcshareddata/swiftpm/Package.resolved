@@ -1,5 +1,5 @@
 {
-  "originHash" : "5953c29570620373a6da43d60a8253af0dab8dd80e8d23607224a78036b1ec0c",
+  "originHash" : "162b1b051d2f8c9f4f11a321390ec8fd053e8719ab929684796d50650b11645e",
   "pins" : [
     {
       "identity" : "plcrashreporter",
@@ -11,12 +11,39 @@
       }
     },
     {
+      "identity" : "safedi",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dfed/SafeDI",
+      "state" : {
+        "revision" : "989d505b068da9cabda2e278657f3223d233f9c1",
+        "version" : "2.0.0"
+      }
+    },
+    {
       "identity" : "sparkle",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sparkle-project/Sparkle.git",
       "state" : {
         "revision" : "79bc9e872948e47877e76f194cb0c8e0412b0b90",
         "version" : "2.9.5"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser.git",
+      "state" : {
+        "revision" : "6a52f3251125d74daf04fcbd5e6f08a75d074382",
+        "version" : "1.8.2"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "state" : {
+        "revision" : "050f1a346fbbac0ca2cfb15a95274f7bd1cf0ccf",
+        "version" : "604.0.0"
       }
     },
     {

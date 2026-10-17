@@ -11,6 +11,7 @@
 		176814002564BB2D00D98635 /* NetNewsWire iOS Widget Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 176813F32564BB2C00D98635 /* NetNewsWire iOS Widget Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		179C39EA26F76B0500D4E741 /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 179C39E926F76B0500D4E741 /* Zip */; };
 		179D280B26F6F93D003B2E0A /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 179D280A26F6F93D003B2E0A /* Zip */; };
+		D15C00030000000000000003 /* SafeDI in Frameworks */ = {isa = PBXBuildFile; productRef = D15C00030000000000000002 /* SafeDI */; };
 		27692BB9F5D9450894A7EDA4 /* ErrorLog in Frameworks */ = {isa = PBXBuildFile; productRef = C1939AC39272487C923003B8 /* ErrorLog */; };
 		4679674625E599C100844E8D /* Articles in Frameworks */ = {isa = PBXBuildFile; productRef = 4679674525E599C100844E8D /* Articles */; };
 		4679674725E599C100844E8D /* Articles in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 4679674525E599C100844E8D /* Articles */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -516,6 +517,7 @@
 				84EE3F152DB8A0A0009D3A8D /* RSTree in Frameworks */,
 				848E84D52DB749670023F3BA /* RSCore in Frameworks */,
 				179D280B26F6F93D003B2E0A /* Zip in Frameworks */,
+				D15C00030000000000000003 /* SafeDI in Frameworks */,
 				8424B31B2DB73D530053AA11 /* RSParser in Frameworks */,
 				516B695F24D2F33B00B5702F /* Account in Frameworks */,
 				CEE687C900324CE2908FCF98 /* ErrorLog in Frameworks */,
@@ -758,6 +760,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D15C00030000000000000005 /* PBXTargetDependency */,
 				5138E94324D3404300AFF0FE /* PBXTargetDependency */,
 				176813FF2564BB2D00D98635 /* PBXTargetDependency */,
 			);
@@ -774,6 +777,7 @@
 				513F32762593EE6F0003048F /* Secrets */,
 				513F32792593EE6F0003048F /* SyncDatabase */,
 				179D280A26F6F93D003B2E0A /* Zip */,
+				D15C00030000000000000002 /* SafeDI */,
 				843E2F192CF2B8C500ED170F /* RSWeb */,
 				D1A7E100000000000000A001 /* HTMLMetadata */,
 				D1A7E100000000000000B001 /* ActivityLog */,
@@ -938,6 +942,7 @@
 				17192AD82567B3D500AAEACA /* XCRemoteSwiftPackageReference "Sparkle" */,
 				519CA8E325841DB700EB079A /* XCRemoteSwiftPackageReference "plcrashreporter" */,
 				179D280926F6F93D003B2E0A /* XCRemoteSwiftPackageReference "Zip" */,
+				D15C00030000000000000001 /* XCRemoteSwiftPackageReference "SafeDI" */,
 			);
 			preferredProjectObjectVersion = 46;
 			productRefGroup = 849C64611ED37A5D003D8FC0 /* Products */;
@@ -1236,6 +1241,10 @@
 			target = 849C645F1ED37A5D003D8FC0 /* NetNewsWire */;
 			targetProxy = 849C64721ED37A5D003D8FC0 /* PBXContainerItemProxy */;
 		};
+		D15C00030000000000000005 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = D15C00030000000000000004 /* SafeDIGenerator */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -1494,6 +1503,14 @@
 				minimumVersion = 1.8.1;
 			};
 		};
+		D15C00030000000000000001 /* XCRemoteSwiftPackageReference "SafeDI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dfed/SafeDI";
+			requirement = {
+				kind = exactVersion;
+				version = 2.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1676,6 +1693,16 @@
 		D1A7E100000000000000C007 /* Images */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Images;
+		};
+		D15C00030000000000000002 /* SafeDI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D15C00030000000000000001 /* XCRemoteSwiftPackageReference "SafeDI" */;
+			productName = SafeDI;
+		};
+		D15C00030000000000000004 /* SafeDIGenerator */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D15C00030000000000000001 /* XCRemoteSwiftPackageReference "SafeDI" */;
+			productName = "plugin:SafeDIGenerator";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

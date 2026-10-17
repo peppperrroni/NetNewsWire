@@ -10,17 +10,19 @@ import Account
 
 @MainActor enum BenchResolve {
 
+	/// Reads every app service from the SafeDI root's instantiated properties (this variant's access path).
 	static func resolveAll(_ deps: AppDependencies) {
+		let r = deps.root
 		BenchHooks.sink([
-			deps.batchUpdate, deps.mainThreadOperationQueue, deps.downloadCache, deps.downloader,
-			deps.networkMonitor, deps.activityLog, deps.feedFinder, deps.authorCache,
-			deps.htmlMetadataDatabase, deps.htmlMetadataDownloader, deps.imageMetadataDatabase,
-			deps.imageDownloader, deps.faviconDownloader, deps.feedIconDownloader,
-			deps.authorAvatarDownloader, deps.faviconGenerator, deps.accountManager, deps.appDefaults,
-			deps.articleStringFormatter, deps.smartFeedsController, deps.iconImageCache,
-			deps.articleThemesManager, deps.articleThemeDownloader, deps.articleStatusSyncTimer,
-			deps.extensionFeedAddRequestFile, deps.extensionContainersFile, deps.widgetDataEncoder,
-			deps.userNotificationManager, deps.webViewFullscreenKeeper
+			r.batchUpdate, r.mainThreadOperationQueue, r.downloadCache, r.downloader,
+			r.networkMonitor, r.activityLog, r.feedFinder, r.authorCache,
+			r.htmlMetadataDatabase, r.htmlMetadataDownloader, r.imageMetadataDatabase,
+			r.imageDownloader, r.faviconDownloader, r.feedIconDownloader,
+			r.authorAvatarDownloader, r.faviconGenerator, r.accountManager, r.appDefaults,
+			r.articleStringFormatter, r.smartFeedsController, r.iconImageCache,
+			r.articleThemesManager, r.articleThemeDownloader, r.articleStatusSyncTimer,
+			r.extensionFeedAddRequestFile, r.extensionContainersFile, r.widgetDataEncoder,
+			r.userNotificationManager, r.webViewFullscreenKeeper
 		])
 	}
 
