@@ -72,7 +72,13 @@ struct SidebarItemNode: Hashable, Sendable {
 	private let rebuildBackingStoresQueue = CoalescingQueue(name: "Rebuild The Backing Stores", interval: 0.5)
 	private let saveColumnWidthsQueue = CoalescingQueue(name: "Save Column Widths", interval: 0.5)
 	private var fetchSerialNumber = 0
-	private let fetchRequestQueue = FetchRequestQueue()
+	/// The current timeline selection (feature scope). Replaced by `installTimeline(for:)`.
+	private(set) var timeline = TimelineFeature(sidebarItem: nil, account: nil, fetchRequestQueue: FetchRequestQueue())
+	/// The feature root when the selection belongs to one account; nil for smart feeds and no selection.
+	private var feature: FeatureDependencies?
+	private var fetchRequestQueue: FetchRequestQueue {
+		timeline.fetchRequestQueue
+	}
 
 	private static let logger = Logger(subsystem: Logger.nnwSubsystem, category: "SceneCoordinator")
 
@@ -164,11 +170,8 @@ struct SidebarItemNode: Hashable, Sendable {
 	}
 
 	private var exceptionArticleFetcher: ArticleFetcher?
-	private(set) var timelineFeed: SidebarItem? {
-		didSet {
-			mainTimelineViewController?.updateNavigationBarTitle(timelineFeed?.nameForDisplay ?? "")
-			updateNavigationBarSubtitles(nil)
-		}
+	var timelineFeed: SidebarItem? {
+		timeline.sidebarItem
 	}
 
 	var timelineMiddleIndexPath: IndexPath?
@@ -273,8 +276,12 @@ struct SidebarItemNode: Hashable, Sendable {
 		}
 	}
 
-	private(set) var articles = ArticleArray() {
-		didSet {
+	private(set) var articles: ArticleArray {
+		get {
+			timeline.articles
+		}
+		set {
+			timeline.articles = newValue
 			timelineMiddleIndexPath = nil
 			articleDictionaryNeedsUpdate = true
 		}
@@ -1238,8 +1245,7 @@ struct SidebarItemNode: Hashable, Sendable {
 
 	func endSearching() {
 		if let oldTimelineFeed = preSearchTimelineFeed {
-			emptyTheTimeline()
-			timelineFeed = oldTimelineFeed
+			installTimeline(for: oldTimelineFeed)
 			mainTimelineViewController?.reinitializeArticles(resetScroll: true)
 			replaceArticles(with: savedSearchArticles!, animated: true)
 		} else {
@@ -2130,12 +2136,42 @@ private extension SceneCoordinator {
 	}
 
 	func setTimelineFeed(_ sidebarItem: SidebarItem?, animated: Bool, completion: (() -> Void)? = nil) {
-		timelineFeed = sidebarItem
+		installTimeline(for: sidebarItem)
 
 		fetchAndReplaceArticlesAsync(animated: animated) {
 			self.mainTimelineViewController?.reinitializeArticles(resetScroll: true)
 			completion?()
 		}
+	}
+
+	/// Replaces the timeline selection: a feed or folder of one account gets a feature built from
+	/// that account's session; smart feeds and no selection get a timeline built by hand.
+	private func installTimeline(for sidebarItem: SidebarItem?) {
+		emptyTheTimeline()
+		timeline.fetchRequestQueue.cancelAllRequests()
+
+		let account = (sidebarItem as? Feed)?.account ?? (sidebarItem as? Folder)?.account
+		#if DEBUG
+		weak let previousTimeline = timeline
+		#endif
+		if let sidebarItem, let account, let session = deps.sessions[account.accountID] {
+			let newFeature = session.makeFeature(for: sidebarItem)
+			feature = newFeature
+			timeline = newFeature.timeline
+		} else {
+			feature = nil
+			timeline = TimelineFeature(sidebarItem: sidebarItem, account: nil, fetchRequestQueue: FetchRequestQueue())
+		}
+		timelineMiddleIndexPath = nil
+		articleDictionaryNeedsUpdate = true
+		#if DEBUG
+		DispatchQueue.main.async {
+			assert(previousTimeline == nil, "previous TimelineFeature retained after the selection changed")
+		}
+		#endif
+
+		mainTimelineViewController?.updateNavigationBarTitle(timelineFeed?.nameForDisplay ?? "")
+		updateNavigationBarSubtitles(nil)
 	}
 
 	func updateShowNamesAndIcons() {

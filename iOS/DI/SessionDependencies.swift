@@ -23,4 +23,8 @@ import ArticlesDatabase
 		database = Account.makeDatabase(dataFolder: dataFolder, type: type, accountID: accountID)
 		account = Account(dataFolder: dataFolder, type: type, accountID: accountID, database: database, activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
 	}
+
+	func makeFeature(for item: SidebarItem) -> FeatureDependencies {
+		FeatureDependencies(session: self, item: item)
+	}
 }
