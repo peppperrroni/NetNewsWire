@@ -18,7 +18,11 @@ import FeedFinder
 
 @MainActor public final class AccountManager: UnreadCountProvider {
 
-	public static var shared: AccountManager!
+	/// Builds one account (a session) for a data folder. Supplied by the app root.
+	public typealias AccountFactory = @MainActor (_ dataFolder: String, _ type: AccountType, _ accountID: String) -> Account
+
+	/// Set once by the app root. Read only where nothing can be injected (see the app README).
+	nonisolated(unsafe) public static var current: AccountManager!
 
 	public static let netNewsWireNewsURL = "https://netnewswire.blog/feed.xml"
     private static let jsonNetNewsWireNewsURL = "https://netnewswire.blog/feed.json"
@@ -121,7 +125,7 @@ import FeedFinder
 	}
 
 	public func existingActiveAccount(forDisplayName displayName: String) -> Account? {
-		AccountManager.shared.activeAccounts.first(where: { $0.nameForDisplay == displayName })
+		activeAccounts.first(where: { $0.nameForDisplay == displayName })
 	}
 
 	public var refreshInProgress: Bool {
@@ -135,16 +139,13 @@ import FeedFinder
 
 	private var isActive = false
 
-	private let activityLog: ActivityLog
-	private let batchUpdate: BatchUpdate
 	private let networkMonitor: NetworkMonitor
-	private let feedFinder: FeedFinder
+	private let accountFactory: AccountFactory
+	public private(set) lazy var combinedRefreshProgress = CombinedRefreshProgress { [unowned self] in self.activeAccounts }
 
-	public init(activityLog: ActivityLog, batchUpdate: BatchUpdate, networkMonitor: NetworkMonitor, feedFinder: FeedFinder) {
-		self.feedFinder = feedFinder
-		self.activityLog = activityLog
-		self.batchUpdate = batchUpdate
+	public init(networkMonitor: NetworkMonitor, accountFactory: @escaping AccountFactory) {
 		self.networkMonitor = networkMonitor
+		self.accountFactory = accountFactory
 		self.accountsFolder = AppConfig.dataSubfolder(named: "Accounts").path
 
 		// The local "On My Mac" account must always exist, even if it's empty.
@@ -159,7 +160,7 @@ import FeedFinder
 		let errorLogDatabasePath = AppConfig.dataFolder.appendingPathComponent("Errors.db").path
 		self.errorLogDatabase = ErrorLogDatabase(databasePath: errorLogDatabasePath)
 
-		defaultAccount = Account(dataFolder: localAccountFolder, type: .onMyMac, accountID: defaultAccountIdentifier, activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
+		defaultAccount = accountFactory(localAccountFolder, .onMyMac, defaultAccountIdentifier)
         accountsDictionary[defaultAccount.accountID] = defaultAccount
 
 		readAccountsFromDisk()
@@ -209,7 +210,7 @@ import FeedFinder
 			abort()
 		}
 
-		let account = Account(dataFolder: accountFolder, type: type, accountID: accountID, activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
+		let account = accountFactory(accountFolder, type, accountID)
 		accountsDictionary[accountID] = account
 
 		var userInfo = [String: Any]()
@@ -333,9 +334,9 @@ import FeedFinder
 			return false
 		}
 
-		CombinedRefreshProgress.shared.start()
+		combinedRefreshProgress.start()
 		defer {
-			CombinedRefreshProgress.shared.stop()
+			combinedRefreshProgress.stop()
 		}
 
 		await withTaskGroup(of: Void.self, isolation: MainActor.shared) { group in
@@ -632,7 +633,7 @@ private extension AccountManager {
 	}
 
 	func loadAccount(_ accountSpecifier: AccountSpecifier) -> Account? {
-		Account(dataFolder: accountSpecifier.folderPath, type: accountSpecifier.type, accountID: accountSpecifier.identifier, activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
+		accountFactory(accountSpecifier.folderPath, accountSpecifier.type, accountSpecifier.identifier)
 	}
 
 	func loadAccount(_ filename: String) -> Account? {

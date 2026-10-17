@@ -22,8 +22,8 @@ struct AddFolderView: View {
 	/// Accounts that allow folders, in sidebar order.
 	private let accounts: [Account]
 
-	init() {
-		let accounts = AccountManager.shared.sortedActiveAccounts.filter { !$0.behaviors.contains(.disallowFolderManagement) }
+	init(accountManager: AccountManager) {
+		let accounts = accountManager.sortedActiveAccounts.filter { !$0.behaviors.contains(.disallowFolderManagement) }
 		self.accounts = accounts
 
 		let rememberedAccount = accounts.first { $0.accountID == AppDefaults.shared.addFolderAccountID }

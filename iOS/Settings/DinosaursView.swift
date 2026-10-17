@@ -8,13 +8,14 @@
 
 import SwiftUI
 import RSCore
+import Account
 
 struct DinosaursView: View {
 
 	private static let helpURL = URL(string: "https://netnewswire.com/help/dinosaurs.html")!
 
 	// MARK: State
-	@State private var model = DinosaursViewModel()
+	@State private var model: DinosaursViewModel
 	@State private var dinosaurPendingDeletion: DinosaurRow?
 	@State private var showDeleteConfirmation = false
 	@State private var showHelp = false
@@ -22,6 +23,11 @@ struct DinosaursView: View {
 
 	// MARK: Constants
 	let dismissAndPresent: (_ dinosaur: DinosaurRow) -> Void
+
+	init(accountManager: AccountManager, dismissAndPresent: @escaping (_ dinosaur: DinosaurRow) -> Void) {
+		self._model = State(initialValue: DinosaursViewModel(accountManager: accountManager))
+		self.dismissAndPresent = dismissAndPresent
+	}
 
 	var body: some View {
 		List {

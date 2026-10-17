@@ -75,8 +75,8 @@ import Images
 			Self.logger.info("Is first run.")
 		}
 
-		if isFirstRun && !AccountManager.shared.anyAccountHasAtLeastOneFeed() {
-			let localAccount = AccountManager.shared.defaultAccount
+		if isFirstRun && !deps.accountManager.anyAccountHasAtLeastOneFeed() {
+			let localAccount = deps.accountManager.defaultAccount
 			DefaultFeedsImporter.importDefaultFeeds(account: localAccount)
 		}
 
@@ -86,7 +86,7 @@ import Images
 		initializeHomeScreenQuickActions()
 
 		DispatchQueue.main.async {
-			self.unreadCount = AccountManager.shared.unreadCount
+			self.unreadCount = self.deps.accountManager.unreadCount
 			// Force the badge to update on launch.
 			self.updateBadge()
 		}
@@ -118,7 +118,7 @@ import Images
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 		Task { @MainActor in
 			self.resumeIfNecessary()
-			await AccountManager.shared.receiveRemoteNotification(userInfo: userInfo)
+			await deps.accountManager.receiveRemoteNotification(userInfo: userInfo)
 			self.suspendApplication()
 			completionHandler(.newData)
 		}
@@ -137,7 +137,7 @@ import Images
 	}
 
 	private func updateBadge() {
-		assert(unreadCount == AccountManager.shared.unreadCount)
+		assert(unreadCount == deps.accountManager.unreadCount)
 		let badgeCount = AppDefaults.shared.unreadCountDisplay == .count ? unreadCount : 0
 		UNUserNotificationCenter.current().setBadgeCount(badgeCount)
 	}
@@ -146,7 +146,7 @@ import Images
 
 	@objc func unreadCountDidChange(_ note: Notification) {
 		if note.object is AccountManager {
-			unreadCount = AccountManager.shared.unreadCount
+			unreadCount = deps.accountManager.unreadCount
 		}
 	}
 
@@ -165,14 +165,14 @@ import Images
 		for sceneDelegate in sceneDelegates {
 			sceneDelegate.cleanUp(conditional: true)
 		}
-		AccountManager.shared.refreshAllWithoutWaiting(errorHandler: errorHandler)
+		deps.accountManager.refreshAllWithoutWaiting(errorHandler: errorHandler)
 	}
 
 	/// Un-suspend network activity if it was suspended on background entry.
 	func resumeIfNecessary() {
 		AppNotification.postAppDidBecomeActive()
-		if AccountManager.shared.isSuspended {
-			AccountManager.shared.resumeAll()
+		if deps.accountManager.isSuspended {
+			deps.accountManager.resumeAll()
 			Self.logger.info("Application processing resumed.")
 		}
 	}
@@ -200,12 +200,12 @@ import Images
 
 		if let lastRefresh = AppDefaults.shared.lastRefresh {
 			if Date() > lastRefresh.addingTimeInterval(15 * 60) {
-				AccountManager.shared.refreshAllWithoutWaiting(errorHandler: ErrorHandler.log)
+				deps.accountManager.refreshAllWithoutWaiting(errorHandler: ErrorHandler.log)
 			} else {
-				AccountManager.shared.syncArticleStatusAllWithoutWaiting()
+				deps.accountManager.syncArticleStatusAllWithoutWaiting()
 			}
 		} else {
-			AccountManager.shared.refreshAllWithoutWaiting(errorHandler: ErrorHandler.log)
+			deps.accountManager.refreshAllWithoutWaiting(errorHandler: ErrorHandler.log)
 		}
 	}
 
@@ -324,7 +324,7 @@ private extension AppDelegate {
 				return false
 			}
 
-			if AccountManager.shared.refreshInProgress || isSyncArticleStatusRunning || WidgetDataEncoder.shared?.isRunning ?? false {
+			if deps.accountManager.refreshInProgress || isSyncArticleStatusRunning || WidgetDataEncoder.shared?.isRunning ?? false {
 				Self.logger.info("Waiting for sync to finish…")
 				try? await Task.sleep(for: .seconds(1))
 			} else {
@@ -355,7 +355,7 @@ private extension AppDelegate {
 		}
 
 		let syncTask = Task { @MainActor in
-			await AccountManager.shared.syncArticleStatusAll()
+			await deps.accountManager.syncArticleStatusAll()
 			isSyncArticleStatusRunning = false
 			endSyncBackgroundTask()
 		}
@@ -371,12 +371,12 @@ private extension AppDelegate {
 		guard UIApplication.shared.applicationState == .background else {
 			return
 		}
-		guard !AccountManager.shared.isSuspended else {
+		guard !deps.accountManager.isSuspended else {
 			return
 		}
 
-		AccountManager.shared.suspendNetworkAll()
-		AccountManager.shared.saveAllIfNeeded()
+		deps.accountManager.suspendNetworkAll()
+		deps.accountManager.saveAllIfNeeded()
 		ArticleThemeDownloader.shared.cleanUp()
 
 		AppNotification.postAppDidGoToBackground()
@@ -465,10 +465,10 @@ private extension AppDelegate {
 		}
 
 		let refreshTask = Task { @MainActor in
-			if AccountManager.shared.isSuspended {
-				AccountManager.shared.resumeAll()
+			if deps.accountManager.isSuspended {
+				deps.accountManager.resumeAll()
 			}
-			let didRefresh = await AccountManager.shared.refreshAll(errorHandler: ErrorHandler.log)
+			let didRefresh = await deps.accountManager.refreshAll(errorHandler: ErrorHandler.log)
 			if !Task.isCancelled {
 				await WidgetDataEncoder.shared?.encodeAndWait()
 			}
@@ -506,7 +506,7 @@ private extension AppDelegate {
 
 		resumeIfNecessary()
 
-		guard let account = AccountManager.shared.existingAccount(accountID: accountID) else {
+		guard let account = deps.accountManager.existingAccount(accountID: accountID) else {
 			assertionFailure("Expected account with \(accountID)")
 			Self.logger.error("No account with accountID \(accountID) found from status notification")
 			return

@@ -11,9 +11,18 @@ import Account
 
 struct CloudKitStatsView: View {
 
-	private static let model = CloudKitStatsViewModel()
+	/// One model for the app's lifetime, so stats survive leaving and reopening the screen.
+	private static var sharedModel: CloudKitStatsViewModel?
 	private static let helpURL = URL(string: "https://netnewswire.com/help/optimize-icloud.html")!
-	private let model = CloudKitStatsView.model
+	private let model: CloudKitStatsViewModel
+	private let accountManager: AccountManager
+
+	init(accountManager: AccountManager) {
+		self.accountManager = accountManager
+		let model = Self.sharedModel ?? CloudKitStatsViewModel(accountManager: accountManager)
+		Self.sharedModel = model
+		self.model = model
+	}
 
 	@State private var showCleanUpConfirmation = false
 	@State private var showHelp = false
@@ -226,7 +235,7 @@ struct CloudKitStatsView: View {
 	// MARK: - Shared Helpers
 
 	private var syncUnreadContent: Bool {
-		AccountManager.shared.syncArticleContentForUnreadArticles
+		accountManager.syncArticleContentForUnreadArticles
 	}
 
 	private func iconStatsRow(_ label: String, systemImage: String, iconColor: Color, _ count: Int, iconBaselineOffset: CGFloat = 0, isWarning: Bool = false) -> some View {

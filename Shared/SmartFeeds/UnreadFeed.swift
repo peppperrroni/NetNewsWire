@@ -52,16 +52,18 @@ import Images
 	}
 	#endif
 
-	init() {
+	let accountManager: AccountManager
 
-		self.unreadCount = AccountManager.shared.unreadCount
-		NotificationCenter.default.addObserver(self, selector: #selector(unreadCountDidChange(_:)), name: .UnreadCountDidChange, object: AccountManager.shared)
+	init(accountManager: AccountManager) {
+		self.accountManager = accountManager
+		self.unreadCount = accountManager.unreadCount
+		NotificationCenter.default.addObserver(self, selector: #selector(unreadCountDidChange(_:)), name: .UnreadCountDidChange, object: accountManager)
 	}
 
 	@objc func unreadCountDidChange(_ note: Notification) {
 
 		assert(note.object is AccountManager)
-		unreadCount = AccountManager.shared.unreadCount
+		unreadCount = accountManager.unreadCount
 	}
 }
 
@@ -76,10 +78,10 @@ import Images
 	}
 
 	func fetchUnreadArticles() -> Set<Article> {
-		AccountManager.shared.fetchArticles(fetchType)
+		accountManager.fetchArticles(fetchType)
 	}
 
 	func fetchUnreadArticlesAsync() async -> Set<Article> {
-		await AccountManager.shared.fetchArticlesAsync(fetchType)
+		await accountManager.fetchArticlesAsync(fetchType)
 	}
 }

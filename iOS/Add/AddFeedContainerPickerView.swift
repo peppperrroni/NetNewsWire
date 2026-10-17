@@ -29,11 +29,11 @@ struct AddFeedContainerPickerView: View {
 		}
 	}
 
-	init(selectedContainer: Binding<Container?>) {
+	init(selectedContainer: Binding<Container?>, accountManager: AccountManager) {
 		self._selectedContainer = selectedContainer
 
 		var rows = [Row]()
-		for account in AccountManager.shared.sortedActiveAccounts {
+		for account in accountManager.sortedActiveAccounts {
 			rows.append(Row(container: account))
 			for folder in account.sortedFolders ?? [] {
 				rows.append(Row(container: folder))

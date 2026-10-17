@@ -98,7 +98,7 @@ import Account
 
 		fileCoordinator.coordinate(writingItemAt: fileURL, options: [], error: errorPointer, byAccessor: { writeURL in
 			do {
-				let extensionAccounts = AccountManager.shared.sortedActiveAccounts.map { ExtensionAccount(account: $0) }
+				let extensionAccounts = AccountManager.current.sortedActiveAccounts.map { ExtensionAccount(account: $0) }
 				let extensionContainers = ExtensionContainers(accounts: extensionAccounts)
 				let data = try encoder.encode(extensionContainers)
 				try data.write(to: writeURL)

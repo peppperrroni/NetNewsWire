@@ -749,7 +749,7 @@ enum CloudKitAccountDelegateError: LocalizedError, Sendable {
 		guard let account else {
 			throw CloudKitAccountDelegateError.unknown
 		}
-		let syncUnreadContent = AccountManager.shared.syncArticleContentForUnreadArticles
+		let syncUnreadContent = syncArticleContentForUnreadArticles()
 		do {
 			try await account.logActivity(kind: .cleanUpCloudKitRecords, detail: "Manual") {
 				try await articlesZone.cleanUpRecordsUsingCache(account: account, syncUnreadContent: syncUnreadContent, deleteStaleRecords: false, progress: progress)
@@ -850,6 +850,7 @@ private extension CloudKitAccountDelegate {
 	private func refreshFeedsSkippingSync(for account: Account) async {
 		Self.logger.info("CloudKitAccountDelegate: iCloud account unavailable — refreshing feeds without syncing")
 		refresher.accountID = account.accountID
+		refresher.account = account
 		refresher.publishesRefreshActivity = true
 		await refresher.refreshFeeds(account.flattenedFeeds())
 		account.lastRefreshCompletedDate = Date()
@@ -1221,7 +1222,7 @@ private extension CloudKitAccountDelegate {
 
 		Self.logger.info("CloudKitAccountDelegate: running weekly record cleanup")
 		do {
-			let syncUnreadContent = AccountManager.shared.syncArticleContentForUnreadArticles
+			let syncUnreadContent = syncArticleContentForUnreadArticles()
 			let successMessage: (Int) -> String? = { count in
 				count == 0 ? "no records deleted" : "deleted \(count) record\(count == 1 ? "" : "s")"
 			}

@@ -26,9 +26,11 @@ struct SearchTimelineFeedDelegate: SmartFeedDelegate {
 	let nameForDisplayPrefix = NSLocalizedString("Search: ", comment: "Search smart feed title prefix")
 	let searchString: String
 	let fetchType: FetchType
+	let accountManager: AccountManager
 	var smallIcon: IconImage? = Assets.Images.searchFeed
 
-	init(searchString: String, articleIDs: Set<String>) {
+	init(searchString: String, articleIDs: Set<String>, accountManager: AccountManager) {
+		self.accountManager = accountManager
 		self.searchString = searchString
 		self.fetchType = .searchWithArticleIDs(searchString, articleIDs)
 	}

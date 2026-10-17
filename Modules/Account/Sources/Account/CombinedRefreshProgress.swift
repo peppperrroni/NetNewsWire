@@ -13,7 +13,6 @@ import RSWeb
 /// Combine the refresh progress of multiple accounts into one place,
 /// for use by refresh status view and so on.
 @MainActor public final class CombinedRefreshProgress: ProgressInfoReporter {
-	public static let shared = CombinedRefreshProgress()
 
 	public var progressInfo = ProgressInfo() {
 		didSet {
@@ -35,7 +34,10 @@ import RSWeb
 		}
 	}
 
-	init() {
+	private let activeAccounts: @MainActor () -> [Account]
+
+	init(activeAccounts: @escaping @MainActor () -> [Account]) {
+		self.activeAccounts = activeAccounts
 		NotificationCenter.default.addObserver(self, selector: #selector(progressInfoDidChange(_:)), name: .progressInfoDidChange, object: nil)
 	}
 
@@ -57,7 +59,7 @@ import RSWeb
 
 		let currentProgressInfo = progressInfo
 
-		let progressInfos = AccountManager.shared.activeAccounts.map { $0.progressInfo }
+		let progressInfos = activeAccounts().map { $0.progressInfo }
 		let updatedProgressInfo = ProgressInfo.combined(progressInfos)
 		var updatedNumberOfTasks = updatedProgressInfo.numberOfTasks
 		var updatedNumberCompleted = updatedProgressInfo.numberCompleted

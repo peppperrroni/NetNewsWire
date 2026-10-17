@@ -21,6 +21,7 @@ import Images
 
 	let nameForDisplay = NSLocalizedString("Starred", comment: "Starred")
 	let fetchType: FetchType = .starred(nil)
+	let accountManager: AccountManager
 	var smallIcon: IconImage? {
 		Assets.Images.starredFeed
 	}

@@ -14,6 +14,11 @@ import Account
 @MainActor final class SidebarTreeControllerDelegate: TreeControllerDelegate {
 	private var filterExceptions = Set<SidebarItemIdentifier>()
 	var isReadFiltered = false
+	private let accountManager: AccountManager
+
+	init(accountManager: AccountManager) {
+		self.accountManager = accountManager
+	}
 
 	func addFilterException(_ feedID: SidebarItemIdentifier) {
 		filterExceptions.insert(feedID)
@@ -132,7 +137,7 @@ private extension SidebarTreeControllerDelegate {
 	}
 
 	func sortedAccountNodes(_ parent: Node) -> [Node] {
-		let nodes = AccountManager.shared.sortedActiveAccounts.compactMap { (account) -> Node? in
+		let nodes = accountManager.sortedActiveAccounts.compactMap { (account) -> Node? in
 			let accountNode = parent.existingOrNewChildNode(with: account)
 			accountNode.canHaveChildNodes = true
 			accountNode.isGroupItem = true

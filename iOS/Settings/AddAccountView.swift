@@ -18,6 +18,7 @@ struct AddAccountView: View {
 	let presentationAnchor: ASPresentationAnchor?
 	let activityLog: ActivityLog
 	let operationQueue: MainThreadOperationQueue
+	let accountManager: AccountManager
 	/// Called after an account is added so the host can pop this screen.
 	let didAddAccount: () -> Void
 
@@ -100,11 +101,11 @@ struct AddAccountView: View {
 		.sheet(item: $presentedSheet) { sheet in
 			switch sheet.accountType {
 			case .onMyMac:
-				LocalAccountView(didAddAccount: didAddAccount)
+				LocalAccountView(accountManager: accountManager, didAddAccount: didAddAccount)
 			case .cloudKit:
-				CloudKitAccountView(didAddAccount: didAddAccount)
+				CloudKitAccountView(accountManager: accountManager, didAddAccount: didAddAccount)
 			default:
-				CredentialsAccountView(accountType: sheet.accountType, account: nil, activityLog: activityLog, didAddAccount: didAddAccount)
+				CredentialsAccountView(accountType: sheet.accountType, account: nil, activityLog: activityLog, accountManager: accountManager, didAddAccount: didAddAccount)
 			}
 		}
 		.errorAlert(message: $errorMessage)
@@ -136,7 +137,7 @@ struct AddAccountView: View {
 	}
 
 	private func isDisabled(_ accountType: AccountType) -> Bool {
-		accountType == .cloudKit && AccountManager.shared.hasiCloudAccount
+		accountType == .cloudKit && accountManager.hasiCloudAccount
 	}
 
 	private func select(_ accountType: AccountType) {
@@ -161,7 +162,7 @@ struct AddAccountView: View {
 			errorMessage = error.localizedDescription
 		}
 
-		let operation = OAuthAccountAuthorizationOperation(accountType: accountType, activityLog: activityLog)
+		let operation = OAuthAccountAuthorizationOperation(accountType: accountType, activityLog: activityLog, accountManager: accountManager)
 		operation.delegate = oauthHandler
 		operation.presentationAnchor = presentationAnchor
 		operationQueue.add(operation)

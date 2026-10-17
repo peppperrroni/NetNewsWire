@@ -11,15 +11,15 @@ import Account
 
 @MainActor struct AddFeedDefaultContainer {
 
-	static var defaultContainer: Container? {
+	static func defaultContainer(accountManager: AccountManager) -> Container? {
 
-		if let accountID = AppDefaults.shared.addFeedAccountID, let account = AccountManager.shared.activeAccounts.first(where: { $0.accountID == accountID }) {
+		if let accountID = AppDefaults.shared.addFeedAccountID, let account = accountManager.activeAccounts.first(where: { $0.accountID == accountID }) {
 			if let folderName = AppDefaults.shared.addFeedFolderName, let folder = account.existingFolder(withDisplayName: folderName) {
 				return folder
 			} else {
 				return substituteContainerIfNeeded(account: account)
 			}
-		} else if let account = AccountManager.shared.sortedActiveAccounts.first {
+		} else if let account = accountManager.sortedActiveAccounts.first {
 			return substituteContainerIfNeeded(account: account)
 		} else {
 			return nil

@@ -14,6 +14,9 @@ import Account
 
 final class AccountInspectorViewController: UITableViewController {
 
+	/// Set by the presenting controller right after instantiation.
+	var deps: AppDependencies!
+
 	@IBOutlet var nameTextField: UITextField!
 	@IBOutlet var activeSwitch: UISwitch!
 	@IBOutlet var deleteAccountButton: VibrantButton!
@@ -32,7 +35,7 @@ final class AccountInspectorViewController: UITableViewController {
 		nameTextField.text = account.name
 		nameTextField.delegate = self
 		activeSwitch.isOn = account.isActive
-		syncContentSwitch.isOn = AccountManager.shared.syncArticleContentForUnreadArticles
+		syncContentSwitch.isOn = deps.accountManager.syncArticleContentForUnreadArticles
 
 		navigationItem.title = account.nameForDisplay
 
@@ -59,7 +62,7 @@ final class AccountInspectorViewController: UITableViewController {
 	}
 
 	@IBAction func syncContentSwitchDidChange(_ sender: UISwitch) {
-		AccountManager.shared.syncArticleContentForUnreadArticles = sender.isOn
+		deps.accountManager.syncArticleContentForUnreadArticles = sender.isOn
 	}
 
 	@objc func done() {
@@ -70,7 +73,7 @@ final class AccountInspectorViewController: UITableViewController {
 		guard let account, CredentialsAccountView.accountTypes.contains(account.type) else {
 			return
 		}
-		let hostingController = UIHostingController(rootView: CredentialsAccountView(accountType: account.type, account: account, activityLog: account.activityLog, didAddAccount: nil))
+		let hostingController = UIHostingController(rootView: CredentialsAccountView(accountType: account.type, account: account, activityLog: account.activityLog, accountManager: deps.accountManager, didAddAccount: nil))
 		hostingController.modalPresentationStyle = .currentContext
 		present(hostingController, animated: true)
 	}
@@ -99,7 +102,7 @@ final class AccountInspectorViewController: UITableViewController {
 			guard let self, let account = self.account else {
 				return
 			}
-			AccountManager.shared.deleteAccount(account)
+			deps.accountManager.deleteAccount(account)
 			if self.isModal {
 				self.dismiss(animated: true)
 			} else {
@@ -157,7 +160,7 @@ extension AccountInspectorViewController {
 		guard let account else {
 			return []
 		}
-		if account == AccountManager.shared.defaultAccount {
+		if account == deps.accountManager.defaultAccount {
 			return [.nameAndActive]
 		}
 		if isCloudKitAccount {

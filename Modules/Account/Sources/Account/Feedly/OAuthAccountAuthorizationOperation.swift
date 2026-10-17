@@ -106,9 +106,11 @@ public final class OAuthAccountAuthorizationOperation: MainThreadOperation, @unc
 	nonisolated private static let logger = Logger(subsystem: Logger.nnwSubsystem, category: "OAuthAccountAuthorizationOperation")
 
 	private let activityLog: ActivityLog
+	private let accountManager: AccountManager
 
-	public init(accountType: AccountType, activityLog: ActivityLog) {
+	public init(accountType: AccountType, activityLog: ActivityLog, accountManager: AccountManager) {
 		self.activityLog = activityLog
+		self.accountManager = accountManager
 		self.accountType = accountType
 		self.oauthClient = Account.oauthAuthorizationClient(for: accountType)
 		super.init(name: "OAuthAccountAuthorizationOperation")
@@ -273,13 +275,13 @@ private extension OAuthAccountAuthorizationOperation {
 
 	func saveAccount(for grant: OAuthAuthorizationGrant) {
 		Self.logger.debug("OAuthAccountAuthorizationOperation: saveAccount")
-		guard !AccountManager.shared.duplicateServiceAccount(type: accountType, username: grant.accessToken.username) else {
+		guard !accountManager.duplicateServiceAccount(type: accountType, username: grant.accessToken.username) else {
 			self.error = OAuthAccountAuthorizationOperationError.duplicateAccount
 			didComplete()
 			return
 		}
 
-		let account = AccountManager.shared.createAccount(type: accountType)
+		let account = accountManager.createAccount(type: accountType)
 		do {
 
 			// Store the refresh token first because it sends this token to the account delegate.
@@ -293,7 +295,7 @@ private extension OAuthAccountAuthorizationOperation {
 			delegate?.oauthAccountAuthorizationOperation(self, didCreate: account)
 		} catch {
 			// Don’t leave behind an account with no credentials.
-			AccountManager.shared.deleteAccount(account)
+			accountManager.deleteAccount(account)
 			self.error = error
 		}
 

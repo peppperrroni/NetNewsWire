@@ -86,7 +86,7 @@ import Images
 			return
 		}
 
-		let activeAccounts = AccountManager.shared.activeAccounts
+		let activeAccounts = delegate.accountManager.activeAccounts
 		if activeAccounts.isEmpty {
 			unreadCount = 0
 			return

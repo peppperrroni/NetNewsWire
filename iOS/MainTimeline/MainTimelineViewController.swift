@@ -24,7 +24,9 @@ final class MainTimelineViewController: UIViewController, UndoableCommandRunner 
 	private lazy var feedTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(showFeedInspector(_:)))
 	private lazy var filterButton = UIBarButtonItem(image: Assets.Images.filter, style: .plain, target: self, action: #selector(toggleFilter(_:)))
 	private lazy var nextUnreadButton = UIBarButtonItem(image: Assets.Images.nextUnread, style: .plain, target: self, action: #selector(nextUnread(_:)))
-	private let refreshProgressView = RefreshProgressView(frame: .zero)
+	/// Set by SceneCoordinator together with `coordinator`.
+	var deps: AppDependencies!
+	private lazy var refreshProgressView = RefreshProgressView(accountManager: deps.accountManager)
 	private lazy var refreshBarItem = UIBarButtonItem(customView: refreshProgressView)
 	private var isToolbarProgressViewShowing = false
 	private var dataSource: UICollectionViewDiffableDataSource<Int, Article>?

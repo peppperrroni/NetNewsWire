@@ -134,7 +134,7 @@ public enum CloudKitCleanUpStatus {
 	private var cleanUpTask: Task<Void, Never>?
 
 	public var cleanUpPlan: CloudKitCleanUpPlan {
-		let syncUnreadContent = AccountManager.shared.syncArticleContentForUnreadArticles
+		let syncUnreadContent = accountManager.syncArticleContentForUnreadArticles
 		return stats.cleanUpPlan(syncUnreadContent: syncUnreadContent)
 	}
 
@@ -170,11 +170,14 @@ public enum CloudKitCleanUpStatus {
 		return lines.joined(separator: "\n")
 	}
 
-	public init() {
+	private let accountManager: AccountManager
+
+	public init(accountManager: AccountManager) {
+		self.accountManager = accountManager
 	}
 
 	public func fetch() {
-		guard let account = AccountManager.shared.iCloudAccount else {
+		guard let account = accountManager.iCloudAccount else {
 			fetchStatus = .error(CloudKitStatsError.noiCloudAccount)
 			return
 		}
@@ -228,7 +231,7 @@ public enum CloudKitCleanUpStatus {
 	}
 
 	public func cleanUp() {
-		guard let account = AccountManager.shared.iCloudAccount else {
+		guard let account = accountManager.iCloudAccount else {
 			cleanUpStatus = .error(CloudKitStatsError.noiCloudAccount)
 			return
 		}

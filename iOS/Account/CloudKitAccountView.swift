@@ -12,6 +12,7 @@ import Account
 /// Sheet for adding an iCloud account.
 struct CloudKitAccountView: View {
 
+	let accountManager: AccountManager
 	let didAddAccount: () -> Void
 
 	@Environment(\.dismiss) private var dismiss
@@ -64,7 +65,7 @@ struct CloudKitAccountView: View {
 			return
 		}
 
-		_ = AccountManager.shared.createAccount(type: .cloudKit)
+		_ = accountManager.createAccount(type: .cloudKit)
 		dismiss()
 		didAddAccount()
 	}

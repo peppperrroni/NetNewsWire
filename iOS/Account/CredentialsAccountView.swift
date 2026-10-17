@@ -18,6 +18,7 @@ struct CredentialsAccountView: View {
 	/// Non-nil when updating the credentials of an existing account.
 	let account: Account?
 	let activityLog: ActivityLog
+	let accountManager: AccountManager
 	let didAddAccount: (() -> Void)?
 
 	@Environment(\.dismiss) private var dismiss
@@ -34,8 +35,9 @@ struct CredentialsAccountView: View {
 
 	private static let passwordPlaceholder = NSLocalizedString("Password", comment: "Password field placeholder")
 
-	init(accountType: AccountType, account: Account?, activityLog: ActivityLog, didAddAccount: (() -> Void)?) {
+	init(accountType: AccountType, account: Account?, activityLog: ActivityLog, accountManager: AccountManager, didAddAccount: (() -> Void)?) {
 		self.accountType = accountType
+		self.accountManager = accountManager
 		self.activityLog = activityLog
 		self.account = account
 		self.didAddAccount = didAddAccount
@@ -143,7 +145,7 @@ struct CredentialsAccountView: View {
 			endpoint = accountType.readerEndpoint
 		}
 
-		if account == nil && AccountManager.shared.duplicateServiceAccount(type: accountType, username: trimmedUsername, endpoint: endpoint) {
+		if account == nil && accountManager.duplicateServiceAccount(type: accountType, username: trimmedUsername, endpoint: endpoint) {
 			errorMessage = accountType.duplicateAccountMessage
 			return
 		}
@@ -168,13 +170,13 @@ struct CredentialsAccountView: View {
 			return
 		}
 
-		let account = self.account ?? AccountManager.shared.createAccount(type: accountType)
+		let account = self.account ?? accountManager.createAccount(type: accountType)
 
 		do {
 			try store(basicCredentials: basicCredentials, validatedCredentials: validatedCredentials, in: account, endpoint: endpoint)
 		} catch {
 			if self.account == nil {
-				AccountManager.shared.deleteAccount(account)
+				accountManager.deleteAccount(account)
 			}
 			errorMessage = NSLocalizedString("Keychain error while storing credentials.", comment: "Credentials Error")
 			return

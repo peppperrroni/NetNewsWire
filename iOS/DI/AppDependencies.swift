@@ -24,7 +24,6 @@ import Images
 	let networkMonitor: NetworkMonitor
 	let activityLog: ActivityLog
 	let feedFinder: FeedFinder
-	let accountManager: AccountManager
 	let authorCache: AuthorCache
 	let htmlMetadataDatabase: HTMLMetadataDatabase
 	let htmlMetadataDownloader: HTMLMetadataDownloader
@@ -34,7 +33,16 @@ import Images
 	let feedIconDownloader: FeedIconDownloader
 	let authorAvatarDownloader: AuthorAvatarDownloader
 	let faviconGenerator: FaviconGenerator
+	let accountManager: AccountManager
 	let iconImageCache: IconImageCache
+
+	/// One session per account, keyed by account ID.
+	var sessions: [String: SessionDependencies] {
+		sessionStore.sessions
+	}
+
+	private let sessionStore: SessionStore
+	private let accountDeletionObserver: NSObjectProtocol
 
 	init() {
 		batchUpdate = BatchUpdate()
@@ -44,7 +52,6 @@ import Images
 		networkMonitor = NetworkMonitor()
 		activityLog = ActivityLog()
 		feedFinder = FeedFinder(downloader: downloader, activityLog: activityLog)
-
 		authorCache = AuthorCache()
 		htmlMetadataDatabase = HTMLMetadataDatabase(databasePath: HTMLMetadataDatabase.defaultDatabasePath)
 		htmlMetadataDownloader = HTMLMetadataDownloader(downloader: downloader, activityLog: activityLog, database: htmlMetadataDatabase)
@@ -54,17 +61,44 @@ import Images
 		feedIconDownloader = FeedIconDownloader(imageDownloader: imageDownloader, imageMetadataDatabase: imageMetadataDatabase, htmlMetadataDownloader: htmlMetadataDownloader)
 		authorAvatarDownloader = AuthorAvatarDownloader(imageDownloader: imageDownloader)
 		faviconGenerator = FaviconGenerator()
-		iconImageCache = IconImageCache(feedIconDownloader: feedIconDownloader, faviconDownloader: faviconDownloader, authorAvatarDownloader: authorAvatarDownloader)
 
 		// Root accessors for code with no injection point (listed in the app README).
+		// Set before AccountManager reads accounts, since loading articles can reach them.
 		Downloader.current = downloader
 		ActivityLog.current = activityLog
 		AuthorCache.current = authorCache
 		FaviconDownloader.current = faviconDownloader
 		FaviconGenerator.current = faviconGenerator
-		IconImageCache.shared = iconImageCache  // removed in the Shared/iOS port
 
-		accountManager = AccountManager(activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
-		AccountManager.shared = accountManager  // removed in the AccountManager port
+		// AccountManager.init calls the factory for every account it reads from disk,
+		// so the factory captures only what exists at that point.
+		let sessionStore = SessionStore()
+		self.sessionStore = sessionStore
+		let (activityLog, batchUpdate, networkMonitor, feedFinder) = (activityLog, batchUpdate, networkMonitor, feedFinder)
+		accountManager = AccountManager(networkMonitor: networkMonitor) { dataFolder, type, accountID in
+			let session = SessionDependencies(dataFolder: dataFolder, type: type, accountID: accountID, activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
+			sessionStore.sessions[accountID] = session
+			return session.account
+		}
+		AccountManager.current = accountManager
+		// AccountManager drops duplicate service accounts it read from disk; drop their sessions too.
+		let accountManager = accountManager
+		sessionStore.sessions = sessionStore.sessions.filter { accountManager.existingAccount(accountID: $0.key) != nil }
+		accountDeletionObserver = NotificationCenter.default.addObserver(forName: .UserDidDeleteAccount, object: nil, queue: .main) { note in
+			guard let account = note.userInfo?[Account.UserInfoKey.account] as? Account else {
+				return
+			}
+			let accountID = account.accountID
+			MainActor.assumeIsolated {
+				sessionStore.sessions[accountID] = nil
+			}
+		}
+
+		iconImageCache = IconImageCache(feedIconDownloader: feedIconDownloader, faviconDownloader: faviconDownloader, authorAvatarDownloader: authorAvatarDownloader, accountManager: accountManager)
+		IconImageCache.shared = iconImageCache  // removed in the Shared/iOS port
 	}
+}
+
+@MainActor private final class SessionStore {
+	var sessions = [String: SessionDependencies]()
 }

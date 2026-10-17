@@ -48,13 +48,19 @@ struct AccountStatsTotals {
 
 @MainActor final class AccountStatsViewModel {
 
+	private let accountManager: AccountManager
+
+	init(accountManager: AccountManager) {
+		self.accountManager = accountManager
+	}
+
 	private(set) var sortedAccountStats = [AccountStatsRowData]()
 	private(set) var totals = AccountStatsTotals(rows: [])
 	var sortDescriptor: NSSortDescriptor?
 
 	func refresh() async {
 		var rows = [AccountStatsRowData]()
-		for account in AccountManager.shared.sortedAccounts {
+		for account in accountManager.sortedAccounts {
 			let counts = await account.fetchArticleCountsAsync()
 			rows.append(AccountStatsRowData(
 				accountID: account.accountID,

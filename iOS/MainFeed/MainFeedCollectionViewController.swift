@@ -65,7 +65,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 		return didResignFirstResponder
 	}
 
-	private let refreshProgressView = RefreshProgressView(frame: .zero)
+	private lazy var refreshProgressView = RefreshProgressView(accountManager: coordinator.deps.accountManager)
 	private var currentActivityButton: UIBarButtonItem?
 
 	var undoableCommands = [UndoableCommand]()
@@ -389,7 +389,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 			}
 
 			// Accounts
-			guard let account = AccountManager.shared.existingAccount(accountID: sectionID) else {
+			guard let account = coordinator.deps.accountManager.existingAccount(accountID: sectionID) else {
 				return headerView
 			}
 
@@ -667,7 +667,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 		} else {
 			setFilterButtonToInactive()
 		}
-		addNewItemButton?.isEnabled = !AccountManager.shared.activeAccounts.isEmpty
+		addNewItemButton?.isEnabled = !coordinator.deps.accountManager.activeAccounts.isEmpty
 
 		configureContextMenu()
 	}
@@ -915,7 +915,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 	}
 
 	@objc func handleUnreadCountDisplaySettingDidChange(_ notification: Notification) {
-		for account in AccountManager.shared.activeAccounts {
+		for account in coordinator.deps.accountManager.activeAccounts {
 			if let headerView = findHeaderViewForAccount(account) {
 				headerView.unreadCount = account.unreadCount
 			}
@@ -998,7 +998,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 		alertController.addAction(addFeedAction)
 
 		let anyActiveAccountSupportsFolders: Bool = {
-			for account in AccountManager.shared.activeAccounts {
+			for account in coordinator.deps.accountManager.activeAccounts {
 				if !account.behaviors.contains(.disallowFolderManagement) {
 					return true
 				}
@@ -1037,7 +1037,7 @@ final class MainFeedCollectionViewController: UICollectionViewController, Undoab
 			}
 			containerID = id
 		case .account(let accountID):
-			guard let account = AccountManager.shared.existingAccount(accountID: accountID),
+			guard let account = coordinator.deps.accountManager.existingAccount(accountID: accountID),
 				  let id = account.containerID else {
 				return
 			}
@@ -1091,7 +1091,7 @@ extension MainFeedCollectionViewController: UIContextMenuInteractionDelegate {
 
 		guard let headerView = interaction.view as? MainFeedCollectionHeaderReusableView,
 			  case .account(let accountID) = headerView.sectionHeaderType,
-			  let account = AccountManager.shared.existingAccount(accountID: accountID) else {
+			  let account = coordinator.deps.accountManager.existingAccount(accountID: accountID) else {
 			return nil
 		}
 

@@ -20,9 +20,11 @@ import ActivityLog
 	private let launchTime = Date()
 	private var suspendedFireDate: Date?
 	private let activityLog: ActivityLog
+	private let accountManager: AccountManager
 
-	init(activityLog: ActivityLog) {
+	init(activityLog: ActivityLog, accountManager: AccountManager) {
 		self.activityLog = activityLog
+		self.accountManager = accountManager
 	}
 
 	func fireOldTimer() {
@@ -107,6 +109,6 @@ import ActivityLog
 		lastTimedRefresh = Date()
 		update()
 
-		AccountManager.shared.refreshAllWithoutWaiting()
+		accountManager.refreshAllWithoutWaiting()
 	}
 }

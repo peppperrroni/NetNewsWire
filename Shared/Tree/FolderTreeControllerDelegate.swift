@@ -14,6 +14,12 @@ import Account
 
 @MainActor final class FolderTreeControllerDelegate: TreeControllerDelegate {
 
+	private let accountManager: AccountManager
+
+	init(accountManager: AccountManager) {
+		self.accountManager = accountManager
+	}
+
 	func treeController(treeController: TreeController, childNodesFor node: Node) -> [Node]? {
 
 		return node.isRoot ? childNodesForRootNode(node) : childNodes(node)
@@ -24,7 +30,7 @@ import Account
 
 	func childNodesForRootNode(_ node: Node) -> [Node]? {
 
-		let accountNodes: [Node] = AccountManager.shared.sortedActiveAccounts.map { account in
+		let accountNodes: [Node] = accountManager.sortedActiveAccounts.map { account in
 			let accountNode = Node(representedObject: account, parent: node)
 			accountNode.canHaveChildNodes = true
 			return accountNode

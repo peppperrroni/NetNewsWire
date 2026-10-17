@@ -243,7 +243,7 @@ public enum FetchType {
 	var areUnreadCountsInitialized = false
 
 	public let dataFolder: String
-	let database: ArticlesDatabase
+	public let database: ArticlesDatabase
 	var delegate: AccountDelegate
 
 	private var unreadCounts = [String: Int]() // [feedID: Int]
@@ -297,7 +297,14 @@ public enum FetchType {
 	public let activityLog: ActivityLog
 	public let batchUpdate: BatchUpdate
 
-	init(dataFolder: String, type: AccountType, accountID: String, activityLog: ActivityLog, batchUpdate: BatchUpdate, networkMonitor: NetworkMonitor, feedFinder: FeedFinder) {
+	/// The article database for an account's data folder. Built by the session root and passed to `init`.
+	public static func makeDatabase(dataFolder: String, type: AccountType, accountID: String) -> ArticlesDatabase {
+		let databaseFilePath = (dataFolder as NSString).appendingPathComponent("DB.sqlite3")
+		let retentionStyle: ArticlesDatabase.RetentionStyle = (type == .onMyMac || type == .cloudKit) ? .feedBased : .syncSystem
+		return ArticlesDatabase(databaseFilePath: databaseFilePath, accountID: accountID, retentionStyle: retentionStyle)
+	}
+
+	public init(dataFolder: String, type: AccountType, accountID: String, database: ArticlesDatabase, activityLog: ActivityLog, batchUpdate: BatchUpdate, networkMonitor: NetworkMonitor, feedFinder: FeedFinder) {
 		self.activityLog = activityLog
 		self.batchUpdate = batchUpdate
 		switch type {
@@ -325,9 +332,7 @@ public enum FetchType {
 		self.type = type
 		self.dataFolder = dataFolder
 
-		let databaseFilePath = (dataFolder as NSString).appendingPathComponent("DB.sqlite3")
-		let retentionStyle: ArticlesDatabase.RetentionStyle = (type == .onMyMac || type == .cloudKit) ? .feedBased : .syncSystem
-		self.database = ArticlesDatabase(databaseFilePath: databaseFilePath, accountID: accountID, retentionStyle: retentionStyle)
+		self.database = database
 
 		defaultName = type.displayName
 

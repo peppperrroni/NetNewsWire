@@ -47,7 +47,7 @@ import Articles
 			abort()
 		}
 
-		let account = Account(dataFolder: accountFolder.path, type: type, accountID: accountID, activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
+		let account = Account(dataFolder: accountFolder.path, type: type, accountID: accountID, database: Account.makeDatabase(dataFolder: accountFolder.path, type: type, accountID: accountID), activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
 
 		return account
 	}

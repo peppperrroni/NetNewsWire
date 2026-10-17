@@ -12,6 +12,8 @@ import RSCore
 
 struct ErrorLogView: View {
 
+	let accountManager: AccountManager
+
 	@State private var entries = [ErrorLogEntry]()
 	@State private var plainText = ""
 	@State private var showHelp = false
@@ -51,7 +53,7 @@ struct ErrorLogView: View {
 			SafariView(url: Self.helpURL)
 		}
 		.task {
-			let allEntries = await AccountManager.shared.errorLogDatabase.allEntries()
+			let allEntries = await accountManager.errorLogDatabase.allEntries()
 			entries = Array(allEntries.suffix(Self.maxEntries))
 			plainText = buildPlainText(entries)
 		}

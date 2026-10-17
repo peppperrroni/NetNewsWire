@@ -25,8 +25,10 @@ import Images
 	private let feedIconDownloader: FeedIconDownloader
 	private let faviconDownloader: FaviconDownloader
 	private let authorAvatarDownloader: AuthorAvatarDownloader
+	private let accountManager: AccountManager
 
-	init(feedIconDownloader: FeedIconDownloader, faviconDownloader: FaviconDownloader, authorAvatarDownloader: AuthorAvatarDownloader) {
+	init(feedIconDownloader: FeedIconDownloader, faviconDownloader: FaviconDownloader, authorAvatarDownloader: AuthorAvatarDownloader, accountManager: AccountManager) {
+		self.accountManager = accountManager
 		self.feedIconDownloader = feedIconDownloader
 		self.faviconDownloader = faviconDownloader
 		self.authorAvatarDownloader = authorAvatarDownloader
@@ -41,7 +43,7 @@ import Images
 		if let smartFeed = SmartFeedsController.shared.find(by: feedID) {
 			return imageForFeed(smartFeed)
 		}
-		if let feed = AccountManager.shared.existingFeed(with: feedID) {
+		if let feed = accountManager.existingFeed(with: feedID) {
 			return imageForFeed(feed)
 		}
 		return nil

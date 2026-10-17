@@ -10,6 +10,12 @@ import Foundation
 import Account
 
 @MainActor final class HidingReadArticlesState {
+	private let accountManager: AccountManager
+
+	init(accountManager: AccountManager) {
+		self.accountManager = accountManager
+	}
+
 	private var smartFeedsHidingReadArticles = Set<String>()
 	private var feedsHidingReadArticles = [String: Set<String>]() // accountID: Set<feed.feedID>
 	private var foldersShowingReadArticles = [String: Set<String>]() // accountID: Set<folder.nameForDisplay>
@@ -119,7 +125,7 @@ private extension HidingReadArticlesState {
 
 		// Filter out accounts and folders that no longer exist.
 		for accountID in Array(d.keys) {
-			guard let account = AccountManager.shared.existingAccount(accountID: accountID) else {
+			guard let account = accountManager.existingAccount(accountID: accountID) else {
 				d[accountID] = nil
 				continue
 			}
@@ -134,7 +140,7 @@ private extension HidingReadArticlesState {
 
 		// Filter out accounts and feeds that no longer exist.
 		for accountID in Array(d.keys) {
-			guard let account = AccountManager.shared.existingAccount(accountID: accountID) else {
+			guard let account = accountManager.existingAccount(accountID: accountID) else {
 				d[accountID] = nil
 				continue
 			}

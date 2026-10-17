@@ -141,8 +141,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 				guard let comps = URLComponents(string: urlString ) else { return  }
 				let id = comps.queryItems?.first(where: { $0.name == "id" })?.value
 				if id != nil {
-					if AccountManager.shared.isSuspended {
-						AccountManager.shared.resumeAll()
+					if self.coordinator.deps.accountManager.isSuspended {
+						self.coordinator.deps.accountManager.resumeAll()
 					}
 					self.coordinator.selectAllUnreadFeed {
 						DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
@@ -160,8 +160,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 				guard let comps = URLComponents(string: urlString ) else { return  }
 				let id = comps.queryItems?.first(where: { $0.name == "id" })?.value
 				if id != nil {
-					if AccountManager.shared.isSuspended {
-						AccountManager.shared.resumeAll()
+					if self.coordinator.deps.accountManager.isSuspended {
+						self.coordinator.deps.accountManager.resumeAll()
 					}
 					self.coordinator.selectTodayFeed {
 						DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
@@ -179,8 +179,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 				guard let comps = URLComponents(string: urlString ) else { return  }
 				let id = comps.queryItems?.first(where: { $0.name == "id" })?.value
 				if id != nil {
-					if AccountManager.shared.isSuspended {
-						AccountManager.shared.resumeAll()
+					if self.coordinator.deps.accountManager.isSuspended {
+						self.coordinator.deps.accountManager.resumeAll()
 					}
 					self .coordinator.selectStarredFeed {
 						DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {

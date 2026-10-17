@@ -39,6 +39,8 @@ import os
 	/// Settable by the caller (LocalAccountDelegate / CloudKitAccountDelegate) so
 	/// per-refresh activities can be scoped to the right account.
 	var accountID: String?
+	/// The account being refreshed, for its display name in activity entries.
+	weak var account: Account?
 
 	/// When false, refreshFeeds does not create its own `.refreshAll` activity.
 	var publishesRefreshActivity = true
@@ -164,7 +166,7 @@ import os
 		guard let accountID else {
 			return nil
 		}
-		let displayName = AccountManager.shared.existingAccount(accountID: accountID)?.nameForDisplay ?? accountID
+		let displayName = account?.nameForDisplay ?? accountID
 		return .account(accountID: accountID, displayName: displayName)
 	}
 
@@ -441,7 +443,7 @@ import os
 
 	/// Clean up any leftover per-feed activities at the end of a refresh.
 	func completeRemainingActivities(accountID: String) {
-		let displayName = AccountManager.shared.existingAccount(accountID: accountID)?.nameForDisplay ?? accountID
+		let displayName = account?.nameForDisplay ?? accountID
 		let owner = ActivityOwner.account(accountID: accountID, displayName: displayName)
 
 		for activity in activityLog.pendingActivities(for: owner) {

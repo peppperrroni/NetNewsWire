@@ -40,7 +40,7 @@ private extension UIViewController {
 			let credentialsAction = UIAlertAction(title: credentialsTitle, style: .default) { [weak self] _ in
 				dismiss?()
 
-				let hostingController = UIHostingController(rootView: CredentialsAccountView(accountType: account.type, account: account, activityLog: account.activityLog, didAddAccount: nil))
+				let hostingController = UIHostingController(rootView: CredentialsAccountView(accountType: account.type, account: account, activityLog: account.activityLog, accountManager: AccountManager.current, didAddAccount: nil))
 				hostingController.modalPresentationStyle = .formSheet
 				hostingController.preferredContentSize = UIViewController.formSheetSize
 				self?.present(hostingController, animated: true)

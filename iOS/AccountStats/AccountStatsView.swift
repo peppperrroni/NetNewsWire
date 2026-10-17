@@ -14,7 +14,11 @@ struct AccountStatsView: View {
 
 	private static let helpURL = URL(string: "https://netnewswire.com/help/account-stats.html")!
 
-	private let model = AccountStatsViewModel()
+	private let model: AccountStatsViewModel
+
+	init(accountManager: AccountManager) {
+		self.model = AccountStatsViewModel(accountManager: accountManager)
+	}
 
 	@State private var rows = [AccountStatsRowData]()
 	@State private var totals: AccountStatsTotals?

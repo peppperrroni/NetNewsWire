@@ -11,6 +11,7 @@ import Account
 /// Sheet for adding an On My Device account.
 struct LocalAccountView: View {
 
+	let accountManager: AccountManager
 	let didAddAccount: () -> Void
 
 	@Environment(\.dismiss) private var dismiss
@@ -43,7 +44,7 @@ struct LocalAccountView: View {
 	}
 
 	private func addAccount() {
-		let account = AccountManager.shared.createAccount(type: .onMyMac)
+		let account = accountManager.createAccount(type: .onMyMac)
 		account.name = name
 		dismiss()
 		didAddAccount()

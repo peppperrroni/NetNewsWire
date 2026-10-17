@@ -82,7 +82,7 @@ struct SidebarItemNode: Hashable, Sendable {
 	// Which Containers used to be expanded. Reset by rebuilding the sidebar.
 	private var lastExpandedContainers = Set<ContainerIdentifier>()
 
-	private let hidingReadArticlesState = HidingReadArticlesState()
+	private let hidingReadArticlesState: HidingReadArticlesState
 
 	private(set) var preSearchTimelineFeed: SidebarItem?
 	private var lastSearchString = ""
@@ -116,7 +116,7 @@ struct SidebarItemNode: Hashable, Sendable {
 
 	var prefersStatusBarHidden = false
 
-	private let treeControllerDelegate = SidebarTreeControllerDelegate()
+	private let treeControllerDelegate: SidebarTreeControllerDelegate
 	private let treeController: TreeController
 
 	var stateRestorationActivity: NSUserActivity {
@@ -304,10 +304,10 @@ struct SidebarItemNode: Hashable, Sendable {
 		// Return false when the only unread article is the selected article.
 		// With nothing selected — e.g. the collapsed timeline — this falls through to "is there any unread at all".
 		// <https://github.com/Ranchero-Software/NetNewsWire/issues/5008>
-		if AccountManager.shared.unreadCount == 1, let article = currentArticle, !article.status.read {
+		if deps.accountManager.unreadCount == 1, let article = currentArticle, !article.status.read {
 			return false
 		}
-		return AccountManager.shared.unreadCount > 0
+		return deps.accountManager.unreadCount > 0
 	}
 
 	var timelineUnreadCount: Int = 0 {
@@ -350,6 +350,8 @@ struct SidebarItemNode: Hashable, Sendable {
 
 	init(rootSplitViewController: RootSplitViewController, deps: AppDependencies) {
 		self.deps = deps
+		self.hidingReadArticlesState = HidingReadArticlesState(accountManager: deps.accountManager)
+		self.treeControllerDelegate = SidebarTreeControllerDelegate(accountManager: deps.accountManager)
 		self.rootSplitViewController = rootSplitViewController
 		self.rootSplitViewController.minimumPrimaryColumnWidth = SceneCoordinator.minimumSidebarWidth
 		self.rootSplitViewController.maximumPrimaryColumnWidth = SceneCoordinator.maximumSidebarWidth
@@ -378,6 +380,7 @@ struct SidebarItemNode: Hashable, Sendable {
 
 		self.mainTimelineViewController = rootSplitViewController.viewController(for: .supplementary) as? MainTimelineViewController
 		self.mainTimelineViewController?.coordinator = self
+		self.mainTimelineViewController?.deps = deps
 		self.mainTimelineViewController?.navigationController?.delegate = self
 
 		self.articleViewController = rootSplitViewController.viewController(for: .secondary) as? ArticleViewController
@@ -401,7 +404,7 @@ struct SidebarItemNode: Hashable, Sendable {
 		NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(importDownloadedTheme(_:)), name: .didEndDownloadingTheme, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(themeDownloadDidFail(_:)), name: .didFailToImportThemeWithError, object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(updateNavigationBarSubtitles(_:)), name: .progressInfoDidChange, object: CombinedRefreshProgress.shared)
+		NotificationCenter.default.addObserver(self, selector: #selector(updateNavigationBarSubtitles(_:)), name: .progressInfoDidChange, object: deps.accountManager.combinedRefreshProgress)
 		NotificationCenter.default.addObserver(self, selector: #selector(handleUnreadCountDisplaySettingDidChange(_:)), name: .unreadCountDisplaySettingDidChange, object: nil)
 
 		NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { [weak self] _ in
@@ -476,7 +479,7 @@ struct SidebarItemNode: Hashable, Sendable {
 		}
 
 		let article = articles.article(matching: articleSpecifier) ??
-		AccountManager.shared.fetchArticle(accountID: articleSpecifier.accountID,
+		deps.accountManager.fetchArticle(accountID: articleSpecifier.accountID,
 										   articleID: articleSpecifier.articleID)
 
 		if let article {
@@ -561,7 +564,7 @@ struct SidebarItemNode: Hashable, Sendable {
 
 	@objc func unreadCountDidChange(_ note: Notification) {
 		// We will handle the filtering of unread feeds in unreadCountDidInitialize after they have all be calculated
-		guard AccountManager.shared.areUnreadCountsInitialized else {
+		guard deps.accountManager.areUnreadCountsInitialized else {
 			return
 		}
 		queueRebuildBackingStores()
@@ -685,7 +688,7 @@ struct SidebarItemNode: Hashable, Sendable {
 		if !fetchRequestQueue.isAnyCurrentRequest {
 			queueFetchAndMergeArticles()
 		}
-		AccountManager.shared.repairStatusesIfNeeded()
+		deps.accountManager.repairStatusesIfNeeded()
 	}
 
 	@objc func importDownloadedTheme(_ note: Notification) {
@@ -732,10 +735,10 @@ struct SidebarItemNode: Hashable, Sendable {
 	///
 	/// - Parameter note: Optional `Notification`
 	@objc func updateNavigationBarSubtitles(_ note: Notification?) {
-		let progressInfo = CombinedRefreshProgress.shared.progressInfo
+		let progressInfo = deps.accountManager.combinedRefreshProgress.progressInfo
 
 		if progressInfo.isComplete {
-			if let accountLastArticleFetchEndTime = AccountManager.shared.lastRefreshCompletedDate {
+			if let accountLastArticleFetchEndTime = deps.accountManager.lastRefreshCompletedDate {
 				if Date.now > accountLastArticleFetchEndTime.addingTimeInterval(60) {
 					let relativeDateTimeFormatter = RelativeDateTimeFormatter()
 					relativeDateTimeFormatter.dateTimeStyle = .named
@@ -1265,9 +1268,9 @@ struct SidebarItemNode: Hashable, Sendable {
 
 			switch searchScope {
 			case .global:
-				setTimelineFeed(SmartFeed(delegate: SearchFeedDelegate(searchString: searchString)), animated: true)
+				setTimelineFeed(SmartFeed(delegate: SearchFeedDelegate(searchString: searchString, accountManager: deps.accountManager)), animated: true)
 			case .timeline:
-				setTimelineFeed(SmartFeed(delegate: SearchTimelineFeedDelegate(searchString: searchString, articleIDs: savedSearchArticleIDs!)), animated: true)
+				setTimelineFeed(SmartFeed(delegate: SearchTimelineFeedDelegate(searchString: searchString, articleIDs: savedSearchArticleIDs!, accountManager: deps.accountManager)), animated: true)
 			}
 
 			lastSearchString = searchString
@@ -1306,7 +1309,7 @@ struct SidebarItemNode: Hashable, Sendable {
 
 		// This should never happen, but I don’t want to risk throwing us
 		// into an infinite loop searching for an unread that isn’t there.
-		if AccountManager.shared.unreadCount < 1 {
+		if deps.accountManager.unreadCount < 1 {
 			return
 		}
 
@@ -1333,7 +1336,7 @@ struct SidebarItemNode: Hashable, Sendable {
 
 		// This should never happen, but I don’t want to risk throwing us
 		// into an infinite loop searching for an unread that isn’t there.
-		if AccountManager.shared.unreadCount < 1 {
+		if deps.accountManager.unreadCount < 1 {
 			return
 		}
 
@@ -1591,6 +1594,7 @@ struct SidebarItemNode: Hashable, Sendable {
 		accountInspectorNavController.modalPresentationStyle = .formSheet
 		accountInspectorNavController.preferredContentSize = UIViewController.formSheetSize
 		accountInspectorController.isModal = true
+		accountInspectorController.deps = deps
 		accountInspectorController.account = account
 		rootSplitViewController.present(accountInspectorNavController, animated: true)
 	}
@@ -1623,7 +1627,7 @@ struct SidebarItemNode: Hashable, Sendable {
 		// The sheet appears over the current screen, so the feed and article selection stay as they are.
 		// <https://github.com/Ranchero-Software/NetNewsWire/issues/4352>
 
-		let addFeedView = AddFeedView(initialFeed: initialFeed, initialFeedName: initialFeedName)
+		let addFeedView = AddFeedView(accountManager: deps.accountManager, initialFeed: initialFeed, initialFeedName: initialFeedName)
 		let hostingController = UIHostingController(rootView: addFeedView)
 		hostingController.modalPresentationStyle = .formSheet
 		hostingController.preferredContentSize = UIViewController.formSheetSize
@@ -1639,7 +1643,7 @@ struct SidebarItemNode: Hashable, Sendable {
 	}
 
 	func showAddFolder() {
-		let hostingController = UIHostingController(rootView: AddFolderView())
+		let hostingController = UIHostingController(rootView: AddFolderView(accountManager: deps.accountManager))
 		hostingController.modalPresentationStyle = .formSheet
 		hostingController.preferredContentSize = UIViewController.formSheetSize
 		mainFeedCollectionViewController.present(hostingController, animated: true)

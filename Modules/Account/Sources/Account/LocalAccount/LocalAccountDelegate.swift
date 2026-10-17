@@ -63,6 +63,7 @@ import ActivityLog
 
 		let feeds = account.flattenedFeeds()
 		refresher.accountID = account.accountID
+		refresher.account = account
 		await refresher.refreshFeeds(feeds)
 		account.lastRefreshCompletedDate = Date()
 	}

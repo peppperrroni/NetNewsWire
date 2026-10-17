@@ -57,7 +57,7 @@ extension MainFeedCollectionViewController: UICollectionViewDropDelegate {
 			} else {
 				// If we got here, we are trying to drop on an empty section header.  Go and find the Account for this section
 				let sectionID = currentSidebarSnapshot.sectionIdentifiers[destIndexPath.section]
-				return AccountManager.shared.existingAccount(accountID: sectionID)
+				return self.coordinator.deps.accountManager.existingAccount(accountID: sectionID)
 			}
 		}()
 

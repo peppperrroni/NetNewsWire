@@ -21,14 +21,17 @@ struct AddFeedView: View {
 	@FocusState private var isURLFieldFocused: Bool
 
 	/// When `initialFeed` is nil, a URL on the pasteboard is used if there is one.
-	init(initialFeed: String?, initialFeedName: String?) {
+	private let accountManager: AccountManager
+
+	init(accountManager: AccountManager, initialFeed: String?, initialFeedName: String?) {
+		self.accountManager = accountManager
 		var urlString = initialFeed ?? ""
 		if initialFeed == nil, let pasteboardString = UIPasteboard.general.string, pasteboardString.mayBeURL {
 			urlString = pasteboardString.normalizedURL
 		}
 		self._urlString = State(initialValue: urlString)
 		self._name = State(initialValue: initialFeedName ?? "")
-		self._container = State(initialValue: AddFeedDefaultContainer.defaultContainer)
+		self._container = State(initialValue: AddFeedDefaultContainer.defaultContainer(accountManager: accountManager))
 	}
 
 	var body: some View {
@@ -49,7 +52,7 @@ struct AddFeedView: View {
 				}
 				Section {
 					NavigationLink {
-						AddFeedContainerPickerView(selectedContainer: $container)
+						AddFeedContainerPickerView(selectedContainer: $container, accountManager: accountManager)
 					} label: {
 						LabeledContent(NSLocalizedString("Folder", comment: "Label for choosing the folder a feed is added to"), value: containerName)
 					}

@@ -18,8 +18,8 @@ extension AppDelegate {
 	/// Vacuum every database the app owns — the app-level error-log, HTML-metadata,
 	/// and image-metadata databases, plus each account's databases.
 	func vacuumAllDatabases() async {
-		await vacuumAndLog(databasePath: AccountManager.shared.errorLogDatabase.databasePath) {
-			await AccountManager.shared.errorLogDatabase.vacuum()
+		await vacuumAndLog(databasePath: deps.accountManager.errorLogDatabase.databasePath) {
+			await deps.accountManager.errorLogDatabase.vacuum()
 		}
 		await vacuumAndLog(databasePath: deps.htmlMetadataDatabase.databasePath) {
 			await deps.htmlMetadataDatabase.vacuum()
@@ -27,7 +27,7 @@ extension AppDelegate {
 		await vacuumAndLog(databasePath: deps.imageMetadataDatabase.databasePath) {
 			await deps.imageMetadataDatabase.vacuum()
 		}
-		await AccountManager.shared.vacuumAccountDatabases()
+		await deps.accountManager.vacuumAccountDatabases()
 	}
 
 	private func vacuumAndLog(databasePath: String, _ work: () async -> Void) async {

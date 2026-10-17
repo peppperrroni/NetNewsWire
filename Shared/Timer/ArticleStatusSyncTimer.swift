@@ -87,7 +87,7 @@ import Account
 		update()
 
 		Task {
-			let didWork = await AccountManager.shared.syncArticleStatusAll()
+			let didWork = await AccountManager.current.syncArticleStatusAll()
 			self.lastRunWasIdle = !didWork
 			// Re-schedule now that we know whether to back off.
 			self.update()

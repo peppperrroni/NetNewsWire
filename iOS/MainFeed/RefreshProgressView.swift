@@ -14,18 +14,21 @@ final class RefreshProgressView: UIView {
 	private let progressView = UIProgressView(progressViewStyle: .default)
 	private let label = UILabel()
 
-	override init(frame: CGRect) {
-		super.init(frame: frame)
+	private let accountManager: AccountManager
+
+	init(accountManager: AccountManager) {
+		self.accountManager = accountManager
+		super.init(frame: .zero)
 		setup()
 	}
 
+	@available(*, unavailable)
 	required init?(coder: NSCoder) {
-		super.init(coder: coder)
-		setup()
+		fatalError("RefreshProgressView is created in code with its AccountManager")
 	}
 
 	func update() {
-		if !CombinedRefreshProgress.shared.isComplete {
+		if !accountManager.combinedRefreshProgress.isComplete {
 			progressChanged(animated: false)
 		} else {
 			updateRefreshLabel()
@@ -74,7 +77,7 @@ private extension RefreshProgressView {
 			label.centerYAnchor.constraint(equalTo: centerYAnchor)
 		])
 
-		NotificationCenter.default.addObserver(self, selector: #selector(progressInfoDidChange(_:)), name: .progressInfoDidChange, object: CombinedRefreshProgress.shared)
+		NotificationCenter.default.addObserver(self, selector: #selector(progressInfoDidChange(_:)), name: .progressInfoDidChange, object: accountManager.combinedRefreshProgress)
 		NotificationCenter.default.addObserver(self, selector: #selector(contentSizeCategoryDidChange(_:)), name: UIContentSizeCategory.didChangeNotification, object: nil)
 
 		update()
@@ -89,7 +92,7 @@ private extension RefreshProgressView {
 		// https://github.com/Ranchero-Software/NetNewsWire/issues/1764
 		let isInViewHierarchy = self.superview != nil
 
-		let progressInfo = CombinedRefreshProgress.shared.progressInfo
+		let progressInfo = accountManager.combinedRefreshProgress.progressInfo
 
 		if progressInfo.isComplete {
 			if isInViewHierarchy {
@@ -98,7 +101,7 @@ private extension RefreshProgressView {
 
 			func completeLabel() {
 				// Check that there are no pending downloads.
-				if CombinedRefreshProgress.shared.isComplete {
+				if accountManager.combinedRefreshProgress.isComplete {
 					self.updateRefreshLabel()
 					self.label.isHidden = false
 					self.progressView.isHidden = true
@@ -130,7 +133,7 @@ private extension RefreshProgressView {
 	}
 
 	func updateRefreshLabel() {
-		if let accountLastArticleFetchEndTime = AccountManager.shared.lastRefreshCompletedDate {
+		if let accountLastArticleFetchEndTime = accountManager.lastRefreshCompletedDate {
 
 			if Date() > accountLastArticleFetchEndTime.addingTimeInterval(60) {
 

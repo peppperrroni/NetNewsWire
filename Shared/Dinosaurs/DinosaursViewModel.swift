@@ -41,6 +41,12 @@ struct DinosaurRow: Identifiable {
 @Observable
 @MainActor final class DinosaursViewModel {
 
+	private let accountManager: AccountManager
+
+	init(accountManager: AccountManager) {
+		self.accountManager = accountManager
+	}
+
 	private(set) var rows = [DinosaurRow]()
 	private(set) var showAccountColumn = false
 	var monthThreshold = 6
@@ -54,7 +60,7 @@ struct DinosaurRow: Identifiable {
 			let elapsed = Date().timeIntervalSince(start)
 			Self.logger.info("DinosaursViewModel refresh: \(String(format: "%.3f", elapsed)) seconds, \(self.rows.count) rows")
 		}
-		let accounts = AccountManager.shared.activeAccounts
+		let accounts = accountManager.activeAccounts
 		let cutoffDate = Calendar.current.date(byAdding: .month, value: -monthThreshold, to: Date()) ?? .distantPast
 
 		var newRows = [DinosaurRow]()

@@ -184,10 +184,10 @@ final class SettingsViewController: UITableViewController {
 
 		switch Section(rawValue: section) {
 		case .accounts:
-			return AccountManager.shared.accounts.count + 1
+			return deps.accountManager.accounts.count + 1
 		case .feeds:
 			let defaultNumberOfRows = super.tableView(tableView, numberOfRowsInSection: section)
-			if AccountManager.shared.activeAccounts.isEmpty || AccountManager.shared.anyAccountHasNetNewsWireNewsSubscription() {
+			if deps.accountManager.activeAccounts.isEmpty || deps.accountManager.anyAccountHasNetNewsWireNewsSubscription() {
 				return defaultNumberOfRows - 1
 			}
 			return defaultNumberOfRows
@@ -196,7 +196,7 @@ final class SettingsViewController: UITableViewController {
 			return traitCollection.userInterfaceIdiom == .phone ? ArticlesRow.allCases.count : ArticlesRow.allCases.count - 1
 		case .troubleshooting:
 			let defaultNumberOfRows = super.tableView(tableView, numberOfRowsInSection: section)
-			if !AccountManager.shared.hasiCloudAccount {
+			if !deps.accountManager.hasiCloudAccount {
 				return defaultNumberOfRows - 1
 			}
 			return defaultNumberOfRows
@@ -211,7 +211,7 @@ final class SettingsViewController: UITableViewController {
 		switch Section(rawValue: indexPath.section) {
 		case .accounts:
 
-			let sortedAccounts = AccountManager.shared.sortedAccounts
+			let sortedAccounts = deps.accountManager.sortedAccounts
 			if indexPath.row == sortedAccounts.count {
 				cell = tableView.dequeueReusableCell(withIdentifier: "SettingsTableViewCell", for: indexPath)
 				cell.textLabel?.text = NSLocalizedString("Add Account", comment: "Add Account")
@@ -238,14 +238,15 @@ final class SettingsViewController: UITableViewController {
 			UIApplication.shared.open(URL(string: "\(UIApplication.openSettingsURLString)")!)
 			tableView.selectRow(at: nil, animated: true, scrollPosition: .none)
 		case .accounts:
-			let sortedAccounts = AccountManager.shared.sortedAccounts
+			let sortedAccounts = deps.accountManager.sortedAccounts
 			if indexPath.row == sortedAccounts.count {
-				let addAccountView = AddAccountView(presentationAnchor: view.window, activityLog: deps.activityLog, operationQueue: deps.mainThreadOperationQueue) { [weak self] in
+				let addAccountView = AddAccountView(presentationAnchor: view.window, activityLog: deps.activityLog, operationQueue: deps.mainThreadOperationQueue, accountManager: deps.accountManager) { [weak self] in
 					self?.navigationController?.popViewController(animated: false)
 				}
 				self.navigationController?.pushViewController(UIHostingController(rootView: addAccountView), animated: true)
 			} else {
 				let controller = UIStoryboard.inspector.instantiateController(ofType: AccountInspectorViewController.self)
+				controller.deps = deps
 				controller.account = sortedAccounts[indexPath.row]
 				self.navigationController?.pushViewController(controller, animated: true)
 			}
@@ -289,15 +290,15 @@ final class SettingsViewController: UITableViewController {
 			let viewController: UIViewController? = {
 				switch TroubleshootingRow(rawValue: indexPath.row) {
 				case .errorLog:
-					return UIHostingController(rootView: ErrorLogView())
+					return UIHostingController(rootView: ErrorLogView(accountManager: self.deps.accountManager))
 				case .accountStats:
-					return UIHostingController(rootView: AccountStatsView())
+					return UIHostingController(rootView: AccountStatsView(accountManager: self.deps.accountManager))
 				case .cloudKitZoneStats:
-					return UIHostingController(rootView: CloudKitStatsView())
+					return UIHostingController(rootView: CloudKitStatsView(accountManager: self.deps.accountManager))
 				case .activityLog:
-					return UIHostingController(rootView: ActivityLogView(activityLog: self.deps.activityLog))
+					return UIHostingController(rootView: ActivityLogView(activityLog: self.deps.activityLog, accountManager: self.deps.accountManager))
 				case .dinosaurs:
-					return UIHostingController(rootView: DinosaursView(dismissAndPresent: { [weak self] dinosaur in
+					return UIHostingController(rootView: DinosaursView(accountManager: self.deps.accountManager, dismissAndPresent: { [weak self] dinosaur in
 						guard let self else {
 							return
 						}
@@ -520,7 +521,7 @@ private extension SettingsViewController {
 	func addFeed() {
 		self.dismiss(animated: true)
 
-		let addFeedView = AddFeedView(initialFeed: AccountManager.netNewsWireNewsURL, initialFeedName: NSLocalizedString("NetNewsWire News", comment: "NetNewsWire News"))
+		let addFeedView = AddFeedView(accountManager: deps.accountManager, initialFeed: AccountManager.netNewsWireNewsURL, initialFeedName: NSLocalizedString("NetNewsWire News", comment: "NetNewsWire News"))
 		let hostingController = UIHostingController(rootView: addFeedView)
 		hostingController.modalPresentationStyle = .formSheet
 		hostingController.preferredContentSize = UIViewController.formSheetSize
@@ -529,11 +530,11 @@ private extension SettingsViewController {
 	}
 
 	func importOPML(sourceView: UIView, sourceRect: CGRect) {
-		switch AccountManager.shared.activeAccounts.count {
+		switch deps.accountManager.activeAccounts.count {
 		case 0:
 			presentError(title: "Error", message: NSLocalizedString("You must have at least one active account.", comment: "Missing active account"))
 		case 1:
-			opmlAccount = AccountManager.shared.activeAccounts.first
+			opmlAccount = deps.accountManager.activeAccounts.first
 			importOPMLDocumentPicker()
 		default:
 			importOPMLAccountPicker(sourceView: sourceView, sourceRect: sourceRect)
@@ -549,7 +550,7 @@ private extension SettingsViewController {
 			popoverController.sourceRect = sourceRect
 		}
 
-		for account in AccountManager.shared.sortedActiveAccounts {
+		for account in deps.accountManager.sortedActiveAccounts {
 			let action = UIAlertAction(title: account.nameForDisplay, style: .default) { [weak self] _ in
 				self?.opmlAccount = account
 				self?.importOPMLDocumentPicker()
@@ -588,8 +589,8 @@ private extension SettingsViewController {
 	}
 
 	func exportOPML(sourceView: UIView, sourceRect: CGRect) {
-		if AccountManager.shared.accounts.count == 1 {
-			opmlAccount = AccountManager.shared.accounts.first!
+		if deps.accountManager.accounts.count == 1 {
+			opmlAccount = deps.accountManager.accounts.first!
 			exportOPMLDocumentPicker()
 		} else {
 			exportOPMLAccountPicker(sourceView: sourceView, sourceRect: sourceRect)
@@ -605,7 +606,7 @@ private extension SettingsViewController {
 			popoverController.sourceRect = sourceRect
 		}
 
-		for account in AccountManager.shared.sortedAccounts {
+		for account in deps.accountManager.sortedAccounts {
 			let action = UIAlertAction(title: account.nameForDisplay, style: .default) { [weak self] _ in
 				self?.opmlAccount = account
 				self?.exportOPMLDocumentPicker()

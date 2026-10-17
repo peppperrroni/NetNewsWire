@@ -20,6 +20,7 @@ struct TodayFeedDelegate: SmartFeedDelegate {
 
 	let nameForDisplay = NSLocalizedString("Today", comment: "Today pseudo-feed title")
 	let fetchType = FetchType.today(nil)
+	let accountManager: AccountManager
 	var smallIcon: IconImage? {
 		Assets.Images.todayFeed
 	}

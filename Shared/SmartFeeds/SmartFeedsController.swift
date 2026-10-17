@@ -13,15 +13,18 @@ import Account
 @MainActor final class SmartFeedsController: DisplayNameProvider, ContainerIdentifiable {
 	nonisolated let containerID: ContainerIdentifier? = ContainerIdentifier.smartFeedController
 
-	public static let shared = SmartFeedsController()
+	public static let shared = SmartFeedsController(accountManager: AccountManager.current)  // ported in the Shared/iOS task
 	let nameForDisplay = NSLocalizedString("Smart Feeds", comment: "Smart Feeds group title")
 
 	var smartFeeds = [SidebarItem]()
-	let todayFeed = SmartFeed(delegate: TodayFeedDelegate())
-	let unreadFeed = UnreadFeed()
-	let starredFeed = SmartFeed(delegate: StarredFeedDelegate())
+	let todayFeed: SmartFeed
+	let unreadFeed: UnreadFeed
+	let starredFeed: SmartFeed
 
-	private init() {
+	init(accountManager: AccountManager) {
+		self.todayFeed = SmartFeed(delegate: TodayFeedDelegate(accountManager: accountManager))
+		self.unreadFeed = UnreadFeed(accountManager: accountManager)
+		self.starredFeed = SmartFeed(delegate: StarredFeedDelegate(accountManager: accountManager))
 		self.smartFeeds = [todayFeed, unreadFeed, starredFeed]
 	}
 

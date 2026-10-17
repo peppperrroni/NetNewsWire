@@ -13,6 +13,7 @@ import RSCore
 struct ActivityLogView: View {
 
 	let activityLog: ActivityLog
+	let accountManager: AccountManager
 
 	private static let helpURL = URL(string: "https://netnewswire.com/help/activity-log.html")!
 
@@ -117,7 +118,7 @@ private extension ActivityLogView {
 		case .failure:
 			return .systemRed
 		case .account(let accountID):
-			guard let accountID, let account = AccountManager.shared.existingAccount(accountID: accountID) else {
+			guard let accountID, let account = accountManager.existingAccount(accountID: accountID) else {
 				return .secondaryLabel
 			}
 			return UIColor(account.type.logColor)

@@ -21,7 +21,7 @@ import Images
 @MainActor func markArticleIDs(_ articleIDsByAccountID: [String: Set<String>], statusKey: ArticleStatus.Key, flag: Bool, completion: (() -> Void)? = nil) {
 	Task { @MainActor in
 		for (accountID, articleIDs) in articleIDsByAccountID {
-			guard let account = AccountManager.shared.existingAccount(accountID: accountID) else {
+			guard let account = AccountManager.current.existingAccount(accountID: accountID) else {
 				continue
 			}
 			try? await account.markArticles(articleIDs: articleIDs, statusKey: statusKey, flag: flag)
