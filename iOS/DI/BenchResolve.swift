@@ -7,20 +7,49 @@
 
 import Foundation
 import Account
+import RSCore
+import RSWeb
+import ActivityLog
+import FeedFinder
+import Articles
+import HTMLMetadata
+import Images
 
 @MainActor enum BenchResolve {
 
+	/// Resolves every app service through the Swinject container (this variant's access path).
 	static func resolveAll(_ deps: AppDependencies) {
+		let c = deps.container
 		BenchHooks.sink([
-			deps.batchUpdate, deps.mainThreadOperationQueue, deps.downloadCache, deps.downloader,
-			deps.networkMonitor, deps.activityLog, deps.feedFinder, deps.authorCache,
-			deps.htmlMetadataDatabase, deps.htmlMetadataDownloader, deps.imageMetadataDatabase,
-			deps.imageDownloader, deps.faviconDownloader, deps.feedIconDownloader,
-			deps.authorAvatarDownloader, deps.faviconGenerator, deps.accountManager, deps.appDefaults,
-			deps.articleStringFormatter, deps.smartFeedsController, deps.iconImageCache,
-			deps.articleThemesManager, deps.articleThemeDownloader, deps.articleStatusSyncTimer,
-			deps.extensionFeedAddRequestFile, deps.extensionContainersFile, deps.widgetDataEncoder,
-			deps.userNotificationManager, deps.webViewFullscreenKeeper
+			c.resolve(BatchUpdate.self),
+			c.resolve(MainThreadOperationQueue.self),
+			c.resolve(DownloadCache.self),
+			c.resolve(Downloader.self),
+			c.resolve(NetworkMonitor.self),
+			c.resolve(ActivityLog.self),
+			c.resolve(FeedFinder.self),
+			c.resolve(AuthorCache.self),
+			c.resolve(HTMLMetadataDatabase.self),
+			c.resolve(HTMLMetadataDownloader.self),
+			c.resolve(ImageMetadataDatabase.self),
+			c.resolve(ImageDownloader.self),
+			c.resolve(FaviconDownloader.self),
+			c.resolve(FeedIconDownloader.self),
+			c.resolve(AuthorAvatarDownloader.self),
+			c.resolve(FaviconGenerator.self),
+			c.resolve(AccountManager.self),
+			c.resolve(AppDefaults.self),
+			c.resolve(ArticleStringFormatter.self),
+			c.resolve(SmartFeedsController.self),
+			c.resolve(IconImageCache.self),
+			c.resolve(ArticleThemesManager.self),
+			c.resolve(ArticleThemeDownloader.self),
+			c.resolve(ArticleStatusSyncTimer.self),
+			c.resolve(ExtensionFeedAddRequestFile.self),
+			c.resolve(ExtensionContainersFile.self),
+			c.resolve(UserNotificationManager.self),
+			c.resolve(WebViewFullscreenKeeper.self),
+			c.resolve(WidgetDataEncoder?.self) ?? nil
 		])
 	}
 
