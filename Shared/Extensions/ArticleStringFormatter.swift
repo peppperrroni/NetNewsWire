@@ -11,7 +11,7 @@ import Articles
 import RSCore
 import RSParser
 
-@MainActor final class ArticleStringFormatter {
+@MainActor public final class ArticleStringFormatter {
 
 	/// Set once by the app root. Read only where nothing can be injected (see the app README).
 	nonisolated(unsafe) static var current: ArticleStringFormatter!
@@ -35,7 +35,7 @@ import RSParser
 		return formatter
 	}()
 
-	init() {
+	public init() {
 		NotificationCenter.default.addObserver(self, selector: #selector(handleAppDidGoToBackground(_:)), name: .appDidGoToBackground, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(handleLowMemory(_:)), name: .lowMemory, object: nil)
 	}

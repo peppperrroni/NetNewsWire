@@ -11,10 +11,10 @@ import Account
 import Articles
 import UserNotifications
 
-@MainActor final class UserNotificationManager {
+@MainActor public final class UserNotificationManager {
 	private let articleStringFormatter: ArticleStringFormatter
 
-	init(articleStringFormatter: ArticleStringFormatter) {
+	public init(articleStringFormatter: ArticleStringFormatter) {
 		self.articleStringFormatter = articleStringFormatter
 	}
 

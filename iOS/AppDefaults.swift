@@ -36,13 +36,13 @@ extension Notification.Name {
 	public static let timelineNumberOfLinesDidChange = Notification.Name("TimelineNumberOfLinesDidChangeNotification")
 }
 
-final class AppDefaults: Sendable {
+public final class AppDefaults: Sendable {
 	/// Set once by the app root. Read only where nothing can be injected (see the app README).
 	nonisolated(unsafe) static var current: AppDefaults!
 	static let defaultThemeName = "Default"
 	fileprivate static let logger = Logger(subsystem: Logger.nnwSubsystem, category: "AppDefaults")
 
-	init() {}
+	public init() {}
 
 	nonisolated(unsafe) static let store: UserDefaults = {
 		let appIdentifierPrefix = Bundle.main.object(forInfoDictionaryKey: "AppIdentifierPrefix") as! String

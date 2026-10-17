@@ -8,7 +8,9 @@
 
 import Foundation
 
-@MainActor final class FetchRequestQueue {
+@MainActor public final class FetchRequestQueue {
+
+	public init() {}
 	private var pendingRequests = [FetchRequestOperation]()
 	private var currentRequest: FetchRequestOperation?
 
