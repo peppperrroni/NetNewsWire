@@ -9,7 +9,7 @@
 import Foundation
 import Account
 
-@MainActor final class ArticleStatusSyncTimer {
+@MainActor public final class ArticleStatusSyncTimer {
 
 	private static let normalIntervalSeconds: TimeInterval = 120        // 2 minutes
 	private static let idleBackoffIntervalSeconds: TimeInterval = 1800  // 30 minutes
@@ -24,7 +24,7 @@ import Account
 
 	private let accountManager: AccountManager
 
-	init(accountManager: AccountManager) {
+	public init(accountManager: AccountManager) {
 		self.accountManager = accountManager
 		NotificationCenter.default.addObserver(self, selector: #selector(handleAccountDidQueueArticleStatuses(_:)), name: .AccountDidQueueArticleStatuses, object: nil)
 	}

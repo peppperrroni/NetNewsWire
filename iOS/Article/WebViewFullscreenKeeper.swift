@@ -14,7 +14,9 @@ import os
 /// Deallocating a web view during the enter-fullscreen transition triggers
 /// a WebKit RELEASE_ASSERT in WebFullScreenManagerProxy.
 /// <https://github.com/Ranchero-Software/NetNewsWire/issues/5382>
-@MainActor final class WebViewFullscreenKeeper {
+@MainActor public final class WebViewFullscreenKeeper {
+
+	public init() {}
 
 	private var retainedWebViews = [ObjectIdentifier: WKWebView]()
 

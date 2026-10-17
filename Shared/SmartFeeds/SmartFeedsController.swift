@@ -10,17 +10,17 @@ import Foundation
 import RSCore
 import Account
 
-@MainActor final class SmartFeedsController: DisplayNameProvider, ContainerIdentifiable {
-	nonisolated let containerID: ContainerIdentifier? = ContainerIdentifier.smartFeedController
+@MainActor public final class SmartFeedsController: DisplayNameProvider, ContainerIdentifiable {
+	public nonisolated let containerID: ContainerIdentifier? = ContainerIdentifier.smartFeedController
 
-	let nameForDisplay = NSLocalizedString("Smart Feeds", comment: "Smart Feeds group title")
+	public let nameForDisplay = NSLocalizedString("Smart Feeds", comment: "Smart Feeds group title")
 
 	var smartFeeds = [SidebarItem]()
 	let todayFeed: SmartFeed
 	let unreadFeed: UnreadFeed
 	let starredFeed: SmartFeed
 
-	init(accountManager: AccountManager) {
+	public init(accountManager: AccountManager) {
 		self.todayFeed = SmartFeed(delegate: TodayFeedDelegate(accountManager: accountManager))
 		self.unreadFeed = UnreadFeed(accountManager: accountManager)
 		self.starredFeed = SmartFeed(delegate: StarredFeedDelegate(accountManager: accountManager))
