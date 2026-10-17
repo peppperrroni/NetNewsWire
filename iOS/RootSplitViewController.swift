@@ -23,6 +23,7 @@ final class RootSplitViewController: UISplitViewController {
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
+		BenchHooks.firstFrame()
 		coordinator.resetFocus()
 	}
 

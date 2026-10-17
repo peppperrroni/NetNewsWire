@@ -75,7 +75,7 @@ import Images
 			Self.logger.info("Is first run.")
 		}
 
-		if isFirstRun && !deps.accountManager.anyAccountHasAtLeastOneFeed() {
+		if isFirstRun && !BenchHooks.isBenchRun && !deps.accountManager.anyAccountHasAtLeastOneFeed() {
 			let localAccount = deps.accountManager.defaultAccount
 			DefaultFeedsImporter.importDefaultFeeds(account: localAccount)
 		}
@@ -94,7 +94,9 @@ import Images
 		// Silent CloudKit pushes don’t need notification permission. setBadgeCount does.
 		UIApplication.shared.registerForRemoteNotifications()
 
-		UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .sound, .alert]) { _, _ in }
+		if !BenchHooks.isBenchRun {
+			UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .sound, .alert]) { _, _ in }
+		}
 
 		UNUserNotificationCenter.current().delegate = self
 		deps.userNotificationManager.start()
@@ -110,6 +112,8 @@ import Images
 		#if DEBUG
 		deps.articleStatusSyncTimer.update()
 		#endif
+
+		BenchHooks.start(resolve: { [deps] in BenchResolve.resolveAll(deps) }, scopes: BenchResolve.scopeAccess(deps))
 
 		return true
 
@@ -198,6 +202,9 @@ import Images
 #endif
 		deps.articleStatusSyncTimer.update()
 
+		guard !BenchHooks.isBenchRun else {
+			return
+		}
 		if let lastRefresh = deps.appDefaults.lastRefresh {
 			if Date() > lastRefresh.addingTimeInterval(15 * 60) {
 				deps.accountManager.refreshAllWithoutWaiting(errorHandler: ErrorHandler.log)

@@ -121,6 +121,14 @@ import Images
 	}
 }
 
+extension AppDependencies {
+
+	/// A session built from this root's services but not registered with AccountManager (bench scope checks).
+	func makeSession(dataFolder: String, type: AccountType, accountID: String) -> SessionDependencies {
+		SessionDependencies(dataFolder: dataFolder, type: type, accountID: accountID, activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
+	}
+}
+
 @MainActor private final class SessionStore {
 	var sessions = [String: SessionDependencies]()
 }
