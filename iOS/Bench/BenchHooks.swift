@@ -21,6 +21,14 @@ import Foundation
 
 	static func start(resolve: @escaping () -> Void, scopes: BenchScopeAccess) {
 		resolveAll = resolve
+		// Run a second after launch: a hook that exits within milliseconds can finish before
+		// `simctl launch --console-pty` attaches, and its BENCH line is lost.
+		DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+			runRequestedHooks(scopes: scopes)
+		}
+	}
+
+	private static func runRequestedHooks(scopes: BenchScopeAccess) {
 		let args = ProcessInfo.processInfo.arguments
 		if let i = args.firstIndex(of: "-bench-resolve"), i + 1 < args.count, let n = Int(args[i + 1]) {
 			runResolve(iterations: n)
