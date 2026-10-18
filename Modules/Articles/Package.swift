@@ -11,12 +11,14 @@ let package = Package(
 			targets: ["Articles"])
 	],
 	dependencies: [
+		.package(url: "https://github.com/dfed/SafeDI", exact: "2.0.0"),
 		.package(path: "../RSCore")
 	],
 	targets: [
 		.target(
 			name: "Articles",
 			dependencies: [
+				.product(name: "SafeDI", package: "SafeDI"),
 				"RSCore"
 			],
 			swiftSettings: [

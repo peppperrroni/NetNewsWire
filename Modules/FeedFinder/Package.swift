@@ -11,6 +11,7 @@ let package = Package(
 			targets: ["FeedFinder"])
 	],
 	dependencies: [
+		.package(url: "https://github.com/dfed/SafeDI", exact: "2.0.0"),
 		.package(path: "../RSWeb"),
 		.package(path: "../RSParser"),
 		.package(path: "../RSCore"),
@@ -20,6 +21,7 @@ let package = Package(
 		.target(
 			name: "FeedFinder",
 			dependencies: [
+				.product(name: "SafeDI", package: "SafeDI"),
 				"RSWeb",
 				"RSParser",
 				"RSCore",

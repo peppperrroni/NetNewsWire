@@ -11,6 +11,7 @@ let package = Package(
 			targets: ["HTMLMetadata"])
 	],
 	dependencies: [
+		.package(url: "https://github.com/dfed/SafeDI", exact: "2.0.0"),
 		.package(path: "../RSCore"),
 		.package(path: "../RSDatabase"),
 		.package(path: "../RSParser"),
@@ -21,6 +22,7 @@ let package = Package(
 		.target(
 			name: "HTMLMetadata",
 			dependencies: [
+				.product(name: "SafeDI", package: "SafeDI"),
 				"RSCore",
 				"RSDatabase",
 				"RSParser",

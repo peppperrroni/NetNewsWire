@@ -9,10 +9,13 @@ let package = Package(
 		.library(name: "RSCoreObjC", type: .dynamic, targets: ["RSCoreObjC"]),
 		.library(name: "RSCoreResources", type: .static, targets: ["RSCoreResources"])
 	],
+	dependencies: [
+		.package(url: "https://github.com/dfed/SafeDI", exact: "2.0.0"),
+	],
 	targets: [
 		.target(
 			name: "RSCore",
-			dependencies: ["RSCoreObjC"],
+			dependencies: [.product(name: "SafeDI", package: "SafeDI"), "RSCoreObjC"],
 			swiftSettings: [
 				.enableUpcomingFeature("NonisolatedNonsendingByDefault"),
 				.enableUpcomingFeature("InferIsolatedConformances")

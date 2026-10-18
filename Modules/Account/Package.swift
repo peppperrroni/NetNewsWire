@@ -11,6 +11,7 @@ let package = Package(
 			targets: ["Account"])
 	],
 	dependencies: [
+		.package(url: "https://github.com/dfed/SafeDI", exact: "2.0.0"),
 		.package(path: "../ActivityLog"),
 		.package(path: "../Articles"),
 		.package(path: "../ArticlesDatabase"),
@@ -29,6 +30,7 @@ let package = Package(
 		.target(
 			name: "Account",
 			dependencies: [
+				.product(name: "SafeDI", package: "SafeDI"),
 				"RSCore",
 				"RSDatabase",
 				"RSParser",

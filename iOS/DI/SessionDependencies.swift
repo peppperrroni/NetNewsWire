@@ -39,16 +39,3 @@ import ArticlesDatabase
 	}
 }
 
-@Instantiable
-extension ArticlesDatabase: @retroactive Instantiable {
-	public static func instantiate(dataFolder: String, type: AccountType, accountID: String) -> ArticlesDatabase {
-		Account.makeDatabase(dataFolder: dataFolder, type: type, accountID: accountID)
-	}
-}
-
-@Instantiable
-extension Account: @retroactive Instantiable {
-	public static func instantiate(dataFolder: String, type: AccountType, accountID: String, database: ArticlesDatabase, activityLog: ActivityLog, batchUpdate: BatchUpdate, networkMonitor: NetworkMonitor, feedFinder: FeedFinder) -> Account {
-		Account(dataFolder: dataFolder, type: type, accountID: accountID, database: database, activityLog: activityLog, batchUpdate: batchUpdate, networkMonitor: networkMonitor, feedFinder: feedFinder)
-	}
-}

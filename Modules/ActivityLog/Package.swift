@@ -11,9 +11,13 @@ let package = Package(
 			type: .dynamic,
 			targets: ["ActivityLog"])
 	],
+	dependencies: [
+		.package(url: "https://github.com/dfed/SafeDI", exact: "2.0.0"),
+	],
 	targets: [
 		.target(
 			name: "ActivityLog",
+			dependencies: [.product(name: "SafeDI", package: "SafeDI")],
 			resources: [.process("Resources")],
 			swiftSettings: [
 				.enableUpcomingFeature("NonisolatedNonsendingByDefault"),

@@ -19,6 +19,9 @@ import Articles
 import HTMLMetadata
 import Images
 
+// The plugin scans the app target; the services' wiring lives in the packages.
+#SafeDIConfiguration(additionalDirectoriesToInclude: ["Modules"])
+
 @Instantiable(isRoot: true)
 @MainActor public final class AppRoot: Instantiable {
 	@Instantiated public let batchUpdate: BatchUpdate
@@ -249,118 +252,6 @@ extension AppDependencies {
 extension WidgetDataEncoderBox: Instantiable {
 	public static func instantiate(appDefaults: AppDefaults, articleStringFormatter: ArticleStringFormatter, smartFeedsController: SmartFeedsController, accountManager: AccountManager) -> WidgetDataEncoderBox {
 		WidgetDataEncoderBox(encoder: WidgetDataEncoder(appDefaults: appDefaults, articleStringFormatter: articleStringFormatter, smartFeedsController: smartFeedsController, accountManager: accountManager))
-	}
-}
-
-@Instantiable
-extension BatchUpdate: @retroactive Instantiable {
-	public static func instantiate() -> BatchUpdate {
-		BatchUpdate()
-	}
-}
-
-@Instantiable
-extension MainThreadOperationQueue: @retroactive Instantiable {
-	public static func instantiate() -> MainThreadOperationQueue {
-		MainThreadOperationQueue()
-	}
-}
-
-@Instantiable
-extension DownloadCache: @retroactive Instantiable {
-	public static func instantiate() -> DownloadCache {
-		DownloadCache()
-	}
-}
-
-@Instantiable
-extension Downloader: @retroactive Instantiable {
-	public static func instantiate(downloadCache: DownloadCache) -> Downloader {
-		Downloader(cache: downloadCache)
-	}
-}
-
-@Instantiable
-extension NetworkMonitor: @retroactive Instantiable {
-	public static func instantiate() -> NetworkMonitor {
-		NetworkMonitor()
-	}
-}
-
-@Instantiable
-extension ActivityLog: @retroactive Instantiable {
-	public static func instantiate() -> ActivityLog {
-		ActivityLog()
-	}
-}
-
-@Instantiable
-extension FeedFinder: @retroactive Instantiable {
-	public static func instantiate(downloader: Downloader, activityLog: ActivityLog) -> FeedFinder {
-		FeedFinder(downloader: downloader, activityLog: activityLog)
-	}
-}
-
-@Instantiable
-extension AuthorCache: @retroactive Instantiable {
-	public static func instantiate() -> AuthorCache {
-		AuthorCache()
-	}
-}
-
-@Instantiable
-extension HTMLMetadataDatabase: @retroactive Instantiable {
-	@MainActor public static func instantiate() -> HTMLMetadataDatabase {
-		HTMLMetadataDatabase(databasePath: HTMLMetadataDatabase.defaultDatabasePath)
-	}
-}
-
-@Instantiable
-extension HTMLMetadataDownloader: @retroactive Instantiable {
-	public static func instantiate(downloader: Downloader, activityLog: ActivityLog, htmlMetadataDatabase: HTMLMetadataDatabase) -> HTMLMetadataDownloader {
-		HTMLMetadataDownloader(downloader: downloader, activityLog: activityLog, database: htmlMetadataDatabase)
-	}
-}
-
-@Instantiable
-extension ImageMetadataDatabase: @retroactive Instantiable {
-	public static func instantiate() -> ImageMetadataDatabase {
-		ImageMetadataDatabase()
-	}
-}
-
-@Instantiable
-extension ImageDownloader: @retroactive Instantiable {
-	public static func instantiate(downloader: Downloader, activityLog: ActivityLog, imageMetadataDatabase: ImageMetadataDatabase) -> ImageDownloader {
-		ImageDownloader(downloader: downloader, activityLog: activityLog, imageMetadataDatabase: imageMetadataDatabase)
-	}
-}
-
-@Instantiable
-extension FaviconDownloader: @retroactive Instantiable {
-	public static func instantiate(downloader: Downloader, activityLog: ActivityLog, imageMetadataDatabase: ImageMetadataDatabase, htmlMetadataDownloader: HTMLMetadataDownloader) -> FaviconDownloader {
-		FaviconDownloader(downloader: downloader, activityLog: activityLog, imageMetadataDatabase: imageMetadataDatabase, htmlMetadataDownloader: htmlMetadataDownloader)
-	}
-}
-
-@Instantiable
-extension FeedIconDownloader: @retroactive Instantiable {
-	public static func instantiate(imageDownloader: ImageDownloader, imageMetadataDatabase: ImageMetadataDatabase, htmlMetadataDownloader: HTMLMetadataDownloader) -> FeedIconDownloader {
-		FeedIconDownloader(imageDownloader: imageDownloader, imageMetadataDatabase: imageMetadataDatabase, htmlMetadataDownloader: htmlMetadataDownloader)
-	}
-}
-
-@Instantiable
-extension AuthorAvatarDownloader: @retroactive Instantiable {
-	public static func instantiate(imageDownloader: ImageDownloader) -> AuthorAvatarDownloader {
-		AuthorAvatarDownloader(imageDownloader: imageDownloader)
-	}
-}
-
-@Instantiable
-extension FaviconGenerator: @retroactive Instantiable {
-	public static func instantiate() -> FaviconGenerator {
-		FaviconGenerator()
 	}
 }
 
