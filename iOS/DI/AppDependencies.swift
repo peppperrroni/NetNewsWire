@@ -173,6 +173,7 @@ nonisolated final class AppComponent: BootstrapComponent {
 	let widgetDataEncoder: WidgetDataEncoder?
 	let userNotificationManager: UserNotificationManager
 	let webViewFullscreenKeeper: WebViewFullscreenKeeper
+	let synth: SynthServices
 
 	/// One session per account, keyed by account ID.
 	var sessions: [String: SessionDependencies] {
@@ -239,6 +240,7 @@ nonisolated final class AppComponent: BootstrapComponent {
 		webViewFullscreenKeeper = c.webViewFullscreenKeeper
 
 		IconImageCache.current = iconImageCache
+		synth = SynthServices(component: c)
 	}
 }
 
