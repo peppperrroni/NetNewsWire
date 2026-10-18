@@ -1045,19 +1045,15 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/iOS/DI/AppDependencies.swift",
-				"$(SRCROOT)/iOS/DI/SessionDependencies.swift",
-				"$(SRCROOT)/iOS/DI/FeatureDependencies.swift",
 			);
 			name = "Needle Generate";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(SRCROOT)/iOS/DI/NeedleGenerated.swift",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nexport SOURCEKIT_LOGGING=0\nneedle generate \"$SRCROOT/iOS/DI/NeedleGenerated.swift\" \"$SRCROOT/iOS/DI\"\n";
+			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nexport SOURCEKIT_LOGGING=0\nneedle generate \"$SRCROOT/iOS/DI/NeedleGenerated.swift\" \"$SRCROOT/iOS/DI\" \"$SRCROOT/Modules\" --exclude-suffixes Tests --exclude-paths .build\n";
 		};
 		513F328B2593F03F0003048F /* Delete Unnecessary Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
