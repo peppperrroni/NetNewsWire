@@ -1,0 +1,18 @@
+// swift-tools-version:6.2
+import PackageDescription
+
+// Synthetic package for the Phase 2b package-scaling curve.
+let package = Package(
+	name: "Synth029",
+	platforms: [.macOS(.v15), .iOS(.v17)],
+	products: [
+		.library(name: "Synth029", targets: ["Synth029"])
+	],
+	dependencies: [
+		.package(path: "../ActivityLog"),
+		.package(path: "../Synth028")
+	],
+	targets: [
+		.target(name: "Synth029", dependencies: ["ActivityLog", "Synth028"])
+	]
+)
