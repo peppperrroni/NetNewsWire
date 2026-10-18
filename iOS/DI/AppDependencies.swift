@@ -46,6 +46,7 @@ import Images
 	let widgetDataEncoder: WidgetDataEncoder?
 	let userNotificationManager: UserNotificationManager
 	let webViewFullscreenKeeper: WebViewFullscreenKeeper
+	let synth: SynthServices
 
 	/// One session per account, keyed by account ID.
 	var sessions: [String: SessionDependencies] {
@@ -118,6 +119,7 @@ import Images
 		widgetDataEncoder = WidgetDataEncoder(appDefaults: appDefaults, articleStringFormatter: articleStringFormatter, smartFeedsController: smartFeedsController, accountManager: accountManager)
 		userNotificationManager = UserNotificationManager(articleStringFormatter: articleStringFormatter)
 		webViewFullscreenKeeper = WebViewFullscreenKeeper()
+		synth = SynthServices(activityLog: activityLog)
 	}
 }
 
