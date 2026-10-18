@@ -11,6 +11,22 @@ import Images
 import NeedleFoundation
 import RSCore
 import RSWeb
+import Synth001
+import Synth002
+import Synth003
+import Synth004
+import Synth005
+import Synth006
+import Synth007
+import Synth008
+import Synth009
+import Synth010
+import Synth011
+import Synth012
+import Synth013
+import Synth014
+import Synth015
+import Synth016
 
 // swiftlint:disable unused_declaration
 private let needleDependenciesHash : String? = nil
@@ -104,6 +120,38 @@ extension AppComponent: NeedleFoundation.Registration {
         localTable["widgetDataEncoder-WidgetDataEncoder?"] = { [unowned self] in self.widgetDataEncoder as Any }
         localTable["userNotificationManager-UserNotificationManager"] = { [unowned self] in self.userNotificationManager as Any }
         localTable["webViewFullscreenKeeper-WebViewFullscreenKeeper"] = { [unowned self] in self.webViewFullscreenKeeper as Any }
+        localTable["synth001Store-Synth001Store"] = { [unowned self] in self.synth001Store as Any }
+        localTable["synth001Service-Synth001Service"] = { [unowned self] in self.synth001Service as Any }
+        localTable["synth002Store-Synth002Store"] = { [unowned self] in self.synth002Store as Any }
+        localTable["synth002Service-Synth002Service"] = { [unowned self] in self.synth002Service as Any }
+        localTable["synth003Store-Synth003Store"] = { [unowned self] in self.synth003Store as Any }
+        localTable["synth003Service-Synth003Service"] = { [unowned self] in self.synth003Service as Any }
+        localTable["synth004Store-Synth004Store"] = { [unowned self] in self.synth004Store as Any }
+        localTable["synth004Service-Synth004Service"] = { [unowned self] in self.synth004Service as Any }
+        localTable["synth005Store-Synth005Store"] = { [unowned self] in self.synth005Store as Any }
+        localTable["synth005Service-Synth005Service"] = { [unowned self] in self.synth005Service as Any }
+        localTable["synth006Store-Synth006Store"] = { [unowned self] in self.synth006Store as Any }
+        localTable["synth006Service-Synth006Service"] = { [unowned self] in self.synth006Service as Any }
+        localTable["synth007Store-Synth007Store"] = { [unowned self] in self.synth007Store as Any }
+        localTable["synth007Service-Synth007Service"] = { [unowned self] in self.synth007Service as Any }
+        localTable["synth008Store-Synth008Store"] = { [unowned self] in self.synth008Store as Any }
+        localTable["synth008Service-Synth008Service"] = { [unowned self] in self.synth008Service as Any }
+        localTable["synth009Store-Synth009Store"] = { [unowned self] in self.synth009Store as Any }
+        localTable["synth009Service-Synth009Service"] = { [unowned self] in self.synth009Service as Any }
+        localTable["synth010Store-Synth010Store"] = { [unowned self] in self.synth010Store as Any }
+        localTable["synth010Service-Synth010Service"] = { [unowned self] in self.synth010Service as Any }
+        localTable["synth011Store-Synth011Store"] = { [unowned self] in self.synth011Store as Any }
+        localTable["synth011Service-Synth011Service"] = { [unowned self] in self.synth011Service as Any }
+        localTable["synth012Store-Synth012Store"] = { [unowned self] in self.synth012Store as Any }
+        localTable["synth012Service-Synth012Service"] = { [unowned self] in self.synth012Service as Any }
+        localTable["synth013Store-Synth013Store"] = { [unowned self] in self.synth013Store as Any }
+        localTable["synth013Service-Synth013Service"] = { [unowned self] in self.synth013Service as Any }
+        localTable["synth014Store-Synth014Store"] = { [unowned self] in self.synth014Store as Any }
+        localTable["synth014Service-Synth014Service"] = { [unowned self] in self.synth014Service as Any }
+        localTable["synth015Store-Synth015Store"] = { [unowned self] in self.synth015Store as Any }
+        localTable["synth015Service-Synth015Service"] = { [unowned self] in self.synth015Service as Any }
+        localTable["synth016Store-Synth016Store"] = { [unowned self] in self.synth016Store as Any }
+        localTable["synth016Service-Synth016Service"] = { [unowned self] in self.synth016Service as Any }
     }
 }
 extension TimelineComponent: NeedleFoundation.Registration {
