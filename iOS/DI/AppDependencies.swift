@@ -55,6 +55,7 @@ func onMain<T: Sendable>(_ body: @MainActor () -> T) -> T {
 	let widgetDataEncoder: WidgetDataEncoder?
 	let userNotificationManager: UserNotificationManager
 	let webViewFullscreenKeeper: WebViewFullscreenKeeper
+	let synth: SynthServices
 
 	/// One session per account, keyed by account ID.
 	var sessions: [String: SessionDependencies] {
@@ -178,6 +179,8 @@ func onMain<T: Sendable>(_ body: @MainActor () -> T) -> T {
 		widgetDataEncoder = c.resolve(WidgetDataEncoder?.self)!
 		userNotificationManager = c.resolve(UserNotificationManager.self)!
 		webViewFullscreenKeeper = c.resolve(WebViewFullscreenKeeper.self)!
+		registerSynth(c)
+		synth = SynthServices(container: c)
 	}
 }
 

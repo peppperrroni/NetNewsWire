@@ -1,0 +1,547 @@
+{
+ "types": [
+  {
+   "name": "Synth001Store",
+   "module": "Synth001",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth001Service",
+   "module": "Synth001",
+   "scope": "app",
+   "deps": [
+    "Synth001Store"
+   ]
+  },
+  {
+   "name": "Synth002Store",
+   "module": "Synth002",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth002Service",
+   "module": "Synth002",
+   "scope": "app",
+   "deps": [
+    "Synth002Store",
+    "Synth001Service"
+   ]
+  },
+  {
+   "name": "Synth003Store",
+   "module": "Synth003",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth003Service",
+   "module": "Synth003",
+   "scope": "app",
+   "deps": [
+    "Synth003Store",
+    "Synth002Service"
+   ]
+  },
+  {
+   "name": "Synth004Store",
+   "module": "Synth004",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth004Service",
+   "module": "Synth004",
+   "scope": "app",
+   "deps": [
+    "Synth004Store",
+    "Synth003Service"
+   ]
+  },
+  {
+   "name": "Synth005Store",
+   "module": "Synth005",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth005Service",
+   "module": "Synth005",
+   "scope": "app",
+   "deps": [
+    "Synth005Store",
+    "Synth004Service"
+   ]
+  },
+  {
+   "name": "Synth006Store",
+   "module": "Synth006",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth006Service",
+   "module": "Synth006",
+   "scope": "app",
+   "deps": [
+    "Synth006Store",
+    "Synth005Service"
+   ]
+  },
+  {
+   "name": "Synth007Store",
+   "module": "Synth007",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth007Service",
+   "module": "Synth007",
+   "scope": "app",
+   "deps": [
+    "Synth007Store",
+    "Synth006Service"
+   ]
+  },
+  {
+   "name": "Synth008Store",
+   "module": "Synth008",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth008Service",
+   "module": "Synth008",
+   "scope": "app",
+   "deps": [
+    "Synth008Store",
+    "Synth007Service"
+   ]
+  },
+  {
+   "name": "Synth009Store",
+   "module": "Synth009",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth009Service",
+   "module": "Synth009",
+   "scope": "app",
+   "deps": [
+    "Synth009Store",
+    "Synth008Service"
+   ]
+  },
+  {
+   "name": "Synth010Store",
+   "module": "Synth010",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth010Service",
+   "module": "Synth010",
+   "scope": "app",
+   "deps": [
+    "Synth010Store",
+    "Synth009Service"
+   ]
+  },
+  {
+   "name": "Synth011Store",
+   "module": "Synth011",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth011Service",
+   "module": "Synth011",
+   "scope": "app",
+   "deps": [
+    "Synth011Store",
+    "Synth010Service"
+   ]
+  },
+  {
+   "name": "Synth012Store",
+   "module": "Synth012",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth012Service",
+   "module": "Synth012",
+   "scope": "app",
+   "deps": [
+    "Synth012Store",
+    "Synth011Service"
+   ]
+  },
+  {
+   "name": "Synth013Store",
+   "module": "Synth013",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth013Service",
+   "module": "Synth013",
+   "scope": "app",
+   "deps": [
+    "Synth013Store",
+    "Synth012Service"
+   ]
+  },
+  {
+   "name": "Synth014Store",
+   "module": "Synth014",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth014Service",
+   "module": "Synth014",
+   "scope": "app",
+   "deps": [
+    "Synth014Store",
+    "Synth013Service"
+   ]
+  },
+  {
+   "name": "Synth015Store",
+   "module": "Synth015",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth015Service",
+   "module": "Synth015",
+   "scope": "app",
+   "deps": [
+    "Synth015Store",
+    "Synth014Service"
+   ]
+  },
+  {
+   "name": "Synth016Store",
+   "module": "Synth016",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth016Service",
+   "module": "Synth016",
+   "scope": "app",
+   "deps": [
+    "Synth016Store",
+    "Synth015Service"
+   ]
+  },
+  {
+   "name": "Synth017Store",
+   "module": "Synth017",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth017Service",
+   "module": "Synth017",
+   "scope": "app",
+   "deps": [
+    "Synth017Store",
+    "Synth016Service"
+   ]
+  },
+  {
+   "name": "Synth018Store",
+   "module": "Synth018",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth018Service",
+   "module": "Synth018",
+   "scope": "app",
+   "deps": [
+    "Synth018Store",
+    "Synth017Service"
+   ]
+  },
+  {
+   "name": "Synth019Store",
+   "module": "Synth019",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth019Service",
+   "module": "Synth019",
+   "scope": "app",
+   "deps": [
+    "Synth019Store",
+    "Synth018Service"
+   ]
+  },
+  {
+   "name": "Synth020Store",
+   "module": "Synth020",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth020Service",
+   "module": "Synth020",
+   "scope": "app",
+   "deps": [
+    "Synth020Store",
+    "Synth019Service"
+   ]
+  },
+  {
+   "name": "Synth021Store",
+   "module": "Synth021",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth021Service",
+   "module": "Synth021",
+   "scope": "app",
+   "deps": [
+    "Synth021Store",
+    "Synth020Service"
+   ]
+  },
+  {
+   "name": "Synth022Store",
+   "module": "Synth022",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth022Service",
+   "module": "Synth022",
+   "scope": "app",
+   "deps": [
+    "Synth022Store",
+    "Synth021Service"
+   ]
+  },
+  {
+   "name": "Synth023Store",
+   "module": "Synth023",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth023Service",
+   "module": "Synth023",
+   "scope": "app",
+   "deps": [
+    "Synth023Store",
+    "Synth022Service"
+   ]
+  },
+  {
+   "name": "Synth024Store",
+   "module": "Synth024",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth024Service",
+   "module": "Synth024",
+   "scope": "app",
+   "deps": [
+    "Synth024Store",
+    "Synth023Service"
+   ]
+  },
+  {
+   "name": "Synth025Store",
+   "module": "Synth025",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth025Service",
+   "module": "Synth025",
+   "scope": "app",
+   "deps": [
+    "Synth025Store",
+    "Synth024Service"
+   ]
+  },
+  {
+   "name": "Synth026Store",
+   "module": "Synth026",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth026Service",
+   "module": "Synth026",
+   "scope": "app",
+   "deps": [
+    "Synth026Store",
+    "Synth025Service"
+   ]
+  },
+  {
+   "name": "Synth027Store",
+   "module": "Synth027",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth027Service",
+   "module": "Synth027",
+   "scope": "app",
+   "deps": [
+    "Synth027Store",
+    "Synth026Service"
+   ]
+  },
+  {
+   "name": "Synth028Store",
+   "module": "Synth028",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth028Service",
+   "module": "Synth028",
+   "scope": "app",
+   "deps": [
+    "Synth028Store",
+    "Synth027Service"
+   ]
+  },
+  {
+   "name": "Synth029Store",
+   "module": "Synth029",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth029Service",
+   "module": "Synth029",
+   "scope": "app",
+   "deps": [
+    "Synth029Store",
+    "Synth028Service"
+   ]
+  },
+  {
+   "name": "Synth030Store",
+   "module": "Synth030",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth030Service",
+   "module": "Synth030",
+   "scope": "app",
+   "deps": [
+    "Synth030Store",
+    "Synth029Service"
+   ]
+  },
+  {
+   "name": "Synth031Store",
+   "module": "Synth031",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth031Service",
+   "module": "Synth031",
+   "scope": "app",
+   "deps": [
+    "Synth031Store",
+    "Synth030Service"
+   ]
+  },
+  {
+   "name": "Synth032Store",
+   "module": "Synth032",
+   "scope": "app",
+   "deps": [
+    "ActivityLog"
+   ]
+  },
+  {
+   "name": "Synth032Service",
+   "module": "Synth032",
+   "scope": "app",
+   "deps": [
+    "Synth032Store",
+    "Synth031Service"
+   ]
+  }
+ ]
+}
