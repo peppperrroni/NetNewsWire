@@ -54,6 +54,7 @@ import Images
 	@Instantiated public let widgetDataEncoder: WidgetDataEncoderBox
 	@Instantiated public let userNotificationManager: UserNotificationManager
 	@Instantiated public let webViewFullscreenKeeper: WebViewFullscreenKeeper
+	@Instantiated public let synth: SynthServices
 	@Instantiated public let sessionInstantiator: Instantiator<SessionDependencies>
 
 	public init(
@@ -87,6 +88,7 @@ import Images
 		widgetDataEncoder: WidgetDataEncoderBox,
 		userNotificationManager: UserNotificationManager,
 		webViewFullscreenKeeper: WebViewFullscreenKeeper,
+		synth: SynthServices,
 		sessionInstantiator: Instantiator<SessionDependencies>
 	) {
 		self.batchUpdate = batchUpdate
@@ -119,6 +121,7 @@ import Images
 		self.widgetDataEncoder = widgetDataEncoder
 		self.userNotificationManager = userNotificationManager
 		self.webViewFullscreenKeeper = webViewFullscreenKeeper
+		self.synth = synth
 		self.sessionInstantiator = sessionInstantiator
 	}
 }
