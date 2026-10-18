@@ -11,6 +11,70 @@
 		176814002564BB2D00D98635 /* NetNewsWire iOS Widget Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 176813F32564BB2C00D98635 /* NetNewsWire iOS Widget Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		179C39EA26F76B0500D4E741 /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 179C39E926F76B0500D4E741 /* Zip */; };
 		179D280B26F6F93D003B2E0A /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 179D280A26F6F93D003B2E0A /* Zip */; };
+		5E0000000000000000000012 /* Synth001 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000011 /* Synth001 */; };
+		5E0000000000000000000022 /* Synth002 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000021 /* Synth002 */; };
+		5E0000000000000000000032 /* Synth003 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000031 /* Synth003 */; };
+		5E0000000000000000000042 /* Synth004 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000041 /* Synth004 */; };
+		5E0000000000000000000052 /* Synth005 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000051 /* Synth005 */; };
+		5E0000000000000000000062 /* Synth006 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000061 /* Synth006 */; };
+		5E0000000000000000000072 /* Synth007 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000071 /* Synth007 */; };
+		5E0000000000000000000082 /* Synth008 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000081 /* Synth008 */; };
+		5E0000000000000000000092 /* Synth009 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000091 /* Synth009 */; };
+		5E0000000000000000000102 /* Synth010 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000101 /* Synth010 */; };
+		5E0000000000000000000112 /* Synth011 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000111 /* Synth011 */; };
+		5E0000000000000000000122 /* Synth012 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000121 /* Synth012 */; };
+		5E0000000000000000000132 /* Synth013 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000131 /* Synth013 */; };
+		5E0000000000000000000142 /* Synth014 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000141 /* Synth014 */; };
+		5E0000000000000000000152 /* Synth015 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000151 /* Synth015 */; };
+		5E0000000000000000000162 /* Synth016 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000161 /* Synth016 */; };
+		5E0000000000000000000172 /* Synth017 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000171 /* Synth017 */; };
+		5E0000000000000000000182 /* Synth018 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000181 /* Synth018 */; };
+		5E0000000000000000000192 /* Synth019 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000191 /* Synth019 */; };
+		5E0000000000000000000202 /* Synth020 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000201 /* Synth020 */; };
+		5E0000000000000000000212 /* Synth021 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000211 /* Synth021 */; };
+		5E0000000000000000000222 /* Synth022 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000221 /* Synth022 */; };
+		5E0000000000000000000232 /* Synth023 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000231 /* Synth023 */; };
+		5E0000000000000000000242 /* Synth024 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000241 /* Synth024 */; };
+		5E0000000000000000000252 /* Synth025 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000251 /* Synth025 */; };
+		5E0000000000000000000262 /* Synth026 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000261 /* Synth026 */; };
+		5E0000000000000000000272 /* Synth027 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000271 /* Synth027 */; };
+		5E0000000000000000000282 /* Synth028 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000281 /* Synth028 */; };
+		5E0000000000000000000292 /* Synth029 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000291 /* Synth029 */; };
+		5E0000000000000000000302 /* Synth030 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000301 /* Synth030 */; };
+		5E0000000000000000000312 /* Synth031 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000311 /* Synth031 */; };
+		5E0000000000000000000322 /* Synth032 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000321 /* Synth032 */; };
+		5E0000000000000000000332 /* Synth033 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000331 /* Synth033 */; };
+		5E0000000000000000000342 /* Synth034 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000341 /* Synth034 */; };
+		5E0000000000000000000352 /* Synth035 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000351 /* Synth035 */; };
+		5E0000000000000000000362 /* Synth036 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000361 /* Synth036 */; };
+		5E0000000000000000000372 /* Synth037 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000371 /* Synth037 */; };
+		5E0000000000000000000382 /* Synth038 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000381 /* Synth038 */; };
+		5E0000000000000000000392 /* Synth039 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000391 /* Synth039 */; };
+		5E0000000000000000000402 /* Synth040 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000401 /* Synth040 */; };
+		5E0000000000000000000412 /* Synth041 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000411 /* Synth041 */; };
+		5E0000000000000000000422 /* Synth042 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000421 /* Synth042 */; };
+		5E0000000000000000000432 /* Synth043 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000431 /* Synth043 */; };
+		5E0000000000000000000442 /* Synth044 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000441 /* Synth044 */; };
+		5E0000000000000000000452 /* Synth045 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000451 /* Synth045 */; };
+		5E0000000000000000000462 /* Synth046 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000461 /* Synth046 */; };
+		5E0000000000000000000472 /* Synth047 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000471 /* Synth047 */; };
+		5E0000000000000000000482 /* Synth048 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000481 /* Synth048 */; };
+		5E0000000000000000000492 /* Synth049 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000491 /* Synth049 */; };
+		5E0000000000000000000502 /* Synth050 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000501 /* Synth050 */; };
+		5E0000000000000000000512 /* Synth051 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000511 /* Synth051 */; };
+		5E0000000000000000000522 /* Synth052 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000521 /* Synth052 */; };
+		5E0000000000000000000532 /* Synth053 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000531 /* Synth053 */; };
+		5E0000000000000000000542 /* Synth054 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000541 /* Synth054 */; };
+		5E0000000000000000000552 /* Synth055 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000551 /* Synth055 */; };
+		5E0000000000000000000562 /* Synth056 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000561 /* Synth056 */; };
+		5E0000000000000000000572 /* Synth057 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000571 /* Synth057 */; };
+		5E0000000000000000000582 /* Synth058 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000581 /* Synth058 */; };
+		5E0000000000000000000592 /* Synth059 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000591 /* Synth059 */; };
+		5E0000000000000000000602 /* Synth060 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000601 /* Synth060 */; };
+		5E0000000000000000000612 /* Synth061 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000611 /* Synth061 */; };
+		5E0000000000000000000622 /* Synth062 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000621 /* Synth062 */; };
+		5E0000000000000000000632 /* Synth063 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000631 /* Synth063 */; };
+		5E0000000000000000000642 /* Synth064 in Frameworks */ = {isa = PBXBuildFile; productRef = 5E0000000000000000000641 /* Synth064 */; };
 		D15C00020000000000000003 /* NeedleFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = D15C00020000000000000002 /* NeedleFoundation */; };
 		27692BB9F5D9450894A7EDA4 /* ErrorLog in Frameworks */ = {isa = PBXBuildFile; productRef = C1939AC39272487C923003B8 /* ErrorLog */; };
 		4679674625E599C100844E8D /* Articles in Frameworks */ = {isa = PBXBuildFile; productRef = 4679674525E599C100844E8D /* Articles */; };
@@ -517,6 +581,70 @@
 				84EE3F152DB8A0A0009D3A8D /* RSTree in Frameworks */,
 				848E84D52DB749670023F3BA /* RSCore in Frameworks */,
 				179D280B26F6F93D003B2E0A /* Zip in Frameworks */,
+				5E0000000000000000000012 /* Synth001 in Frameworks */,
+				5E0000000000000000000022 /* Synth002 in Frameworks */,
+				5E0000000000000000000032 /* Synth003 in Frameworks */,
+				5E0000000000000000000042 /* Synth004 in Frameworks */,
+				5E0000000000000000000052 /* Synth005 in Frameworks */,
+				5E0000000000000000000062 /* Synth006 in Frameworks */,
+				5E0000000000000000000072 /* Synth007 in Frameworks */,
+				5E0000000000000000000082 /* Synth008 in Frameworks */,
+				5E0000000000000000000092 /* Synth009 in Frameworks */,
+				5E0000000000000000000102 /* Synth010 in Frameworks */,
+				5E0000000000000000000112 /* Synth011 in Frameworks */,
+				5E0000000000000000000122 /* Synth012 in Frameworks */,
+				5E0000000000000000000132 /* Synth013 in Frameworks */,
+				5E0000000000000000000142 /* Synth014 in Frameworks */,
+				5E0000000000000000000152 /* Synth015 in Frameworks */,
+				5E0000000000000000000162 /* Synth016 in Frameworks */,
+				5E0000000000000000000172 /* Synth017 in Frameworks */,
+				5E0000000000000000000182 /* Synth018 in Frameworks */,
+				5E0000000000000000000192 /* Synth019 in Frameworks */,
+				5E0000000000000000000202 /* Synth020 in Frameworks */,
+				5E0000000000000000000212 /* Synth021 in Frameworks */,
+				5E0000000000000000000222 /* Synth022 in Frameworks */,
+				5E0000000000000000000232 /* Synth023 in Frameworks */,
+				5E0000000000000000000242 /* Synth024 in Frameworks */,
+				5E0000000000000000000252 /* Synth025 in Frameworks */,
+				5E0000000000000000000262 /* Synth026 in Frameworks */,
+				5E0000000000000000000272 /* Synth027 in Frameworks */,
+				5E0000000000000000000282 /* Synth028 in Frameworks */,
+				5E0000000000000000000292 /* Synth029 in Frameworks */,
+				5E0000000000000000000302 /* Synth030 in Frameworks */,
+				5E0000000000000000000312 /* Synth031 in Frameworks */,
+				5E0000000000000000000322 /* Synth032 in Frameworks */,
+				5E0000000000000000000332 /* Synth033 in Frameworks */,
+				5E0000000000000000000342 /* Synth034 in Frameworks */,
+				5E0000000000000000000352 /* Synth035 in Frameworks */,
+				5E0000000000000000000362 /* Synth036 in Frameworks */,
+				5E0000000000000000000372 /* Synth037 in Frameworks */,
+				5E0000000000000000000382 /* Synth038 in Frameworks */,
+				5E0000000000000000000392 /* Synth039 in Frameworks */,
+				5E0000000000000000000402 /* Synth040 in Frameworks */,
+				5E0000000000000000000412 /* Synth041 in Frameworks */,
+				5E0000000000000000000422 /* Synth042 in Frameworks */,
+				5E0000000000000000000432 /* Synth043 in Frameworks */,
+				5E0000000000000000000442 /* Synth044 in Frameworks */,
+				5E0000000000000000000452 /* Synth045 in Frameworks */,
+				5E0000000000000000000462 /* Synth046 in Frameworks */,
+				5E0000000000000000000472 /* Synth047 in Frameworks */,
+				5E0000000000000000000482 /* Synth048 in Frameworks */,
+				5E0000000000000000000492 /* Synth049 in Frameworks */,
+				5E0000000000000000000502 /* Synth050 in Frameworks */,
+				5E0000000000000000000512 /* Synth051 in Frameworks */,
+				5E0000000000000000000522 /* Synth052 in Frameworks */,
+				5E0000000000000000000532 /* Synth053 in Frameworks */,
+				5E0000000000000000000542 /* Synth054 in Frameworks */,
+				5E0000000000000000000552 /* Synth055 in Frameworks */,
+				5E0000000000000000000562 /* Synth056 in Frameworks */,
+				5E0000000000000000000572 /* Synth057 in Frameworks */,
+				5E0000000000000000000582 /* Synth058 in Frameworks */,
+				5E0000000000000000000592 /* Synth059 in Frameworks */,
+				5E0000000000000000000602 /* Synth060 in Frameworks */,
+				5E0000000000000000000612 /* Synth061 in Frameworks */,
+				5E0000000000000000000622 /* Synth062 in Frameworks */,
+				5E0000000000000000000632 /* Synth063 in Frameworks */,
+				5E0000000000000000000642 /* Synth064 in Frameworks */,
 				D15C00020000000000000003 /* NeedleFoundation in Frameworks */,
 				8424B31B2DB73D530053AA11 /* RSParser in Frameworks */,
 				516B695F24D2F33B00B5702F /* Account in Frameworks */,
@@ -777,6 +905,70 @@
 				513F32762593EE6F0003048F /* Secrets */,
 				513F32792593EE6F0003048F /* SyncDatabase */,
 				179D280A26F6F93D003B2E0A /* Zip */,
+				5E0000000000000000000011 /* Synth001 */,
+				5E0000000000000000000021 /* Synth002 */,
+				5E0000000000000000000031 /* Synth003 */,
+				5E0000000000000000000041 /* Synth004 */,
+				5E0000000000000000000051 /* Synth005 */,
+				5E0000000000000000000061 /* Synth006 */,
+				5E0000000000000000000071 /* Synth007 */,
+				5E0000000000000000000081 /* Synth008 */,
+				5E0000000000000000000091 /* Synth009 */,
+				5E0000000000000000000101 /* Synth010 */,
+				5E0000000000000000000111 /* Synth011 */,
+				5E0000000000000000000121 /* Synth012 */,
+				5E0000000000000000000131 /* Synth013 */,
+				5E0000000000000000000141 /* Synth014 */,
+				5E0000000000000000000151 /* Synth015 */,
+				5E0000000000000000000161 /* Synth016 */,
+				5E0000000000000000000171 /* Synth017 */,
+				5E0000000000000000000181 /* Synth018 */,
+				5E0000000000000000000191 /* Synth019 */,
+				5E0000000000000000000201 /* Synth020 */,
+				5E0000000000000000000211 /* Synth021 */,
+				5E0000000000000000000221 /* Synth022 */,
+				5E0000000000000000000231 /* Synth023 */,
+				5E0000000000000000000241 /* Synth024 */,
+				5E0000000000000000000251 /* Synth025 */,
+				5E0000000000000000000261 /* Synth026 */,
+				5E0000000000000000000271 /* Synth027 */,
+				5E0000000000000000000281 /* Synth028 */,
+				5E0000000000000000000291 /* Synth029 */,
+				5E0000000000000000000301 /* Synth030 */,
+				5E0000000000000000000311 /* Synth031 */,
+				5E0000000000000000000321 /* Synth032 */,
+				5E0000000000000000000331 /* Synth033 */,
+				5E0000000000000000000341 /* Synth034 */,
+				5E0000000000000000000351 /* Synth035 */,
+				5E0000000000000000000361 /* Synth036 */,
+				5E0000000000000000000371 /* Synth037 */,
+				5E0000000000000000000381 /* Synth038 */,
+				5E0000000000000000000391 /* Synth039 */,
+				5E0000000000000000000401 /* Synth040 */,
+				5E0000000000000000000411 /* Synth041 */,
+				5E0000000000000000000421 /* Synth042 */,
+				5E0000000000000000000431 /* Synth043 */,
+				5E0000000000000000000441 /* Synth044 */,
+				5E0000000000000000000451 /* Synth045 */,
+				5E0000000000000000000461 /* Synth046 */,
+				5E0000000000000000000471 /* Synth047 */,
+				5E0000000000000000000481 /* Synth048 */,
+				5E0000000000000000000491 /* Synth049 */,
+				5E0000000000000000000501 /* Synth050 */,
+				5E0000000000000000000511 /* Synth051 */,
+				5E0000000000000000000521 /* Synth052 */,
+				5E0000000000000000000531 /* Synth053 */,
+				5E0000000000000000000541 /* Synth054 */,
+				5E0000000000000000000551 /* Synth055 */,
+				5E0000000000000000000561 /* Synth056 */,
+				5E0000000000000000000571 /* Synth057 */,
+				5E0000000000000000000581 /* Synth058 */,
+				5E0000000000000000000591 /* Synth059 */,
+				5E0000000000000000000601 /* Synth060 */,
+				5E0000000000000000000611 /* Synth061 */,
+				5E0000000000000000000621 /* Synth062 */,
+				5E0000000000000000000631 /* Synth063 */,
+				5E0000000000000000000641 /* Synth064 */,
 				D15C00020000000000000002 /* NeedleFoundation */,
 				843E2F192CF2B8C500ED170F /* RSWeb */,
 				D1A7E100000000000000A001 /* HTMLMetadata */,
@@ -1714,6 +1906,262 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D15C00020000000000000001 /* XCRemoteSwiftPackageReference "needle" */;
 			productName = NeedleFoundation;
+		};
+		5E0000000000000000000011 /* Synth001 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth001;
+		};
+		5E0000000000000000000021 /* Synth002 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth002;
+		};
+		5E0000000000000000000031 /* Synth003 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth003;
+		};
+		5E0000000000000000000041 /* Synth004 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth004;
+		};
+		5E0000000000000000000051 /* Synth005 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth005;
+		};
+		5E0000000000000000000061 /* Synth006 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth006;
+		};
+		5E0000000000000000000071 /* Synth007 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth007;
+		};
+		5E0000000000000000000081 /* Synth008 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth008;
+		};
+		5E0000000000000000000091 /* Synth009 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth009;
+		};
+		5E0000000000000000000101 /* Synth010 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth010;
+		};
+		5E0000000000000000000111 /* Synth011 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth011;
+		};
+		5E0000000000000000000121 /* Synth012 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth012;
+		};
+		5E0000000000000000000131 /* Synth013 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth013;
+		};
+		5E0000000000000000000141 /* Synth014 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth014;
+		};
+		5E0000000000000000000151 /* Synth015 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth015;
+		};
+		5E0000000000000000000161 /* Synth016 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth016;
+		};
+		5E0000000000000000000171 /* Synth017 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth017;
+		};
+		5E0000000000000000000181 /* Synth018 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth018;
+		};
+		5E0000000000000000000191 /* Synth019 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth019;
+		};
+		5E0000000000000000000201 /* Synth020 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth020;
+		};
+		5E0000000000000000000211 /* Synth021 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth021;
+		};
+		5E0000000000000000000221 /* Synth022 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth022;
+		};
+		5E0000000000000000000231 /* Synth023 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth023;
+		};
+		5E0000000000000000000241 /* Synth024 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth024;
+		};
+		5E0000000000000000000251 /* Synth025 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth025;
+		};
+		5E0000000000000000000261 /* Synth026 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth026;
+		};
+		5E0000000000000000000271 /* Synth027 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth027;
+		};
+		5E0000000000000000000281 /* Synth028 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth028;
+		};
+		5E0000000000000000000291 /* Synth029 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth029;
+		};
+		5E0000000000000000000301 /* Synth030 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth030;
+		};
+		5E0000000000000000000311 /* Synth031 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth031;
+		};
+		5E0000000000000000000321 /* Synth032 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth032;
+		};
+		5E0000000000000000000331 /* Synth033 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth033;
+		};
+		5E0000000000000000000341 /* Synth034 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth034;
+		};
+		5E0000000000000000000351 /* Synth035 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth035;
+		};
+		5E0000000000000000000361 /* Synth036 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth036;
+		};
+		5E0000000000000000000371 /* Synth037 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth037;
+		};
+		5E0000000000000000000381 /* Synth038 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth038;
+		};
+		5E0000000000000000000391 /* Synth039 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth039;
+		};
+		5E0000000000000000000401 /* Synth040 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth040;
+		};
+		5E0000000000000000000411 /* Synth041 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth041;
+		};
+		5E0000000000000000000421 /* Synth042 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth042;
+		};
+		5E0000000000000000000431 /* Synth043 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth043;
+		};
+		5E0000000000000000000441 /* Synth044 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth044;
+		};
+		5E0000000000000000000451 /* Synth045 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth045;
+		};
+		5E0000000000000000000461 /* Synth046 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth046;
+		};
+		5E0000000000000000000471 /* Synth047 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth047;
+		};
+		5E0000000000000000000481 /* Synth048 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth048;
+		};
+		5E0000000000000000000491 /* Synth049 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth049;
+		};
+		5E0000000000000000000501 /* Synth050 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth050;
+		};
+		5E0000000000000000000511 /* Synth051 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth051;
+		};
+		5E0000000000000000000521 /* Synth052 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth052;
+		};
+		5E0000000000000000000531 /* Synth053 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth053;
+		};
+		5E0000000000000000000541 /* Synth054 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth054;
+		};
+		5E0000000000000000000551 /* Synth055 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth055;
+		};
+		5E0000000000000000000561 /* Synth056 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth056;
+		};
+		5E0000000000000000000571 /* Synth057 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth057;
+		};
+		5E0000000000000000000581 /* Synth058 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth058;
+		};
+		5E0000000000000000000591 /* Synth059 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth059;
+		};
+		5E0000000000000000000601 /* Synth060 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth060;
+		};
+		5E0000000000000000000611 /* Synth061 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth061;
+		};
+		5E0000000000000000000621 /* Synth062 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth062;
+		};
+		5E0000000000000000000631 /* Synth063 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth063;
+		};
+		5E0000000000000000000641 /* Synth064 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Synth064;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
